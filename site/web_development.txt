@@ -1,0 +1,2 @@
+sb14803 & cb14804
+We have just created a bash script that pulls all html files from the public folder and runs the validation tool iteratively on them. We may use the XHTML approach but will experiment later on to see what we prefer.

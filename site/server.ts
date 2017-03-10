@@ -1,3 +1,4 @@
+"use strict";
 // Run a node.js web server for local development of a static web site.
 // Start with "node server.js" and put pages in a "public" sub-folder.
 // Visit the site at the address printed on the console.
@@ -12,34 +13,46 @@
 // Start the server: change the port to the default 80, if there are no
 // privilege issues and port number 80 isn't already in use.
 
-var http = require("http");
-var fs = require("fs");
-var OK = 200, NotFound = 404, BadType = 415, Error = 500;
-var types, banned;
+// import { lookup } from "mime-types.js";
+// import { createServer } from "http";
+// import * as fs from "fs";
+var DEBUG = false;
+import http = require("http");
+import fs   = require("fs");
+import mime = require("mime-types");
+var OK   = 200, NotFound = 404, BadType = 415, Error = 500;
+var banned;
 start(8080);
 
 // Start the http service.  Accept only requests from localhost, for security.
 function start(port) {
-    types = defineTypes();
     banned = [];
     banUpperCase("./public/", "");
     var service = http.createServer(handle);
     service.listen(port, "localhost");
     var address = "http://localhost";
-    if (port != 80) address = address + ":" + port;
+    if (port != 80)
+        address = address + ":" + port;
     console.log("Server running at", address);
 }
 
 // Serve a request by delivering a file.
 function handle(request, response) {
+    console.log(request.url);
     var url = request.url.toLowerCase();
-    if (url.endsWith("/")) url = url + "index.html";
-    if (isBanned(url)) return fail(response, NotFound, "URL has been banned");
-    var type = findType(url);
-    if (type == null) return fail(response, BadType, "File type unsupported");
-    var file = "./public" + url;
-    fs.readFile(file, ready);
-    function ready(err, content) { deliver(response, type, err, content); }
+    if (url.endsWith("/"))
+        url = url + "index.xhtml";
+
+    var type : string | boolean = findType(url);
+    if (type == null)
+        return fail(response, BadType, "File type unsupported");
+    url = changeURLOnType( url, type );
+    if (isBanned(url))
+        return fail(response, NotFound, "URL has been banned");
+
+    fs.readFile(url, function (err, content) {
+        deliver(response, type, err, content);
+    });
 }
 
 // Forbid any resources which shouldn't be delivered to the browser.
@@ -52,14 +65,16 @@ function isBanned(url) {
 }
 
 // Find the content type to respond with, or undefined.
-function findType(url) {
+function findType(url : string ) {
     var dot = url.lastIndexOf(".");
     var extension = url.substring(dot + 1);
-    return types[extension];
+    if(DEBUG)
+        console.log(mime.lookup(extension));
+    return mime.lookup(extension);
 }
 
 // Deliver the file that has been read in to the browser.
-function deliver(response, type, err, content) {
+function deliver(response , type : string | boolean, err, content) {
     if (err) return fail(response, NotFound, "File not found");
     var typeHeader = { "Content-Type": type };
     response.writeHead(OK, typeHeader);
@@ -88,44 +103,22 @@ function banUpperCase(root, folder) {
     for (var i=0; i<names.length; i++) {
         var name = names[i];
         var file = folder + "/" + name;
-        if (name != name.toLowerCase()) banned.push(file.toLowerCase());
+        if (name != name.toLowerCase())
+            banned.push(file.toLowerCase());
         var mode = fs.statSync(root + file).mode;
         if ((mode & folderBit) == 0) continue;
         banUpperCase(root, file);
     }
 }
 
-// The most common standard file extensions are supported, and html is
-// delivered as xhtml ("application/xhtml+xml").  Some common non-standard file
-// extensions are explicitly excluded.  This table is defined using a function
-// rather than just a global variable, because otherwise the table would have
-// to appear before calling start().  NOTE: for a more complete list, install
-// the mime module and adapt the list it provides.
-function defineTypes() {
-    var types = {
-        html : "application/xhtml+xml",
-        css  : "text/css",
-        js   : "application/javascript",
-        png  : "image/png",
-        gif  : "image/gif",    // for images copied unchanged
-        jpeg : "image/jpeg",   // for images copied unchanged
-        jpg  : "image/jpeg",   // for images copied unchanged
-        svg  : "image/svg+xml",
-        json : "application/json",
-        pdf  : "application/pdf",
-        txt  : "text/plain",
-        ttf  : "application/x-font-ttf",
-        woff : "application/font-woff",
-        aac  : "audio/aac",
-        mp3  : "audio/mpeg",
-        mp4  : "video/mp4",
-        webm : "video/webm",
-        ico  : "image/x-icon", // just for favicon.ico
-        xhtml: undefined,      // non-standard, use .html
-        htm  : undefined,      // non-standard, use .html
-        rar  : undefined,      // non-standard, platform dependent, use .zip
-        doc  : undefined,      // non-standard, platform dependent, use .pdf
-        docx : undefined,      // non-standard, platform dependent, use .pdf
+function changeURLOnType( url, type ){
+    console.log(url,type);
+    switch (type) {
+        case "application/javascript":
+            url = "./scripts" + url;
+            break;
+        default:
+            url = "./public" + url;
     }
-    return types;
+    return url;
 }

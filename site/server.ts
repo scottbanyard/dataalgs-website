@@ -26,8 +26,7 @@ import { lookup, contentType } from "mime-types";
 import * as sqlite3 from 'sqlite3';
 sqlite3.verbose();
 var db = new sqlite3.Database(':memory:');
-
-var OK   = 200, NotFound = 404, BadType = 415, Error = 500;
+var OK = 200, NotFound = 404, BadType = 415, Error = 500;
 var banned;
 start(8080);
 

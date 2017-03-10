@@ -26,3 +26,7 @@
 ## D3 ?
 
 - Slick graphics
+
+## SQLITE3
+
+- Embedded database

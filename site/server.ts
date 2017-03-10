@@ -1,3 +1,6 @@
+/// <reference path="node_modules/ts-optional/index.d.ts" />
+require("ts-optional")
+
 "use strict";
 // Run a node.js web server for local development of a static web site.
 // Start with "node server.js" and put pages in a "public" sub-folder.
@@ -17,18 +20,18 @@
 // import { createServer } from "http";
 // import * as fs from "fs";
 var DEBUG = false;
-import http = require("http");
-import fs   = require("fs");
-import mime = require("mime-types");
+import { createServer } from "http";
+import * as fs from "fs";
+import { lookup, contentType } from "mime-types";
 var OK   = 200, NotFound = 404, BadType = 415, Error = 500;
 var banned;
 start(8080);
 
 // Start the http service.  Accept only requests from localhost, for security.
-function start(port) {
+function start( port : number ) : void {
     banned = [];
     banUpperCase("./public/", "");
-    var service = http.createServer(handle);
+    var service = createServer(handle);
     service.listen(port, "localhost");
     var address = "http://localhost";
     if (port != 80)
@@ -39,44 +42,52 @@ function start(port) {
 // Serve a request by delivering a file.
 function handle(request, response) {
     console.log(request.url);
-    var url = request.url.toLowerCase();
+    var url : string = request.url.toLowerCase();
     if (url.endsWith("/"))
         url = url + "index.xhtml";
 
-    var type : string | boolean = findType(url);
-    if (type == null)
-        return fail(response, BadType, "File type unsupported");
-    url = changeURLOnType( url, type );
-    if (isBanned(url))
-        return fail(response, NotFound, "URL has been banned");
+    var type : Optional<string> = findType( url );
+    if( type.isNil ) {
+        fail(response, BadType, "File type unsupported");
+    }
+    else {
+        var typeHeader = contentType( type.valueOf() );
+        url = typeDirectory( type.valueOf() ) + url;
+        if (isBanned(url))
+            return fail(response, NotFound, "URL has been banned");
 
-    fs.readFile(url, function (err, content) {
-        deliver(response, type, err, content);
-    });
+        fs.readFile(url, (err, content) =>
+                        deliver(response, contentType(type.valueOf()), err, content));
+    }
+
 }
 
 // Forbid any resources which shouldn't be delivered to the browser.
-function isBanned(url) {
+function isBanned( url : string ) : boolean {
     for (var i=0; i<banned.length; i++) {
         var b = banned[i];
-        if (url.startsWith(b)) return true;
+        if (url.startsWith(b))
+            return true;
     }
     return false;
 }
 
 // Find the content type to respond with, or undefined.
-function findType(url : string ) {
+function findType( url : string ) : Optional<string> {
     var dot = url.lastIndexOf(".");
-    var extension = url.substring(dot + 1);
-    if(DEBUG)
-        console.log(mime.lookup(extension));
-    return mime.lookup(extension);
+    var extension : string = url.substring(dot + 1);
+    var type = lookup(extension);
+
+    if (type == null || typeof type === "boolean" )
+        return nil;
+    else
+        return type;
 }
 
 // Deliver the file that has been read in to the browser.
-function deliver(response , type : string | boolean, err, content) {
-    if (err) return fail(response, NotFound, "File not found");
-    var typeHeader = { "Content-Type": type };
+function deliver(response , typeHeader, err, content) {
+    if (err)
+        return fail(response, NotFound, "File not found");
     response.writeHead(OK, typeHeader);
     response.write(content);
     response.end();
@@ -88,6 +99,7 @@ function fail(response, code, text) {
     response.writeHead(code, textTypeHeader);
     response.write(text, "utf8");
     response.end();
+    return nil;
 }
 
 // Check a folder for files/subfolders with non-lowercase names.  Add them to
@@ -97,7 +109,7 @@ function fail(response, code, text) {
 // expensive file system operations during normal execution.  A file with a
 // non-lowercase name added while the server is running will get delivered, but
 // it will be detected and banned when the server is next restarted.
-function banUpperCase(root, folder) {
+function banUpperCase(root : string, folder : string) : void {
     var folderBit = 1 << 14;
     var names = fs.readdirSync(root + folder);
     for (var i=0; i<names.length; i++) {
@@ -111,14 +123,11 @@ function banUpperCase(root, folder) {
     }
 }
 
-function changeURLOnType( url, type ){
-    console.log(url,type);
+function typeDirectory( type : string ) : string {
     switch (type) {
         case "application/javascript":
-            url = "./scripts" + url;
-            break;
+            return "./scripts";
         default:
-            url = "./public" + url;
+            return "./public";
     }
-    return url;
 }

@@ -3,9 +3,14 @@
         "outDir": ".",
         "allowJs": true,
         "target": "es6",
-        "moduleResolution": "node"
+        "moduleResolution": "node",
+        "types" :[
+            "node"
+        ]
     },
-    "include": [
-        "./scripts/**/*"
-    ]
+    "devDependencies": {
+   "@types/node": "^6.0.45",
+   "ts-node": "^1.5.2",
+   "typescript": "2.2.1"
+    }
 }

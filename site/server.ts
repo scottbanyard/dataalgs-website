@@ -25,13 +25,13 @@ import * as fs from "fs";
 import { lookup, contentType } from "mime-types";
 import * as sqlite3 from 'sqlite3';
 sqlite3.verbose();
-var db = new sqlite3.Database(':memory:');
+var db = new sqlite3.Database('database.sqlite'); // persistent database file (':memory:' is a non-persistent database in memory)
 var OK = 200, NotFound = 404, BadType = 415, Error = 500;
 var banned;
 start(8080);
 
 db.serialize(function() {
-  db.run("CREATE TABLE lorem (info TEXT)");
+  db.run("CREATE TABLE IF NOT EXISTS lorem (info TEXT)");
 
   var stmt = db.prepare("INSERT INTO lorem VALUES (?)");
   for (var i = 0; i < 10; i++) {

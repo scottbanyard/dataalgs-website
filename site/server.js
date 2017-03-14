@@ -12,18 +12,6 @@ var db = new sqlite3.Database('database.sqlite');
 var OK = 200, NotFound = 404, BadType = 415, Error = 500;
 var banned;
 start(8080);
-db.serialize(function () {
-    db.run("CREATE TABLE IF NOT EXISTS lorem (info TEXT)");
-    var stmt = db.prepare("INSERT INTO lorem VALUES (?)");
-    for (var i = 0; i < 10; i++) {
-        stmt.run("Ipsum " + i);
-    }
-    stmt.finalize();
-    db.each("SELECT rowid AS id, info FROM lorem", function (err, row) {
-        console.log(row.id + ": " + row.info);
-    });
-});
-db.close();
 function start(port) {
     banned = [];
     banUpperCase("./public/", "");

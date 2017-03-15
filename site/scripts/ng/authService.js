@@ -4,18 +4,33 @@ angular.module('myApp').factory('authService', function ($http, $q) {
 
   return {
         // Attempt logging in by contacting server with login details
-        tryLogin: function (loginDetails) {
-            var deferred = $q.defer();
+        tryLogin: function (userDetails) {
+          var deferred = $q.defer();
 
-            $http({
-                url: apiURL + "login",
-                method: "POST",
-                params: { data: loginDetails }
-            }).then(function (res) {
-                deferred.resolve(res);
-            })
+          $http({
+            url: apiURL + "login",
+            method: "POST",
+            params: { data: userDetails }
+          }).then(function (res) {
+            deferred.resolve(res);
+          })
 
-            return deferred.promise;
+          return deferred.promise;
+        },
+
+        // Register person
+        tryRegister: function (userDetails) {
+          var deferred = $q.defer();
+
+          $http({
+            url: apiURL + "register",
+            method: "POST",
+            params: { data: userDetails }
+          }).then(function (res) {
+            deferred.resolve(res);
+          })
+
+          return deferred.promise;
         }
     }
 });

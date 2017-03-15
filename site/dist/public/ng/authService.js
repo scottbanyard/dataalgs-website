@@ -7,14 +7,13 @@ angular.module('myApp').factory('authService', function ($http, $q) {
         tryLogin: function (userDetails) {
           var deferred = $q.defer();
 
-          $http({
-            url: apiURL + "login",
-            method: "POST",
-            params: { data: userDetails }
-          }).then(function (res) {
+          $http.post(apiURL + "login", userDetails)
+          .then(function (res) {
             deferred.resolve(res);
           })
-
+          .catch(function( err) {
+            console.log("Error Login POST: " + err);
+          })
           return deferred.promise;
         },
 
@@ -22,14 +21,13 @@ angular.module('myApp').factory('authService', function ($http, $q) {
         tryRegister: function (userDetails) {
           var deferred = $q.defer();
 
-          $http({
-            url: apiURL + "register",
-            method: "POST",
-            params: { data: userDetails }
-          }).then(function (res) {
+          $http.post(apiURL + "register", userDetails)
+          .then(function (res) {
             deferred.resolve(res);
           })
-
+          .catch(function( err) {
+            console.log("Error Register POST: " + err);
+          })
           return deferred.promise;
         }
     }

@@ -1,10 +1,16 @@
 angular.module('myApp').controller('authController', function($scope, authService) {
 
   $scope.registerPerson = function() {
-    console.log("Registering with: " + $scope.user.email + " , and password: " + $scope.user.password);
-    authService.tryRegister(JSON.stringify($scope.user)).then(function (response) {
-      console.log("Successful register");
-      // Take to login page to login with new details
+    authService.tryRegister(JSON.stringify($scope.user)).then(function (res) {
+      var response = angular.fromJson(res).data;
+      if (response.success == '1') {
+        // Take to login page to login with new details
+        console.log("Take me to login page!");
+      } else {
+        // Show error via pop up, for now alert (I have used a much nicer pop up library before I'll have to find it)
+        alert(response.error);
+        console.log(response.error);
+      }
     },
     function(err) {
       console.log("Register Error :" + err);
@@ -12,10 +18,16 @@ angular.module('myApp').controller('authController', function($scope, authServic
   }
 
   $scope.loginPerson = function() {
-    console.log("Logging in with email: " + $scope.user.email + " , and password: " + $scope.user.password);
-    authService.tryLogin(JSON.stringify($scope.user)).then(function (response) {
-      console.log("Successful login");
-      // Show logged in
+    authService.tryLogin(JSON.stringify($scope.user)).then(function (res) {
+      var response = angular.fromJson(res).data;
+      if (response.success == '1') {
+        // Take to home page and show signed in
+        console.log("Take me to home page and show signed in!");
+      } else {
+        // Show error via pop up, for now alert (I have used a much nicer pop up library before I'll have to find it)
+        alert(response.error);
+        console.log(response.error);
+      }
     },
     function(err) {
       console.log("Login Error :" + err);

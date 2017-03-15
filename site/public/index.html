@@ -2,7 +2,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" ng-app="myApp">
     <head>
         <meta charset="utf-8" />
-
         <!-- JQuery -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
         <!-- Bootstrap CSS -->
@@ -21,6 +20,10 @@
         <script src="ng/homeController.js" type="text/javascript"></script>
         <script src="ng/authController.js" type="text/javascript"></script>
         <script src="ng/authService.js" type="text/javascript"></script>
+
+        <!-- Sweet Alert -->
+        <script src="scripts/sweetalert.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/sweet-alert.css">
 
         <!-- Title changes dependent on the view -->
         <title ng-bind="$state.current.data.pageTitle"></title>

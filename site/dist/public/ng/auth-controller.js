@@ -1,6 +1,6 @@
 angular.module('myApp').controller('authController', function($scope, authService) {
 
-  $scope.registerPerson = function() {
+  $scope.register_person = function() {
     authService.tryRegister(JSON.stringify($scope.user)).then(function (res) {
       var response = angular.fromJson(res).data;
       if (response.success == '1') {
@@ -18,7 +18,7 @@ angular.module('myApp').controller('authController', function($scope, authServic
     });
   }
 
-  $scope.loginPerson = function() {
+  $scope.login_person = function() {
     authService.tryLogin(JSON.stringify($scope.user)).then(function (res) {
       var response = angular.fromJson(res).data;
       if (response.success == '1') {

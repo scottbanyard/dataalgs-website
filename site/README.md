@@ -18,6 +18,7 @@
 ## AngularJS
 
 - Very useful for dynamic pages
+- Client-Side routing using ui-router allows for a Single-Page-Application, don't need to constantly refresh the page to load a new page, just changes view.
 
 ## Bootstrap
 
@@ -30,3 +31,7 @@
 ## SQLITE3
 
 - Embedded database
+
+## XHTML / validation
+
+- After many attempts of trying to integrate XHTML with Angular, we have decided that we are going to validate our HTML files ourselves to ensure all pages are correctly written to HTML standards. Angular's dynamic options are heavily reliant on boolean operators such as &&, but using a strict XHTML means we cannot use these but instead use &amp;&amp. We feel like this makes the HMTL unreadable. Other things like form validation for some reason didn't work with XHTML, as the dynamic button to submit a form stayed inactive even when input was given. We therefore backtracked to use the The Nu Html Checker (the vnu.jar validator) to ensure correctness in our HTML. We make sure we run this everytime we make a new page or a change in the HTML. (Probably should prove this somehow? Create logs? Idk)

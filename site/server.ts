@@ -55,16 +55,7 @@ function configureApplication( app : express.Application ) : void
       }
   }
 
-  var options = { setHeaders: deliverXHTML };
-
-  // Called by express.static.  Deliver response as XHTML.
-  function deliverXHTML(res, path, stat) : void {
-      if (path.endsWith(".html")) {
-          res.header("Content-Type", "application/xhtml+xml");
-      }
-  }
-
-  app.use(express.static(__dirname + '/dist/public', options));
+  app.use(express.static(__dirname + '/dist/public'));
 
   // NB Only dev - logs to console
   app.use(morgan('dev'));

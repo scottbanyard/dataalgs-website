@@ -8,21 +8,21 @@ app.config(function ($stateProvider, $urlRouterProvider) {
   $stateProvider
       .state('homePage', {
           url: '/',
-          templateUrl: 'ng-partials/partial-home.xhtml',
+          templateUrl: 'ng-partials/partial-home.html',
           controller: 'homeController',
           data: { pageTitle: "Home" }
       })
       .state('loginPage', {
           url: '/login',
-          templateUrl: 'ng-partials/partial-login.xhtml',
+          templateUrl: 'ng-partials/partial-login.html',
           controller: 'authController',
           data: { pageTitle: "Login" }
       })
       .state('registerPage', {
           url: '/register',
-          templateUrl: 'ng-partials/partial-register.xhtml',
+          templateUrl: 'ng-partials/partial-register.html',
           controller: 'authController',
-          data: { pageTitle: "Login" }
+          data: { pageTitle: "Register" }
       })
 });
 

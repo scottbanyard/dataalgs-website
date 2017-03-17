@@ -4,5 +4,5 @@ for file in *.html
 do
   let counter="$counter"+1
   printf "\n\n--- PAGE $counter : $file ---\n\n"
-  java -jar ../../vnu.jar "$file"
+  java -jar ../../../vnu.jar "$file"
 done

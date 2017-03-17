@@ -40,13 +40,7 @@ function configureApplication(app) {
             banUpperCase(root, file);
         }
     }
-    var options = { setHeaders: deliverXHTML };
-    function deliverXHTML(res, path, stat) {
-        if (path.endsWith(".html")) {
-            res.header("Content-Type", "application/xhtml+xml");
-        }
-    }
-    app.use(express.static(__dirname + '/dist/public', options));
+    app.use(express.static(__dirname + '/dist/public'));
     app.use(morgan('dev'));
     app.use(bodyParser.urlencoded({ 'extended': false }));
     app.use(bodyParser.json({ type: 'application/json' }));

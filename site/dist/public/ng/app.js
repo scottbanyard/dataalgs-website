@@ -24,6 +24,12 @@ app.config(function ($stateProvider, $urlRouterProvider) {
           controller: 'authController',
           data: { pageTitle: "Register" }
       })
+      .state('aboutPage', {
+          url: '/about',
+          templateUrl: 'ng-partials/partial-about.html',
+          controller: 'homeController',
+          data: { pageTitle: "About Us" }
+      })
 });
 
 // Update global rootScope to contain state so can get pageTitle

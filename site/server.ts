@@ -11,20 +11,20 @@ configureApplication( app );
 
 function configureApplication( app : express.Application ) : void
 {
-  var banned = [];
+  var banned : string[] = [];
   banUpperCase("./dist/public/", "");
 
   app.use(lower);
   app.use(ban)
 
   // Make the URL lower case.
-  function lower(req, res, next) {
+  function lower(req, res, next) : void {
       req.url = req.url.toLowerCase();
       next();
   }
 
   // Forbid access to the URLs in the banned list.
-  function ban(req, res, next) {
+  function ban(req, res, next) : void {
       for (var i=0; i<banned.length; i++) {
           var b = banned[i];
           if (req.url.startsWith(b)) {
@@ -55,7 +55,14 @@ function configureApplication( app : express.Application ) : void
       }
   }
 
-  app.use(express.static(__dirname + '/dist/public'));
+  // Called by express.static.  Deliver response as XHTML.
+  function deliverXHTML(res, path, stat) : void {
+      if (path.endsWith(".html")) {
+          res.header("Content-Type", "application/xhtml+xml");
+      }
+  }
+  var options = { setHeaders: deliverXHTML };
+  app.use(express.static(__dirname + '/dist/public', options));
 
   // NB Only dev - logs to console
   app.use(morgan('dev'));
@@ -88,7 +95,7 @@ function setupApi () : void {
   // -------------------- API --------------------
 
   // LOGIN
-  router.post('/login', function(req, res) {
+  router.post('/login', function(req, res) : void {
     var email : string = req.body.email;
     var password : string = req.body.password;
     // CHECK WITH DATABASE HERE USING LOGIN.TS
@@ -99,16 +106,16 @@ function setupApi () : void {
   });
 
   // REGISTER
-  router.post('/register', function(req, res) {
-    var name : string = req.body.firstName;
+  router.post('/register', function(req, res) : void {
+    var firstname : string = req.body.firstName;
     var lastname : string = req.body.lastName;
     var email : string = req.body.email;
     var password : string = req.body.password;
+    // CHECK E-MAIL NOT ALREADY USED
     // REGISTER USER INTO DATABASE
     var error : string = "error !!!!";
-    var success : string = "0";
+    var success : string = "1";
     // if successful, change success to "1", if not, leave it as it is and put the error in var error
     res.json({ success: success, error: error});
   });
-
 }

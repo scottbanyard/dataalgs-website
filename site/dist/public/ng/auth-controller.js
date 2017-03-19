@@ -1,15 +1,29 @@
-angular.module('myApp').controller('authController', function($scope, authService) {
+angular.module('myApp').controller('authController', function($scope, authService, $state) {
 
   $scope.registerPerson = function() {
     authService.tryRegister(JSON.stringify($scope.user)).then(function (res) {
       var response = angular.fromJson(res).data;
       if (response.success == '1') {
         // Take to login page to login with new details
-        console.log("Take me to login page!");
-        swal("Welcome " + $scope.user.firstName + "!", "You have successfully registered!", "success");
+        swal({
+          html:true,
+          title: "<b>Welcome " + $scope.user.firstName + "!</b>",
+          text: "You have successfully registered!<br/>You will now be taken to the login page.",
+          type: "success"
+          },
+          function(){
+            swal.close();
+            $state.go('loginPage');
+        });
       } else {
-        // Show error via pop up, for now alert (I have used a much nicer pop up library before I'll have to find it)
-        swal("Error!", response.error, "error");
+        swal({
+          title: "Error!",
+          text: response.error,
+          type: "error"
+          },
+          function(){
+            swal.close();
+        });
         console.log(response.error);
       }
     },
@@ -26,7 +40,14 @@ angular.module('myApp').controller('authController', function($scope, authServic
         console.log("Take me to home page and show signed in!");
       } else {
         // Show error via pop up, for now alert (I have used a much nicer pop up library before I'll have to find it)
-        swal("Error!", response.error, "error");
+        swal({
+          title: "Error!",
+          text: response.error,
+          type: "error"
+          },
+          function(){
+            swal.close();
+        });
         console.log(response.error);
       }
     },

@@ -40,7 +40,13 @@ function configureApplication(app) {
             banUpperCase(root, file);
         }
     }
-    app.use(express.static(__dirname + '/dist/public'));
+    function deliverXHTML(res, path, stat) {
+        if (path.endsWith(".html")) {
+            res.header("Content-Type", "application/xhtml+xml");
+        }
+    }
+    var options = { setHeaders: deliverXHTML };
+    app.use(express.static(__dirname + '/dist/public', options));
     app.use(morgan('dev'));
     app.use(bodyParser.urlencoded({ 'extended': false }));
     app.use(bodyParser.json({ type: 'application/json' }));
@@ -63,12 +69,12 @@ function setupApi() {
         res.json({ success: success, error: error });
     });
     router.post('/register', function (req, res) {
-        var name = req.body.firstName;
+        var firstname = req.body.firstName;
         var lastname = req.body.lastName;
         var email = req.body.email;
         var password = req.body.password;
         var error = "error !!!!";
-        var success = "0";
+        var success = "1";
         res.json({ success: success, error: error });
     });
 }

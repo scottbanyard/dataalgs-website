@@ -5,12 +5,29 @@ import * as morgan  from 'morgan';
 import * as bodyParser from 'body-parser';
 import * as methodOverride from 'method-override';
 import * as fs from "fs";
+import * as https from "https";
+import * as http from "http";
 
 var app : express.Application = express();
+var httpApp : express.Application = express();
+configureHttpApplication( httpApp );
 configureApplication( app );
+
+// http app used to redirect user to https express app
+function configureHttpApplication ( app : express.Application ) : void
+{
+  httpApp.set('port', process.env.PORT || 8070);
+  httpApp.get("*", function (req, res, next) {
+    res.redirect("https://localhost:8080" + req.path);
+  });
+  http.createServer(httpApp).listen(httpApp.get('port'), function() {
+    console.log('Express HTTP server listening on port ' + httpApp.get('port'));
+  });
+}
 
 function configureApplication( app : express.Application ) : void
 {
+  app.set('port', process.env.PORT || 8080);
   var banned : string[] = [];
   banUpperCase("./dist/public/", "");
 
@@ -34,6 +51,12 @@ function configureApplication( app : express.Application ) : void
       }
       next();
   }
+
+  // Read in SSL certificates to provide secure data transmission using HTTPS
+  var sslOptions = {
+    key: fs.readFileSync('ssl/server.key'),
+    cert: fs.readFileSync('ssl/server.crt'),
+  };
 
   // Check a folder for files/subfolders with non-lowercase names.  Add them to
   // the banned list so they don't get delivered, making the site case sensitive,
@@ -77,9 +100,10 @@ function configureApplication( app : express.Application ) : void
   // Need to setup API before we listen
   setupApi();
 
-  // Start up
-  app.listen(8080);
-  console.log("App listening on port 8080");
+  // Start up secure HTTPS server
+  var server = https.createServer(sslOptions, app).listen(app.get('port'), function(){
+    console.log("Express HTTPS server listening on port " + app.get('port'));
+  });
 }
 
 function setupApi () : void {

@@ -5,9 +5,23 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const methodOverride = require("method-override");
 const fs = require("fs");
+const https = require("https");
+const http = require("http");
 var app = express();
+var httpApp = express();
+configureHttpApplication(httpApp);
 configureApplication(app);
+function configureHttpApplication(app) {
+    httpApp.set('port', process.env.PORT || 8070);
+    httpApp.get("*", function (req, res, next) {
+        res.redirect("https://localhost:8080" + req.path);
+    });
+    http.createServer(httpApp).listen(httpApp.get('port'), function () {
+        console.log('Express HTTP server listening on port ' + httpApp.get('port'));
+    });
+}
 function configureApplication(app) {
+    app.set('port', process.env.PORT || 8080);
     var banned = [];
     banUpperCase("./dist/public/", "");
     app.use(lower);
@@ -26,6 +40,10 @@ function configureApplication(app) {
         }
         next();
     }
+    var sslOptions = {
+        key: fs.readFileSync('ssl/server.key'),
+        cert: fs.readFileSync('ssl/server.crt'),
+    };
     function banUpperCase(root, folder) {
         var folderBit = 1 << 14;
         var names = fs.readdirSync(root + folder);
@@ -52,8 +70,9 @@ function configureApplication(app) {
     app.use(bodyParser.json({ type: 'application/json' }));
     app.use(methodOverride());
     setupApi();
-    app.listen(8080);
-    console.log("App listening on port 8080");
+    var server = https.createServer(sslOptions, app).listen(app.get('port'), function () {
+        console.log("Express HTTPS server listening on port " + app.get('port'));
+    });
 }
 function setupApi() {
     var router = express.Router();

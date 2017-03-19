@@ -7,12 +7,14 @@ const methodOverride = require("method-override");
 const fs = require("fs");
 const https = require("https");
 const http = require("http");
+const helmet = require("helmet");
 var app = express();
 var httpApp = express();
 configureHttpApplication(httpApp);
 configureApplication(app);
 function configureHttpApplication(app) {
     httpApp.set('port', process.env.PORT || 8070);
+    httpApp.use(helmet());
     httpApp.get("*", function (req, res, next) {
         res.redirect("https://localhost:8080" + req.path);
     });
@@ -24,6 +26,7 @@ function configureApplication(app) {
     app.set('port', process.env.PORT || 8080);
     var banned = [];
     banUpperCase("./dist/public/", "");
+    app.use(helmet());
     app.use(lower);
     app.use(ban);
     function lower(req, res, next) {

@@ -7,6 +7,7 @@ import * as methodOverride from 'method-override';
 import * as fs from "fs";
 import * as https from "https";
 import * as http from "http";
+import * as helmet from "helmet";
 
 var app : express.Application = express();
 var httpApp : express.Application = express();
@@ -17,6 +18,7 @@ configureApplication( app );
 function configureHttpApplication ( app : express.Application ) : void
 {
   httpApp.set('port', process.env.PORT || 8070);
+  httpApp.use(helmet())
   httpApp.get("*", function (req, res, next) {
     res.redirect("https://localhost:8080" + req.path);
   });
@@ -30,7 +32,8 @@ function configureApplication( app : express.Application ) : void
   app.set('port', process.env.PORT || 8080);
   var banned : string[] = [];
   banUpperCase("./dist/public/", "");
-
+  
+  app.use(helmet())
   app.use(lower);
   app.use(ban)
 

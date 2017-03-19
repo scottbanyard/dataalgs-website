@@ -30,6 +30,7 @@
     "body-parser": "^1.17.1",
     "cookie-parser": "^1.4.3",
     "express": "^4.15.2",
+    "helmet": "^3.5.0",
     "method-override": "^2.3.7",
     "morgan": "^1.8.1",
     "ts-optional": "^1.0.2"

@@ -41,3 +41,4 @@
 - Easy to setup an API
 - Delivers XHTML from HTML pages
 - Uses SSL certs / keys to provide a secure HTTPS server to ensure safe data transmission (certs / keys created using openSSL http://www.robpeck.com/2010/10/google-chrome-mac-os-x-and-self-signed-ssl-certificates/#.WM8JaxKLQl4)
+- 'Helmet can help protect your app from some well-known web vulnerabilities by setting HTTP headers appropriately. Helmet is actually just a collection of nine smaller middleware functions that set security-related HTTP headers'

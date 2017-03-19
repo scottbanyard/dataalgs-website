@@ -24,7 +24,7 @@
 
 - Efficient styling options using grids
 
-## D3 ?
+## D3.js
 
 - Slick graphics
 
@@ -34,4 +34,10 @@
 
 ## XHTML / validation
 
-- After many attempts of trying to integrate XHTML with Angular, we have decided that we are going to validate our HTML files ourselves to ensure all pages are correctly written to HTML standards. Angular's dynamic options are heavily reliant on boolean operators such as &&, but using a strict XHTML means we cannot use these but instead use &amp;&amp. We feel like this makes the HMTL unreadable. Other things like form validation for some reason didn't work with XHTML, as the dynamic button to submit a form stayed inactive even when input was given. We therefore backtracked to use the The Nu Html Checker (the vnu.jar validator) to ensure correctness in our HTML. We make sure we run this everytime we make a new page or a change in the HTML. (Probably should prove this somehow? Create logs? Idk)
+- XHTML introduces stricter error handling. A lot of current websites are and displayed despite technical errors because of the lack of validation in HTML.
+
+## Express.js
+
+- Easy to setup an API
+- Delivers XHTML from HTML pages
+- Uses SSL certs / keys to provide a secure HTTPS server to ensure safe data transmission (certs / keys created using openSSL http://www.robpeck.com/2010/10/google-chrome-mac-os-x-and-self-signed-ssl-certificates/#.WM8JaxKLQl4)

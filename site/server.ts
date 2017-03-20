@@ -1,59 +1,64 @@
 "use strict";
 // set up ========================
-import * as express from 'express';
-import * as morgan  from 'morgan';
-import * as bodyParser from 'body-parser';
+import * as express        from 'express';
+import * as morgan         from 'morgan';
+import * as bodyParser     from 'body-parser';
 import * as methodOverride from 'method-override';
-import * as fs from "fs";
-import * as https from "https";
-import * as http from "http";
-import * as helmet from "helmet";
+import * as fs             from "fs";
+import * as https          from "https";
+import * as http           from "http";
+import * as helmet         from "helmet";
+import * as sqlite3        from "sqlite3";
+import * as csprng         from "csprng";
+import { createHash }      from "crypto";
 
+var db = new sqlite3.Database('database.sqlite');
 var app : express.Application = express();
 var httpApp : express.Application = express();
 configureHttpApplication( httpApp );
 configureApplication( app );
 
 // http app used to redirect user to https express app
-function configureHttpApplication ( app : express.Application ) : void
+function configureHttpApplication ( httpApp : express.Application ) : void
 {
-  httpApp.set('port', process.env.PORT || 8070);
-  httpApp.use(helmet())
-  httpApp.get("*", function (req, res, next) {
+    httpApp.set('port', process.env.PORT || 8070);
+    httpApp.use(helmet())
+    httpApp.get("*", function (req, res, next) {
     res.redirect("https://localhost:8080" + req.path);
-  });
-  http.createServer(httpApp).listen(httpApp.get('port'), function() {
-    console.log('Express HTTP server listening on port ' + httpApp.get('port'));
-  });
+    });
+    http.createServer(httpApp).listen(httpApp.get('port'), function() {
+        console.log('Express HTTP server listening on port ' +
+                        httpApp.get('port'));
+    });
 }
 
 function configureApplication( app : express.Application ) : void
 {
-  app.set('port', process.env.PORT || 8080);
-  var banned : string[] = [];
-  banUpperCase("./dist/public/", "");
-  
-  app.use(helmet())
-  app.use(lower);
-  app.use(ban)
+    app.set('port', process.env.PORT || 8080);
+    var banned : string[] = [];
+    banUpperCase("./dist/public/", "");
+
+    app.use(helmet())
+    app.use(lower);
+    app.use(ban)
 
   // Make the URL lower case.
-  function lower(req, res, next) : void {
-      req.url = req.url.toLowerCase();
-      next();
-  }
+    function lower(req, res, next) : void {
+        req.url = req.url.toLowerCase();
+        next();
+    }
 
   // Forbid access to the URLs in the banned list.
-  function ban(req, res, next) : void {
-      for (var i=0; i<banned.length; i++) {
-          var b = banned[i];
-          if (req.url.startsWith(b)) {
-              res.status(404).send("Filename not lower case");
-              return;
-          }
-      }
-      next();
-  }
+    function ban(req, res, next) : void {
+        for (var i=0; i<banned.length; i++) {
+            var b = banned[i];
+            if (req.url.startsWith(b)) {
+                res.status(404).send("Filename not lower case");
+                return;
+            }
+        }
+        next();
+    }
 
   // Read in SSL certificates to provide secure data transmission using HTTPS
   var sslOptions = {
@@ -104,9 +109,9 @@ function configureApplication( app : express.Application ) : void
   setupApi();
 
   // Start up secure HTTPS server
-  var server = https.createServer(sslOptions, app).listen(app.get('port'), function(){
-    console.log("Express HTTPS server listening on port " + app.get('port'));
-  });
+  var server = https.createServer(sslOptions, app).listen(app.get('port'), () =>
+      console.log("Express HTTPS server listening on port " + app.get('port'))
+  );
 }
 
 function setupApi () : void {
@@ -126,23 +131,73 @@ function setupApi () : void {
     var email : string = req.body.email;
     var password : string = req.body.password;
     // CHECK WITH DATABASE HERE USING LOGIN.TS
-    var error : string = "error !!!!";
-    var success : string = "0";
-    // if successful, change success to "1", if not, leave it as it is and put the error in var error
-    res.json({ success: success, error: error});
+    attemptLogin(email,password,res);
   });
 
   // REGISTER
   router.post('/register', function(req, res) : void {
-    var firstname : string = req.body.firstName;
-    var lastname : string = req.body.lastName;
-    var email : string = req.body.email;
-    var password : string = req.body.password;
-    // CHECK E-MAIL NOT ALREADY USED
-    // REGISTER USER INTO DATABASE
-    var error : string = "error !!!!";
-    var success : string = "1";
-    // if successful, change success to "1", if not, leave it as it is and put the error in var error
-    res.json({ success: success, error: error});
+    var firstName : string = req.body.firstName;
+    var lastName : string = req.body.lastName;
+    createNewUser( firstName + lastName,
+                   req.body.email,
+                   req.body.password,
+                   res );
   });
+}
+
+
+
+// Database specifics
+// Hashes a password
+function hashPW( password : string, salt : string ) : string
+{
+    return createHash( 'sha256')
+           .update( salt + password )
+           .digest('hex');
+}
+
+function attemptLogin( email : string,
+                       password : string,
+                       res )
+{
+    db.get('SELECT PassSalt, PassHash FROM UserAccounts WHERE Email = ?', email, (err,row) => {
+        if (err){
+            console.error('Error:', err);
+            res.json({ success: false, error: "Error"});
+        }
+        else if (!row){
+            console.error('User does not exist');
+            res.json({ success: false, error: "User does not exist"});
+        }
+        else if ( hashPW( password, row.PassSalt ) == row.PassHash) {
+            console.log('Password correct');
+            res.json({ success: true });
+        }
+    });
+}
+
+function createNewUser( name : string,
+                        email : string,
+                        password : string,
+                        res )
+{
+    db.get( 'SELECT * FROM UserAccounts WHERE Email = ?', email,
+            (err,row) => {
+        if (err){
+            console.error('Error:', err);
+            res.json({ success: false, error: "Error"});
+        }
+        else if(row){
+            console.warn('That email:',email,'already exists in our system');
+            res.json({ success: false,
+                       error: "Email already exists in our system"});
+        }
+        else{
+            const salt = csprng();
+            db.run('INSERT INTO UserAccounts (Name, Email, PassSalt, PassHash) VALUES (?,?,?,?)', [name, email, salt, hashPW(password,salt)]);
+            console.log('Account for',email,'successfully created');
+            res.json({ success: true });
+
+        }
+    });
 }

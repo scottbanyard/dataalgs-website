@@ -8,18 +8,23 @@ const fs = require("fs");
 const https = require("https");
 const http = require("http");
 const helmet = require("helmet");
+const sqlite3 = require("sqlite3");
+const csprng = require("csprng");
+const crypto_1 = require("crypto");
+var db = new sqlite3.Database('database.sqlite');
 var app = express();
 var httpApp = express();
 configureHttpApplication(httpApp);
 configureApplication(app);
-function configureHttpApplication(app) {
+function configureHttpApplication(httpApp) {
     httpApp.set('port', process.env.PORT || 8070);
     httpApp.use(helmet());
     httpApp.get("*", function (req, res, next) {
         res.redirect("https://localhost:8080" + req.path);
     });
     http.createServer(httpApp).listen(httpApp.get('port'), function () {
-        console.log('Express HTTP server listening on port ' + httpApp.get('port'));
+        console.log('Express HTTP server listening on port ' +
+            httpApp.get('port'));
     });
 }
 function configureApplication(app) {
@@ -73,9 +78,7 @@ function configureApplication(app) {
     app.use(bodyParser.json({ type: 'application/json' }));
     app.use(methodOverride());
     setupApi();
-    var server = https.createServer(sslOptions, app).listen(app.get('port'), function () {
-        console.log("Express HTTPS server listening on port " + app.get('port'));
-    });
+    var server = https.createServer(sslOptions, app).listen(app.get('port'), () => console.log("Express HTTPS server listening on port " + app.get('port')));
 }
 function setupApi() {
     var router = express.Router();
@@ -86,17 +89,51 @@ function setupApi() {
     router.post('/login', function (req, res) {
         var email = req.body.email;
         var password = req.body.password;
-        var error = "error !!!!";
-        var success = "0";
-        res.json({ success: success, error: error });
+        attemptLogin(email, password, res);
     });
     router.post('/register', function (req, res) {
-        var firstname = req.body.firstName;
-        var lastname = req.body.lastName;
-        var email = req.body.email;
-        var password = req.body.password;
-        var error = "error !!!!";
-        var success = "1";
-        res.json({ success: success, error: error });
+        var firstName = req.body.firstName;
+        var lastName = req.body.lastName;
+        createNewUser(firstName + lastName, req.body.email, req.body.password, res);
+    });
+}
+function hashPW(password, salt) {
+    return crypto_1.createHash('sha256')
+        .update(salt + password)
+        .digest('hex');
+}
+function attemptLogin(email, password, res) {
+    db.get('SELECT PassSalt, PassHash FROM UserAccounts WHERE Email = ?', email, (err, row) => {
+        if (err) {
+            console.error('Error:', err);
+            res.json({ success: false, error: "Error" });
+        }
+        else if (!row) {
+            console.error('User does not exist');
+            res.json({ success: false, error: "User does not exist" });
+        }
+        else if (hashPW(password, row.PassSalt) == row.PassHash) {
+            console.log('Password correct');
+            res.json({ success: true });
+        }
+    });
+}
+function createNewUser(name, email, password, res) {
+    db.get('SELECT * FROM UserAccounts WHERE Email = ?', email, (err, row) => {
+        if (err) {
+            console.error('Error:', err);
+            res.json({ success: false, error: "Error" });
+        }
+        else if (row) {
+            console.warn('That email:', email, 'already exists in our system');
+            res.json({ success: false,
+                error: "Email already exists in our system" });
+        }
+        else {
+            const salt = csprng();
+            db.run('INSERT INTO UserAccounts (Name, Email, PassSalt, PassHash) VALUES (?,?,?,?)', [name, email, salt, hashPW(password, salt)]);
+            console.log('Account for', email, 'successfully created');
+            res.json({ success: true });
+        }
     });
 }

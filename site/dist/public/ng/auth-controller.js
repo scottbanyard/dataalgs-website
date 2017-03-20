@@ -1,9 +1,9 @@
-angular.module('myApp').controller('authController', function($scope, authService, $state) {
+angular.module('myApp').controller('authController', ($scope, authService, $state) => {
 
   $scope.registerPerson = function() {
     authService.tryRegister(JSON.stringify($scope.user)).then(function (res) {
       var response = angular.fromJson(res).data;
-      if (response.success == '1') {
+      if (response.success) {
         // Take to login page to login with new details
         swal({
           html:true,
@@ -35,9 +35,8 @@ angular.module('myApp').controller('authController', function($scope, authServic
   $scope.loginPerson = function() {
     authService.tryLogin(JSON.stringify($scope.user)).then(function (res) {
       var response = angular.fromJson(res).data;
-      if (response.success == '1') {
-        // Take to home page and show signed in
-        console.log("Take me to home page and show signed in!");
+      if (response.success) {
+        $state.go('homePage');
       } else {
         // Show error via pop up, for now alert (I have used a much nicer pop up library before I'll have to find it)
         swal({

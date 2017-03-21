@@ -1,5 +1,5 @@
 // This controller is purely to control the look of the navbar - i.e. whether to show Account / Log Out or Login / Register
-angular.module('myApp').controller('navController', ($rootScope, $scope) => {
+angular.module('myApp').controller('navController', ($rootScope, $scope, $state) => {
 
   $scope.loggedIn = false;
 

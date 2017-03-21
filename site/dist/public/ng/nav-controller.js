@@ -5,7 +5,9 @@ angular.module('myApp').controller('navController', ($rootScope, $scope) => {
 
   $scope.checkLoggedIn = function () {
     // This is called on navbar initialisation
-    // Check here with cookies to see if logged in or not and set $scope.loggedIn to true if so
+    if (localStorage.getItem('token')) {
+      $scope.loggedIn = true;
+    }
   }
 
   $scope.logOut = function () {

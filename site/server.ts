@@ -21,6 +21,11 @@ configureApplication( app );
 
 var sslOptions;
 
+// Own type for decoded token
+export interface DecodedToken {
+  decoded: any
+}
+
 // http app used to redirect user to https express app
 function configureHttpApplication ( httpApp : express.Application ) : void
 {
@@ -119,18 +124,17 @@ function configureApplication( app : express.Application ) : void
 
 function setupApi () : void {
   var router : express.Router = express.Router();
-  // API always begins with localhost8080/api
-  app.use('/api', router);
 
   // Make sure we don't stop at 1 route
-  router.use(function(req, res, next) {
+  router.use(function(req : express.Request, res : express.Response, next : express.NextFunction) {
     next();
   });
 
   // -------------------- API --------------------
 
+  // UNPROTECTED ROUTES (NO TOKEN NEEDED)
   // LOGIN
-  router.post('/login', function(req, res) : void {
+  router.post('/login', function(req : express.Request, res : express.Response) : void {
     var email : string = req.body.email;
     var password : string = req.body.password;
     // CHECK WITH DATABASE HERE USING LOGIN.TS
@@ -138,7 +142,7 @@ function setupApi () : void {
   });
 
   // REGISTER
-  router.post('/register', function(req, res) : void {
+  router.post('/register', function(req : express.Request, res : express.Response) : void {
     var firstName : string = req.body.firstName;
     var lastName : string = req.body.lastName;
     createNewUser( firstName + lastName,
@@ -146,20 +150,45 @@ function setupApi () : void {
                    req.body.password,
                    res );
   });
+
+  // TOKENS NEEDED TO ACCESS REST OF API
+  router.use(function (req : express.Request & { decoded : DecodedToken }, res : express.Response, next : express.NextFunction) {
+    var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+    // decode token
+    if (token) {
+      jwt.verify(token, sslOptions.crt, (err, decoded) => {
+        if (err) {
+          return res.json({success: false, message: "Failed to authenticate token."});
+        } else {
+          req.decoded = decoded;
+          next();
+        }
+      });
+    } else {
+      // no token provided
+      return res.status(403).send({success: false, message: "No token provided."});
+    }
+  });
+
+  // PROTECTED ROUTES (TOKEN NEEDED)
+
+  // API always begins with localhost8080/api
+  app.use('/api', router);
 }
 
-function createToken(email : string, res) {
+function createToken(email : string, res : express.Response) {
   jwt.sign( { email: email }
-                      , sslOptions.key
-                      , { algorithm: 'RS256', expiresIn: "10h" }
-                      , (err, token) => {
-                        if (err) {
-                          console.error("Error creating token: " + err);
-                        } else {
-                          console.log("Token: " + token);
-                          res.json({ success: true, token: token });
-                        }
-                      });
+            , sslOptions.key
+            , { algorithm: 'RS256', expiresIn: "10h" }
+            , (err, token) => {
+              if (err) {
+                console.error("Error creating token: " + err);
+              } else {
+                console.log("Token: " + token);
+                res.json({ success: true, token: token });
+              }
+            });
 }
 
 
@@ -175,7 +204,7 @@ function hashPW( password : string, salt : string ) : string
 
 function attemptLogin( email : string,
                        password : string,
-                       res )
+                       res : express.Response )
 {
     db.get('SELECT PassSalt, PassHash FROM UserAccounts WHERE Email = ?', email, (err,row) => {
         if (err){
@@ -199,7 +228,7 @@ function attemptLogin( email : string,
 function createNewUser( name : string,
                         email : string,
                         password : string,
-                        res )
+                        res : express.Response)
 {
     db.get( 'SELECT * FROM UserAccounts WHERE Email = ?', email,
             (err,row) => {

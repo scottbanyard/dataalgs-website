@@ -84,7 +84,6 @@ function configureApplication(app) {
 }
 function setupApi() {
     var router = express.Router();
-    app.use('/api', router);
     router.use(function (req, res, next) {
         next();
     });
@@ -98,6 +97,24 @@ function setupApi() {
         var lastName = req.body.lastName;
         createNewUser(firstName + lastName, req.body.email, req.body.password, res);
     });
+    router.use(function (req, res, next) {
+        var token = req.body.token || req.query.token || req.headers['x-access-token'];
+        if (token) {
+            jwt.verify(token, sslOptions.crt, (err, decoded) => {
+                if (err) {
+                    return res.json({ success: false, message: "Failed to authenticate token." });
+                }
+                else {
+                    req.decoded = decoded;
+                    next();
+                }
+            });
+        }
+        else {
+            return res.status(403).send({ success: false, message: "No token provided." });
+        }
+    });
+    app.use('/api', router);
 }
 function createToken(email, res) {
     jwt.sign({ email: email }, sslOptions.key, { algorithm: 'RS256', expiresIn: "10h" }, (err, token) => {

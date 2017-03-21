@@ -173,6 +173,9 @@ function attemptLogin( email : string,
         else if ( hashPW( password, row.PassSalt ) == row.PassHash) {
             console.log('Password correct');
             res.json({ success: true });
+        } else if ( hashPW( password, row.PassSalt ) != row.PassHash) {
+            console.log('Password incorrect');
+            res.json({ success: false, error: "Password is incorrect. Please try again." });
         }
     });
 }

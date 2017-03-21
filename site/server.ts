@@ -11,13 +11,15 @@ import * as helmet         from "helmet";
 import * as sqlite3        from "sqlite3";
 import * as csprng         from "csprng";
 import { createHash }      from "crypto";
-import * as passport       from "passport";
+import * as jwt            from "jsonwebtoken";
 
 var db = new sqlite3.Database('database.sqlite');
 var app : express.Application = express();
 var httpApp : express.Application = express();
 configureHttpApplication( httpApp );
 configureApplication( app );
+
+var sslOptions;
 
 // http app used to redirect user to https express app
 function configureHttpApplication ( httpApp : express.Application ) : void
@@ -62,7 +64,7 @@ function configureApplication( app : express.Application ) : void
     }
 
   // Read in SSL certificates to provide secure data transmission using HTTPS
-  var sslOptions = {
+  sslOptions = {
     key: fs.readFileSync('ssl/server.key'),
     cert: fs.readFileSync('ssl/server.crt'),
   };
@@ -146,6 +148,20 @@ function setupApi () : void {
   });
 }
 
+function createToken(email : string, res) {
+  jwt.sign( { email: email }
+                      , sslOptions.key
+                      , { algorithm: 'RS256', expiresIn: "10h" }
+                      , (err, token) => {
+                        if (err) {
+                          console.error("Error creating token: " + err);
+                        } else {
+                          console.log("Token: " + token);
+                          res.json({ success: true, token: token });
+                        }
+                      });
+}
+
 
 
 // Database specifics
@@ -172,7 +188,7 @@ function attemptLogin( email : string,
         }
         else if ( hashPW( password, row.PassSalt ) == row.PassHash) {
             console.log('Password correct');
-            res.json({ success: true });
+            createToken(email, res);
         } else if ( hashPW( password, row.PassSalt ) != row.PassHash) {
             console.log('Password incorrect');
             res.json({ success: false, error: "Password is incorrect. Please try again." });

@@ -38,7 +38,7 @@ angular.module('myApp').controller('authController', ($rootScope, $scope, authSe
         // Send message to navController to tell it user has logged in
         $rootScope.$broadcast("userLoggedIn", {});
         $state.go('homePage');
-        // Deal with cookies here ?
+        localStorage.setItem('token', JSON.stringify(response.token));
       } else {
         // Show error via pop up, for now alert (I have used a much nicer pop up library before I'll have to find it)
         swal({
@@ -55,10 +55,5 @@ angular.module('myApp').controller('authController', ($rootScope, $scope, authSe
     function(err) {
       console.log("Login Error :" + err);
     });
-  }
-
-  $scope.logOut = function () {
-    // Deal with cookies here
-    $scope.loggedIn = false;
   }
 });

@@ -150,16 +150,15 @@ function setupApi () : void {
 
 function createToken(email : string, res) {
   jwt.sign( { email: email }
-                      , sslOptions.key
-                      , { algorithm: 'RS256', expiresIn: "10h" }
-                      , (err, token) => {
-                        if (err) {
-                          console.error("Error creating token: " + err);
-                        } else {
-                          console.log("Token: " + token);
-                          res.json({ success: true, token: token });
-                        }
-                      });
+          , sslOptions.key
+          , { algorithm: 'RS256', expiresIn: "10h" }
+          , (err, token) => {
+                if (err)
+                    console.error("Error creating token: " + err);
+                else {
+                    console.log("Token: " + token);
+                    res.json({ success: true, token: token });
+                }});
 }
 
 

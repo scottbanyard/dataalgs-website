@@ -151,6 +151,24 @@ function setupApi () : void {
                    res );
   });
 
+  router.post('/content', function(req, res) : void {
+    var pageID : number = req.body.pageID;
+    db.all( 'SELECT * FROM Comments WHERE PageID = ?', pageID,
+            (err,rows) => {
+                 if (err){
+                     console.error('Error:', err);
+                     res.json({ success: false });
+                 }
+                 else if (!rows){
+                     res.json({ success: false });
+                 }
+                 else{
+                     console.log("Successful: ",rows);
+                     res.json({ success: true, rows: rows });
+                 }
+      });
+  });
+
   // TOKENS NEEDED TO ACCESS REST OF API
   router.use(function (req : express.Request & { decoded : DecodedToken }, res : express.Response, next : express.NextFunction) {
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
@@ -172,7 +190,9 @@ function setupApi () : void {
   });
 
   // PROTECTED ROUTES (TOKEN NEEDED)
-
+  router.post('/makeComment', function(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
+         console.log('Comment made (not)');
+    });
   // API always begins with localhost8080/api
   app.use('/api', router);
 }

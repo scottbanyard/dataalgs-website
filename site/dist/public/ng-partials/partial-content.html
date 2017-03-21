@@ -3,29 +3,27 @@
 </div>
 <div class="container">
     <ul class="media-list list-group">
-        <li class="media list-group-item" ng-repeat="x in names">
+        <li class="media list-group-item" ng-repeat="x in comments">
             <div class="media-left media-middle">
           <a href="#">
             <img class="media-object " src="https://lorempixel.com/64/64" alt="profile picture" />
           </a>
         </div>
         <div class="media-body">
-          <h4 class="media-heading">{{ x.name }}</h4>
-          {{ x.body }}
+          <h4 class="media-heading">{{ x.Title }} {{ x.Name }}</h4>
+          {{ x.Content }}
         </div>
         </li>
     </ul>
-    <div class="input-group">
-        <div class="input-group-btn">
-        <!-- Buttons -->
-        <button class="btn btn-default" type="button">B</button>
-        <button class="btn btn-default" type="button">I</button>
-        <button class="btn btn-default" type="button">U</button>
-        </div>
-        <input type="text" role="textbox" class="form-control" />
-        <div class="input-group-btn">
-        <!-- Buttons -->
-        <button class="btn btn-default" type="button">Go!</button>
-        </div>
-    </div>
+        <form data-ng-submit="makeComment()">
+          <div class="form-group">
+            <input required="required" type="text" class="form-control" placeholder="Title" data-ng-model="newComment.title"/>
+          </div>
+          <div class="form-group">
+            <textarea type="text" class="form-control" rows="3" placeholder="Comment" data-ng-model="newComment.body"/>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+
+
 </div>

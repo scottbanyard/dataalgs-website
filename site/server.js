@@ -97,6 +97,22 @@ function setupApi() {
         var lastName = req.body.lastName;
         createNewUser(firstName + lastName, req.body.email, req.body.password, res);
     });
+    router.post('/content', function (req, res) {
+        var pageID = req.body.pageID;
+        db.all('SELECT * FROM Comments WHERE PageID = ?', pageID, (err, rows) => {
+            if (err) {
+                console.error('Error:', err);
+                res.json({ success: false });
+            }
+            else if (!rows) {
+                res.json({ success: false });
+            }
+            else {
+                console.log("Successful: ", rows);
+                res.json({ success: true, rows: rows });
+            }
+        });
+    });
     router.use(function (req, res, next) {
         var token = req.body.token || req.query.token || req.headers['x-access-token'];
         if (token) {
@@ -113,6 +129,9 @@ function setupApi() {
         else {
             return res.status(403).send({ success: false, message: "No token provided." });
         }
+    });
+    router.post('/makeComment', function (req, res) {
+        console.log('Comment made (not)');
     });
     app.use('/api', router);
 }

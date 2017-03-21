@@ -19,6 +19,7 @@
       <script src="ng/app.js"  type="text/javascript"></script>
       <script src="ng/home-controller.js" type="text/javascript"></script>
       <script src="ng/auth-controller.js" type="text/javascript"></script>
+      <script src="ng/content-controller.js" type="text/javascript"></script>
       <script src="ng/auth-service.js" type="text/javascript"></script>
 
       <!-- Sweet Alert -->
@@ -33,7 +34,7 @@
   </head>
   <body>
     <!-- Navbar from bootstrap -->
-    <nav class="navbar">
+    <nav class="navbar navbar-default">
       <div class="container-fluid">
         <div class="navbar-header">
           <!-- Brand and toggle get grouped for better mobile display -->
@@ -49,9 +50,8 @@
           <ul class="nav navbar-nav">
             <li><a data-ui-sref="homePage">Home</a></li>
             <li><a data-ui-sref="aboutPage">About</a></li>
-            <li><a href="">C</a></li>
+            <li><a data-ui-sref="contentPage">Content</a></li>
           </ul>
-          <!-- Right side of navbar -->
           <ul class="nav navbar-nav navbar-right">
             <li><a data-ui-sref="loginPage">Login</a></li>
             <li><a data-ui-sref="registerPage">Register</a></li>

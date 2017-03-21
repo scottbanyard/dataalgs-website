@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "grunt": "grunt",
-    "dev": "NODE_ENV=development nodemon server.js"
+    "dev": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
@@ -33,6 +33,8 @@
     "helmet": "^3.5.0",
     "method-override": "^2.3.7",
     "morgan": "^1.8.1",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
     "ts-optional": "^1.0.2"
   }
 }

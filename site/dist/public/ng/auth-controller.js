@@ -1,4 +1,5 @@
-angular.module('myApp').controller('authController', ($scope, authService, $state) => {
+angular.module('myApp').controller('authController',
+    ($scope, authService, $state ) => {
 
   $scope.registerPerson = function() {
     authService.tryRegister(JSON.stringify($scope.user)).then(function (res) {
@@ -33,23 +34,24 @@ angular.module('myApp').controller('authController', ($scope, authService, $stat
   }
 
   $scope.loginPerson = function() {
-    authService.tryLogin(JSON.stringify($scope.user)).then(function (res) {
-      var response = angular.fromJson(res).data;
-      if (response.success) {
-        $state.go('homePage');
-      } else {
-        // Show error via pop up, for now alert (I have used a much nicer pop up library before I'll have to find it)
-        swal({
-          title: "Error!",
-          text: response.error,
-          type: "error"
-          },
-          function(){
-            swal.close();
-        });
-        console.log(response.error);
-      }
-    },
+    authService.tryLogin(JSON.stringify($scope.user))
+    .then(function (res) {
+        var response = angular.fromJson(res).data;
+        if (response.success) {
+            $state.go('homePage');
+        } else {
+            // Show error via pop up, for now alert (I have used a much nicer pop up library before I'll have to find it)
+            swal({
+                title: "Error!",
+                text: response.error,
+                type: "error"
+              },
+                function(){
+                  swal.close();
+              });
+            console.log(response.error);
+          }
+        },
     function(err) {
       console.log("Login Error :" + err);
     });

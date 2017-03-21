@@ -1,0 +1,31 @@
+<div align="center">
+  <h2 class="content-title">Example Content Page</h2>
+</div>
+<div class="container">
+    <ul class="media-list list-group">
+        <li class="media list-group-item" ng-repeat="x in names">
+            <div class="media-left media-middle">
+          <a href="#">
+            <img class="media-object " src="https://lorempixel.com/64/64" alt="profile picture" />
+          </a>
+        </div>
+        <div class="media-body">
+          <h4 class="media-heading">{{ x.name }}</h4>
+          {{ x.body }}
+        </div>
+        </li>
+    </ul>
+    <div class="input-group">
+        <div class="input-group-btn">
+        <!-- Buttons -->
+        <button class="btn btn-default" type="button">B</button>
+        <button class="btn btn-default" type="button">I</button>
+        <button class="btn btn-default" type="button">U</button>
+        </div>
+        <input type="text" role="textbox" class="form-control" />
+        <div class="input-group-btn">
+        <!-- Buttons -->
+        <button class="btn btn-default" type="button">Go!</button>
+        </div>
+    </div>
+</div>

@@ -2,3 +2,10 @@
   color:white;
   font-size: 3em;
 }
+.content-title {
+  color:white;
+  font-size: 3em;
+}
+#rounded {
+    border-radius: 25px;
+}

@@ -11,6 +11,7 @@ import * as helmet         from "helmet";
 import * as sqlite3        from "sqlite3";
 import * as csprng         from "csprng";
 import { createHash }      from "crypto";
+import * as passport       from "passport";
 
 var db = new sqlite3.Database('database.sqlite');
 var app : express.Application = express();

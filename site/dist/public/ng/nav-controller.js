@@ -1,12 +1,17 @@
 // This controller is purely to control the look of the navbar - i.e. whether to show Account / Log Out or Login / Register
-angular.module('myApp').controller('navController', ($rootScope, $scope, $state) => {
+angular.module('myApp').controller('navController', ($rootScope, $scope, $state, jwtHelper) => {
 
   $scope.loggedIn = false;
 
   $scope.checkLoggedIn = function () {
     // This is called on navbar initialisation
-    if (localStorage.getItem('token')) {
+    var token = localStorage.getItem('token');
+    // If there is a token and it hasn't expired, then set to logged in
+    if (token && !jwtHelper.isTokenExpired(token)) {
       $scope.loggedIn = true;
+    } else if (token) {
+      // If there is a token but it has expired, remove from local storage
+      localStorage.removeItem('token');
     }
   }
 

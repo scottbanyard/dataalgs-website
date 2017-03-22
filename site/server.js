@@ -118,7 +118,8 @@ function setupApi() {
         if (token) {
             jwt.verify(token, sslOptions.crt, (err, decoded) => {
                 if (err) {
-                    return res.json({ success: false, message: "Failed to authenticate token." });
+                    return res.json({ success: false,
+                        message: "Failed to authenticate token." });
                 }
                 else {
                     req.decoded = decoded;
@@ -135,8 +136,8 @@ function setupApi() {
     });
     app.use('/api', router);
 }
-function createToken(email, res) {
-    jwt.sign({ email: email }, sslOptions.key, { algorithm: 'RS256', expiresIn: "10h" }, (err, token) => {
+function createToken(id, res) {
+    jwt.sign({ userID: id }, sslOptions.key, { algorithm: 'RS256', expiresIn: "10h" }, (err, token) => {
         if (err) {
             console.error("Error creating token: " + err);
         }
@@ -152,7 +153,7 @@ function hashPW(password, salt) {
         .digest('hex');
 }
 function attemptLogin(email, password, res) {
-    db.get('SELECT PassSalt, PassHash FROM UserAccounts WHERE Email = ?', email, (err, row) => {
+    db.get('SELECT PassSalt, PassHash, Id FROM UserAccounts WHERE Email = ?', email, (err, row) => {
         if (err) {
             console.error('Error:', err);
             res.json({ success: false, error: "Error" });
@@ -162,8 +163,7 @@ function attemptLogin(email, password, res) {
             res.json({ success: false, error: "User does not exist" });
         }
         else if (hashPW(password, row.PassSalt) == row.PassHash) {
-            console.log('Password correct');
-            createToken(email, res);
+            createToken(row.Id, res);
         }
         else if (hashPW(password, row.PassSalt) != row.PassHash) {
             console.log('Password incorrect');

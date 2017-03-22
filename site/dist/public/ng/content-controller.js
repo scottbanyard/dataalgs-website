@@ -16,7 +16,6 @@ angular.module('myApp')
         getComments();
 
         $scope.makeComment = function(){
-            // TODO: don't allow if not logged in
             contentService.addComment( { token:localStorage.getItem('token'),
                                          comment: $scope.newComment} );
             getComments();

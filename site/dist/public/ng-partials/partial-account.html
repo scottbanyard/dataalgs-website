@@ -95,19 +95,19 @@
             <div class="col-md-10 col-md-offset-1" data-ng-show="showChangePWForm">
                 <h2 style="color:white;">Change Password</h2>
                 <form name="form" data-ng-submit="attemptChangePassword()">
-                    <div class="form-group">
+                    <div class="form-group" data-ng-class="{ 'has-error': form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required }">
                         <label style="color:white;" for="currentpassword">Current Password</label>
                         <input required="required" type="password" name="currentpassword" id="currentpassword" class="form-control" data-ng-model="user.currentPassword" />
                         <span data-ng-show="form.currentpassword.$dirty &amp;&amp; form.currentpassword.$error.required" class="help-block">Current Password is required</span>
                     </div>
                     <div class="form-group" data-ng-class="{ 'has-error': form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required }">
                         <label style="color:white;" for="newpassword">New Password</label>
-                        <input required="required" type="password" name="newpassword" id="newpassword" class="form-control" data-ng-model="user.newpassword"/>
+                        <input required="required" type="password" name="newpassword" id="newpassword" class="form-control" data-ng-model="user.newPassword"/>
                         <span data-ng-show="form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required" class="help-block">New Password is required</span>
                     </div>
                     <div class="form-group" data-ng-class="{ 'has-error': form.confirmpassword.$dirty &amp;&amp; form.confirmpassword.$error.required }">
                         <label style="color:white;" for="confirmpassword">Confirm Password</label>
-                        <input required="required" type="password" name="confirmpassword" id="confirmpassword" class="form-control" data-ng-model="user.confirmpassword"/>
+                        <input required="required" type="password" name="confirmpassword" id="confirmpassword" class="form-control" data-ng-model="user.confirmPassword"/>
                         <span data-ng-show="form.confirmpassword.$dirty &amp;&amp; form.confirmpassword.$error.required" class="help-block">Confirm Password is required</span>
                     </div>
                     <div class="form-actions">

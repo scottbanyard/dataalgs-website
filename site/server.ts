@@ -126,9 +126,9 @@ function setupApi () : void {
   var router : express.Router = express.Router();
 
   // Make sure we don't stop at 1 route
-  // router.use(function(req : express.Request, res : express.Response, next : express.NextFunction) {
-  //   next();
-  // });
+  router.use(function(req : express.Request, res : express.Response, next : express.NextFunction) {
+    next();
+  });
 
   // -------------------- API --------------------
 
@@ -193,6 +193,14 @@ function setupApi () : void {
   router.post('/makeComment', function(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
          console.log('Comment made (not)');
     });
+
+
+  router.post('/changepw', function(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
+         console.log('Change Password api');
+         attemptChangePassword(req, res);
+
+  });
+
   // API always begins with localhost8080/api
   app.use('/api', router);
 }
@@ -210,7 +218,25 @@ function createToken(id : number, res : express.Response) {
             });
 }
 
-
+function attemptChangePassword(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
+  var userID : number = req.decoded['userID'];
+  db.get('SELECT PassSalt, PassHash, Email FROM UserAccounts WHERE Id = ?', userID, (err,row) => {
+    if (err){
+        console.error('Error:', err);
+        // res.json({ success: false, error: "Error"});
+    }
+    else if (!row){
+        console.error('User does not exist');
+        res.json({ success: false, error: "User does not exist"});
+    }
+    else if (hashPW(req.body.user.currentPassword, row.PassSalt) != row.PassHash) {
+        res.json({ success: false, error: "Incorrect current password!"})
+    }
+    else if (hashPW(req.body.user.currentPassword, row.PassSalt) == row.PassHash) {
+        changePassword(userID, req.body.user.newPassword, res);
+    }
+  });
+}
 
 // Database specifics
 // Hashes a password
@@ -266,5 +292,17 @@ function createNewUser( name : string,
             res.json({ success: true });
 
         }
+    });
+}
+
+function changePassword( userID : number, password : string, res : express.Response) : void {
+    const salt = csprng();
+    db.run("UPDATE UserAccounts SET PassSalt = ?, PassHash = ? WHERE Id = ?", salt, hashPW(password,salt), userID, (err,row) => {
+      if (err) {
+        console.log(err);
+        res.json({ success: false, error: "Error in database." });
+      } else {
+        res.json({ success: true });
+      }
     });
 }

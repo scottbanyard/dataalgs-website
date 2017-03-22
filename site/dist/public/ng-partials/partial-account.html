@@ -67,7 +67,7 @@
                             <table class="table">
                                 <tr class="border_bottom padding">
                                     <td>
-                                      <span class="glyphicon glyphicon-wrench text-primary"></span><a href="" data-ng-click="changePWForm();">Change Password</a>
+                                      <span class="glyphicon glyphicon-wrench text-primary"></span><a href="" data-ng-click="showOrHidePWForm()">Change Password</a>
                                     </td>
                                 </tr>
                                 <tr class="border_bottom padding">
@@ -77,7 +77,7 @@
                                 </tr>
                                 <tr class="padding">
                                     <td>
-                                        <span class="glyphicon glyphicon-trash text-danger"></span><a href="" class="text-danger">Delete Account</a>
+                                        <span class="glyphicon glyphicon-trash text-danger"></span><a href="" data-ng-click="showOrHideDeleteForm()" class="text-danger">Delete Account</a>
                                     </td>
                                 </tr>
                             </table>
@@ -112,6 +112,26 @@
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">Change Password</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Delete Account Form -->
+            <div class="col-md-10 col-md-offset-1" data-ng-show="showDeleteAccForm">
+                <h2 style="color:white;">Delete Account</h2>
+                <form name="form" data-ng-submit="attemptDeleteAccount()">
+                    <div class="form-group" data-ng-class="{ 'has-error': form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required }">
+                        <label style="color:white;" for="newpassword">Password</label>
+                        <input required="required" type="password" name="newpassword" id="newpassword" class="form-control" data-ng-model="user.currentPassword"/>
+                        <span data-ng-show="form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required" class="help-block">Password is required</span>
+                    </div>
+                    <div class="form-group" data-ng-class="{ 'has-error': form.confirmpassword.$dirty &amp;&amp; form.confirmpassword.$error.required }">
+                        <label style="color:white;" for="confirmpassword">Confirm Password</label>
+                        <input required="required" type="password" name="confirmpassword" id="confirmpassword" class="form-control" data-ng-model="user.confirmPassword"/>
+                        <span data-ng-show="form.confirmpassword.$dirty &amp;&amp; form.confirmpassword.$error.required" class="help-block">Confirm Password is required</span>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Delete Account</button>
                     </div>
                 </form>
             </div>

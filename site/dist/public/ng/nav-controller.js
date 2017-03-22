@@ -16,7 +16,6 @@ angular.module('myApp').controller('navController', ($rootScope, $scope, $state,
   }
 
   $scope.logOut = function () {
-    // Deal with cookies here i.e. discard / destroy them or whatever you do
     $scope.loggedIn = false;
     localStorage.removeItem('token');
   }
@@ -24,5 +23,10 @@ angular.module('myApp').controller('navController', ($rootScope, $scope, $state,
   // Listening for a message from the authController to say the user has logged in
   $rootScope.$on("userLoggedIn", function () {
     $scope.loggedIn = true;
+  });
+
+  // Listening for a message saying the user has logged out
+  $rootScope.$on("userLoggedOut", function () {
+    $scope.logOut();
   });
 });

@@ -45,5 +45,19 @@ angular.module('myApp').factory('authService', function ($http, $q) {
           return deferred.promise;
         },
 
+        // Attempt to delete your account
+        deleteAccount: function (userDetails) {
+          var deferred = $q.defer();
+
+          $http.post(apiURL + "deleteaccount", userDetails)
+          .then(function (res) {
+            deferred.resolve(res);
+          })
+          .catch(function( err) {
+            console.log("Error Login POST: " + err);
+          })
+          return deferred.promise;
+        },
+
     }
 });

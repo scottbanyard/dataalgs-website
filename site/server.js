@@ -165,8 +165,10 @@ function setupApi() {
         console.log('Comment made (not)');
     });
     router.post('/changepw', function (req, res) {
-        console.log('Change Password api');
         attemptChangePassword(req, res);
+    });
+    router.post('/deleteaccount', function (req, res) {
+        attemptDeleteAccount(req, res);
     });
     // API always begins with localhost8080/api
     app.use('/api', router);
@@ -178,25 +180,6 @@ function createToken(id, res) {
         }
         else {
             res.json({ success: true, token: token });
-        }
-    });
-}
-function attemptChangePassword(req, res) {
-    var userID = req.decoded['userID'];
-    db.get('SELECT PassSalt, PassHash, Email FROM UserAccounts WHERE Id = ?', userID, function (err, row) {
-        if (err) {
-            console.error('Error:', err);
-            // res.json({ success: false, error: "Error"});
-        }
-        else if (!row) {
-            console.error('User does not exist');
-            res.json({ success: false, error: "User does not exist" });
-        }
-        else if (hashPW(req.body.user.currentPassword, row.PassSalt) != row.PassHash) {
-            res.json({ success: false, error: "Incorrect current password!" });
-        }
-        else if (hashPW(req.body.user.currentPassword, row.PassSalt) == row.PassHash) {
-            changePassword(userID, req.body.user.newPassword, res);
         }
     });
 }
@@ -245,12 +228,61 @@ function createNewUser(name, email, password, res) {
         }
     });
 }
+function attemptChangePassword(req, res) {
+    var userID = req.decoded['userID'];
+    db.get('SELECT PassSalt, PassHash, Email FROM UserAccounts WHERE Id = ?', userID, function (err, row) {
+        if (err) {
+            console.error('Error:', err);
+            res.json({ success: false, error: "Error" });
+        }
+        else if (!row) {
+            console.error('User does not exist');
+            res.json({ success: false, error: "User does not exist" });
+        }
+        else if (hashPW(req.body.user.currentPassword, row.PassSalt) != row.PassHash) {
+            res.json({ success: false, error: "Incorrect current password!" });
+        }
+        else if (hashPW(req.body.user.currentPassword, row.PassSalt) == row.PassHash) {
+            changePassword(userID, req.body.user.newPassword, res);
+        }
+    });
+}
 function changePassword(userID, password, res) {
     var salt = csprng();
     db.run("UPDATE UserAccounts SET PassSalt = ?, PassHash = ? WHERE Id = ?", salt, hashPW(password, salt), userID, function (err, row) {
         if (err) {
             console.log(err);
             res.json({ success: false, error: "Error in database." });
+        }
+        else {
+            res.json({ success: true });
+        }
+    });
+}
+function attemptDeleteAccount(req, res) {
+    var userID = req.decoded['userID'];
+    db.get('SELECT PassSalt, PassHash, Email FROM UserAccounts WHERE Id = ?', userID, function (err, row) {
+        if (err) {
+            console.error('Error:', err);
+            res.json({ success: false, error: "Error" });
+        }
+        else if (!row) {
+            console.error('User does not exist');
+            res.json({ success: false, error: "User does not exist" });
+        }
+        else if (hashPW(req.body.user.currentPassword, row.PassSalt) != row.PassHash) {
+            res.json({ success: false, error: "Incorrect current password!" });
+        }
+        else if (hashPW(req.body.user.currentPassword, row.PassSalt) == row.PassHash) {
+            deleteAccount(userID, res);
+        }
+    });
+}
+function deleteAccount(userID, res) {
+    db.run("DELETE FROM UserAccounts WHERE Id = ?", userID, function (err) {
+        if (err) {
+            console.error("Error: " + err);
+            res.json({ success: false, error: "Error" });
         }
         else {
             res.json({ success: true });

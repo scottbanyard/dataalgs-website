@@ -51,15 +51,16 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 });
 
 // Update global rootScope to contain state so can get pageTitle
-app.run([ '$rootScope', '$state', '$stateParams', '$timeout',
-function ($rootScope, $state, $stateParams, $timeout) {
+app.run([ '$rootScope', '$state', '$stateParams', '$timeout', 'jwtHelper',
+function ($rootScope, $state, $stateParams, $timeout, jwtHelper) {
   $rootScope.$state = $state;
   $rootScope.$stateParams = $stateParams;
 
   // Listens for route change - if needs auth and no token provided, re-direct to login page
   $rootScope.$on('$stateChangeStart',
   function(event, toState, toParams, fromState, fromParams) {
-    if (toState.data.auth && !localStorage.getItem('token')) {
+    var token = localStorage.getItem('token');
+    if (toState.data.auth && !token || toState.data.auth && jwtHelper.isTokenExpired(token)) {
       $timeout(function() {
         $state.go('loginPage');
       });

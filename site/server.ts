@@ -126,9 +126,9 @@ function setupApi () : void {
   var router : express.Router = express.Router();
 
   // Make sure we don't stop at 1 route
-  router.use(function(req : express.Request, res : express.Response, next : express.NextFunction) {
-    next();
-  });
+  // router.use(function(req : express.Request, res : express.Response, next : express.NextFunction) {
+  //   next();
+  // });
 
   // -------------------- API --------------------
 
@@ -163,7 +163,7 @@ function setupApi () : void {
                      res.json({ success: false });
                  }
                  else{
-                     console.log("Successful: ",rows);
+                    //  console.log("Successful: ",rows);
                      res.json({ success: true, rows: rows });
                  }
       });
@@ -172,10 +172,9 @@ function setupApi () : void {
   // TOKENS NEEDED TO ACCESS REST OF API
   router.use(function (req : express.Request & { decoded : DecodedToken }, res : express.Response, next : express.NextFunction) {
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
-
     // decode token
     if (token) {
-      jwt.verify(token, sslOptions.crt, (err, decoded) => {
+      jwt.verify(token, sslOptions.cert, { algorithms: ['RS256'] }, (err, decoded) => {
         if (err) {
             return res.json({ success: false,
                               message: "Failed to authenticate token." });
@@ -206,7 +205,6 @@ function createToken(id : number, res : express.Response) {
               if (err) {
                 console.error("Error creating token: " + err);
               } else {
-                console.log("Token: " + token);
                 res.json({ success: true, token: token });
               }
             });

@@ -38,7 +38,7 @@ angular.module('myApp').controller('authController', ($rootScope, $scope, authSe
         // Send message to navController to tell it user has logged in
         $rootScope.$broadcast("userLoggedIn", {});
         $state.go('homePage');
-        localStorage.setItem('token', JSON.stringify(response.token));
+        localStorage.setItem('token', response.token);
       } else {
         // Show error via pop up, for now alert (I have used a much nicer pop up library before I'll have to find it)
         swal({

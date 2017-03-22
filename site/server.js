@@ -84,9 +84,6 @@ function configureApplication(app) {
 }
 function setupApi() {
     var router = express.Router();
-    router.use(function (req, res, next) {
-        next();
-    });
     router.post('/login', function (req, res) {
         var email = req.body.email;
         var password = req.body.password;
@@ -108,7 +105,6 @@ function setupApi() {
                 res.json({ success: false });
             }
             else {
-                console.log("Successful: ", rows);
                 res.json({ success: true, rows: rows });
             }
         });
@@ -116,7 +112,7 @@ function setupApi() {
     router.use(function (req, res, next) {
         var token = req.body.token || req.query.token || req.headers['x-access-token'];
         if (token) {
-            jwt.verify(token, sslOptions.crt, (err, decoded) => {
+            jwt.verify(token, sslOptions.cert, { algorithms: ['RS256'] }, (err, decoded) => {
                 if (err) {
                     return res.json({ success: false,
                         message: "Failed to authenticate token." });
@@ -142,7 +138,6 @@ function createToken(id, res) {
             console.error("Error creating token: " + err);
         }
         else {
-            console.log("Token: " + token);
             res.json({ success: true, token: token });
         }
     });

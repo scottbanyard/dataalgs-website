@@ -9,3 +9,17 @@
 #rounded {
     border-radius: 25px;
 }
+.center {
+  text-align: center;
+}
+.glyphicon { margin-right:10px; }
+.panel-body { padding:0px; }
+.panel-body table tr td { padding-left: 15px }
+.panel-body .table {margin-bottom: 0px; }
+tr.border_bottom td {
+  border-bottom:1pt solid grey;
+}
+tr.padding td {
+  padding-top:5px;
+  padding-bottom:5px;
+}

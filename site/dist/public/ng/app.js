@@ -48,6 +48,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
           controller: 'accountController',
           data: { pageTitle: "My Account", auth: true }
       })
+
 });
 
 // Update global rootScope to contain state so can get pageTitle

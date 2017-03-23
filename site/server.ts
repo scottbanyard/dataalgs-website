@@ -23,7 +23,7 @@ var sslOptions;
 
 // Own type for decoded token
 export interface DecodedToken {
-  decoded: any
+    decoded : any
 }
 
 // http app used to redirect user to https express app
@@ -191,25 +191,28 @@ function setupApi () : void {
 
   // PROTECTED ROUTES (TOKEN NEEDED)
   router.post('/makeComment', function(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
-         console.log('Comment made (not)');
-    });
-
-
-  router.post('/changepw', function(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
-         attemptChangePassword(req, res);
-
+      console.log('page',req.body.pageID);
+        db.run('INSERT INTO Comments (UserID, Date, Title, Content, PageID, Name) VALUES (?,?,?,?,?,?)',
+                [ req.decoded['userID']
+                , req.body.time
+                , req.body.comment.title
+                , req.body.comment.body
+                , req.body.pageID
+                , req.decoded['name'] ]);
   });
 
-  router.post('/deleteaccount', function(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
-         attemptDeleteAccount(req, res);
-  });
+
+  router.post('/changepw', attemptChangePassword);
+
+  router.post('/deleteaccount', attemptDeleteAccount);
 
   // API always begins with localhost8080/api
   app.use('/api', router);
 }
 
-function createToken(id : number, res : express.Response) {
-  jwt.sign( { userID: id }
+function createToken( id : number, name : string, res : express.Response )
+{
+  jwt.sign( { userID: id, name : name }
             , sslOptions.key
             , { algorithm: 'RS256', expiresIn: "10h" }
             , (err, token) => {
@@ -234,7 +237,7 @@ function attemptLogin( email : string,
                        password : string,
                        res : express.Response )
 {
-    db.get('SELECT PassSalt, PassHash, Id FROM UserAccounts WHERE Email = ?', email, (err,row) => {
+    db.get('SELECT PassSalt, PassHash, Id, Name FROM UserAccounts WHERE Email = ?', email, (err,row) => {
         if (err){
             console.error('Error:', err);
             res.json({ success: false, error: "Error"});
@@ -244,7 +247,7 @@ function attemptLogin( email : string,
             res.json({ success: false, error: "User does not exist"});
         }
         else if ( hashPW( password, row.PassSalt ) == row.PassHash) {
-            createToken(row.Id, res);
+            createToken(row.Id, row.Name, res);
         } else if ( hashPW( password, row.PassSalt ) != row.PassHash) {
             console.log('Password incorrect');
             res.json({ success: false, error: "Password is incorrect. Please try again." });

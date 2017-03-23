@@ -16,8 +16,12 @@ angular.module('myApp')
         getComments();
 
         $scope.makeComment = function(){
-            contentService.addComment( { token:localStorage.getItem('token'),
-                                         comment: $scope.newComment} );
-            getComments();
+            if( "undefined" !== typeof $scope.newComment ){
+                contentService.addComment({ token:localStorage.getItem('token'),
+                                            comment: $scope.newComment,
+                                            time: new Date().getTime(),
+                                            pageID: 1 });
+                getComments();
+            }
         }
     });

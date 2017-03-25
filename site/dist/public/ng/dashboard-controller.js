@@ -1,6 +1,7 @@
-angular.module('myApp').controller('accountController', function($rootScope, $scope, authService, $state) {
+angular.module('myApp').controller('dashboardController', function($rootScope, $scope, authService, $state) {
     $scope.showChangePWForm = false;
     $scope.showDeleteAccForm = false;
+    $scope.showMyComments = false;
 
     $scope.showOrHidePWForm = function () {
       if ($scope.showChangePWForm) {
@@ -8,6 +9,7 @@ angular.module('myApp').controller('accountController', function($rootScope, $sc
       } else {
         $scope.showChangePWForm = true;
         $scope.showDeleteAccForm = false;
+        $scope.showMyComments = false;
       }
     }
 
@@ -16,6 +18,17 @@ angular.module('myApp').controller('accountController', function($rootScope, $sc
         $scope.showDeleteAccForm = false;
       } else {
         $scope.showDeleteAccForm = true;
+        $scope.showChangePWForm = false;
+        $scope.showMyComments = false;
+      }
+    }
+
+    $scope.showOrHideMyComments = function () {
+      if ($scope.showMyComments) {
+        $scope.showMyComments = false;
+      } else {
+        $scope.showMyComments = true;
+        $scope.showDeleteAccForm = false;
         $scope.showChangePWForm = false;
       }
     }

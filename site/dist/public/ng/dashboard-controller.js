@@ -1,4 +1,4 @@
-angular.module('myApp').controller('dashboardController', function($rootScope, $scope, authService, $state) {
+angular.module('myApp').controller('dashboardController', function($rootScope, $scope, authService, $state, contentService) {
     $scope.showChangePWForm = false;
     $scope.showDeleteAccForm = false;
     $scope.showMyComments = false;
@@ -27,6 +27,7 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
       if ($scope.showMyComments) {
         $scope.showMyComments = false;
       } else {
+        $scope.getMyComments();
         $scope.showMyComments = true;
         $scope.showDeleteAccForm = false;
         $scope.showChangePWForm = false;
@@ -129,6 +130,26 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
             swal.close();
         });
       }
+    }
+    $scope.getMyComments = function () {
+      contentService.getMyComments({token : localStorage.getItem('token')}).then(function (res) {
+        var response = angular.fromJson(res).data;
+        if (response.success) {
+          // console.log(JSON.stringify(response.comments));
+          $scope.myComments = response.comments;
+          $scope.numberOfComments = response.comments.length;
+        } else {
+          swal({
+            title: "Error!",
+            text: response.error,
+            type: "error"
+            },
+            function(){
+              swal.close();
+          });
+          console.log(response.error);
+        }
+      });
     }
 
 });

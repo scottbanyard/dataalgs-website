@@ -206,6 +206,8 @@ function setupApi () : void {
 
   router.post('/deleteaccount', attemptDeleteAccount);
 
+  router.post('/mycomments', getMyComments);
+
   // API always begins with localhost8080/api
   app.use('/api', router);
 }
@@ -342,4 +344,27 @@ function deleteAccount(userID : number, res : express.Response) : void {
       res.json({ success: true });
     }
   });
+}
+
+function getMyComments(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
+  var userID : number = req.decoded['userID'];
+  var comments : object[] = [];
+  var commentNumber : number = 0;
+  var success = false;
+  db.each('SELECT * FROM Comments WHERE UserId = ?', userID, (err,row) => {
+    if (err){
+        console.error('Error:', err);
+        res.json({ success: false, error: "Error"});
+    }
+    else if (!row){
+        console.error('User does not exist');
+        res.json({ success: false, error: "You have not made any comments."});
+    } else {
+        comments[commentNumber] = row;
+        commentNumber++;
+    }
+  }, (err, row) => {
+    res.json({ success: true, comments: comments });
+  });
+
 }

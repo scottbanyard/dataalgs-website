@@ -18,6 +18,7 @@ angular.module('myApp').factory('contentService', function ($http, $q) {
 
         getPage: function () {
         },
+
         addComment: function (commentData) {
           var deferred = $q.defer();
 
@@ -29,6 +30,19 @@ angular.module('myApp').factory('contentService', function ($http, $q) {
             console.log("Error making Comment POST: " + err);
           })
           return deferred.promise;
-        }
+        },
+
+        getMyComments: function (request) {
+          var deferred = $q.defer();
+
+          $http.post(apiURL + "mycomments", request)
+          .then(function (res) {
+            deferred.resolve(res);
+          })
+          .catch(function( err) {
+            console.log("Error getting page POST: " + err);
+          })
+          return deferred.promise;
+        },
     }
 });

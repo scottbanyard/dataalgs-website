@@ -137,21 +137,33 @@
             </div>
 
             <!-- My Comments -->
-            <div class="col-md-10 col-md-offset-1" data-ng-show="showMyComments">
+            <div class="col-md-12" data-ng-show="showMyComments" data-ng-cloak="">
               <h2 class="center" style="color:white;">My Comments</h2>
-              <nav aria-label="Page navigation example">
-                <ul class="pagination justify-content-center">
-                  <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1">Previous</a>
-                  </li>
-                  <li class="page-item"><a class="page-link" href="">1</a></li>
-                  <li class="page-item"><a class="page-link" href="">2</a></li>
-                  <li class="page-item"><a class="page-link" href="">3</a></li>
-                  <li class="page-item">
-                    <a class="page-link" href="#">Next</a>
-                  </li>
-                </ul>
-              </nav>
+              <h3 data-ng-show="noComments" class="center" style="color:white;">{{ noCommentsError }}</h3>
+              <table data-ng-show="!noComments" class="table table-hover table-bordered">
+                <thead>
+                  <tr>
+                    <th class="comment-header">Date</th>
+                    <th class="comment-header">Title</th>
+                    <th class="comment-header">Content</th>
+                    <th class="comment-header">Rating</th>
+                    <th class="comment-header">PageID</th>
+                    <th class="comment-header">Delete?</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr data-ng-repeat="comment in myComments">
+                    <td class="">{{ comment.Date }}</td>
+                    <td class="">{{ comment.Title }}</td>
+                    <td class="">{{ comment.Content }}</td>
+                    <td class="">{{ comment.Rating }}</td>
+                    <td class="">{{ comment.PageID }}</td>
+                    <td class="text-center" style="cursor: pointer;">
+                      <i data-ng-click="confirmDeleteComment(comment.CommentID)" class="glyphicon glyphicon-trash text-danger"></i>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
         </div>
     </div>

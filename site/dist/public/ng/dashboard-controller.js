@@ -131,24 +131,63 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
         });
       }
     }
+
     $scope.getMyComments = function () {
       contentService.getMyComments({token : localStorage.getItem('token')}).then(function (res) {
         var response = angular.fromJson(res).data;
         if (response.success) {
-          // console.log(JSON.stringify(response.comments));
           $scope.myComments = response.comments;
+          $scope.noComments = false;
           $scope.numberOfComments = response.comments.length;
         } else {
-          swal({
-            title: "Error!",
-            text: response.error,
-            type: "error"
-            },
-            function(){
-              swal.close();
-          });
           console.log(response.error);
+          $scope.noComments = true;
+          $scope.noCommentsError = response.error;
         }
+      });
+    }
+
+    $scope.confirmDeleteComment = function (commentID) {
+      swal({
+        title: "Are you sure you want to delete this comment?",
+        text: "You will not be able to recover this!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes, delete it!",
+        closeOnConfirm: false
+      },
+      // Callback for confirming delete comment
+        function(){
+          contentService.deleteComment({commentID: commentID, token: localStorage.getItem('token')}).then(function (res) {
+            var response = angular.fromJson(res).data;
+            if (response.success) {
+              // Successfully deleted comment so refresh comments
+              $scope.getMyComments();
+              swal({
+                html: true,
+                title: "<b>Success!</b>",
+                text: "You have successfully deleted that comment.",
+                type: "success"
+                },
+                function(){
+                  swal.close();
+              });
+            } else {
+              swal({
+                title: "Error!",
+                text: response.error,
+                type: "error"
+                },
+                function(){
+                  swal.close();
+              });
+              console.log(response.error);
+            }
+          },
+          function(err) {
+            console.log("Delete Account Error :" + err);
+          });
       });
     }
 

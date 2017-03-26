@@ -173,6 +173,7 @@ function setupApi() {
     router.post('/changepw', attemptChangePassword);
     router.post('/deleteaccount', attemptDeleteAccount);
     router.post('/mycomments', getMyComments);
+    router.post('/deletecomment', deleteComment);
     // API always begins with localhost8080/api
     app.use('/api', router);
 }
@@ -295,24 +296,37 @@ function deleteAccount(userID, res) {
 function getMyComments(req, res) {
     var userID = req.decoded['userID'];
     var comments = [];
-    var counter = 0;
-    var success = false;
+    var commentNumber = 0;
     db.each('SELECT * FROM Comments WHERE UserId = ?', userID, function (err, row) {
         if (err) {
             console.error('Error:', err);
-            res.json({ success: false, error: "Error" });
+            res.json({ success: false, error: "Error - please check your connection." });
         }
         else if (!row) {
             console.error('User does not exist');
-            res.json({ success: false, error: "You have not made any comments." });
+            res.json({ success: false, error: "You have not made any comments. Start today!" });
         }
         else {
-            comments[counter] = row;
-            counter++;
-            console.log(row);
+            comments[commentNumber] = row;
+            commentNumber++;
         }
     }, function (err, row) {
-        console.log("Finished");
-        res.json({ success: true, comments: comments });
+        if (commentNumber > 0) {
+            res.json({ success: true, comments: comments });
+        }
+        else {
+            res.json({ success: false, error: "You have not made any comments. Start today!" });
+        }
+    });
+}
+function deleteComment(req, res) {
+    db.run("DELETE FROM Comments WHERE CommentID = ?", req.body.commentID, function (err) {
+        if (err) {
+            console.error("Error: " + err);
+            res.json({ success: false, error: "Error" });
+        }
+        else {
+            res.json({ success: true });
+        }
     });
 }

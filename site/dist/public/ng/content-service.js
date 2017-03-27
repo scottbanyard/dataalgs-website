@@ -6,7 +6,7 @@ angular.module('myApp').factory('contentService', function ($http, $q) {
         getComments: function (request) {
           var deferred = $q.defer();
 
-          $http.post(apiURL + "content", request)
+          $http.post(apiURL + "allComments", request)
           .then(function (res) {
             deferred.resolve(res);
           })

@@ -160,7 +160,7 @@ function setupApi () : void {
                    res );
   });
 
-  router.post('/content', function(req, res) : void {
+  router.post('/allComments', function(req, res) : void {
     var pageID : number = req.body.pageID;
     db.all( 'SELECT * FROM Comments WHERE PageID = ?', pageID,
             (err,rows) => {
@@ -172,7 +172,10 @@ function setupApi () : void {
                      res.json({ success: false });
                  }
                  else{
-                    //  console.log("Successful: ",rows);
+                     // Convert each date to local readable date
+                     for (var i = 0; i < rows.length; i++) {
+                       rows[i].Date = convertDate(rows[i].Date);
+                     }
                      res.json({ success: true, rows: rows });
                  }
       });

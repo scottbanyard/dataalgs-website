@@ -228,6 +228,11 @@ function createToken( id : number, name : string, res : express.Response )
             });
 }
 
+// Converts date from number stored in database to local date
+function convertDate(date : number) : string {
+  return new Date(date).toLocaleDateString();
+}
+
 // Database specifics
 // Hashes a password
 function hashPW( password : string, salt : string ) : string
@@ -361,6 +366,7 @@ function getMyComments(req : express.Request & { decoded : DecodedToken }, res :
         console.error('User does not exist');
         res.json({ success: false, error: "You have not made any comments. Start today!"});
     } else {
+        row.Date = convertDate(row.Date);
         comments[commentNumber] = row;
         commentNumber++;
     }

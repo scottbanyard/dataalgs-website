@@ -187,6 +187,9 @@ function createToken(id, name, res) {
         }
     });
 }
+function convertDate(date) {
+    return new Date(date).toLocaleDateString().trim();
+}
 // Database specifics
 // Hashes a password
 function hashPW(password, salt) {
@@ -307,6 +310,7 @@ function getMyComments(req, res) {
             res.json({ success: false, error: "You have not made any comments. Start today!" });
         }
         else {
+            row.Date = convertDate(row.Date);
             comments[commentNumber] = row;
             commentNumber++;
         }

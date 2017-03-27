@@ -191,4 +191,7 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
       });
     }
 
+    $scope.takeToPage = function (pageID) {
+      console.log(pageID);
+    }
 });

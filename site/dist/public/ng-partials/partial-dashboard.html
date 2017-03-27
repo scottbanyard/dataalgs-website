@@ -147,7 +147,7 @@
                     <th class="comment-header">Title</th>
                     <th class="comment-header">Content</th>
                     <th class="comment-header">Rating</th>
-                    <th class="comment-header">PageID</th>
+                    <th class="comment-header">Page</th>
                     <th class="comment-header">Delete?</th>
                   </tr>
                 </thead>
@@ -157,7 +157,9 @@
                     <td class="">{{ comment.Title }}</td>
                     <td class="">{{ comment.Content }}</td>
                     <td class="">{{ comment.Rating }}</td>
-                    <td class="">{{ comment.PageID }}</td>
+                    <td class="text-center" style="cursor: pointer;">
+                      <i data-ng-click="takeToPage(comment.PageID)" class="glyphicon glyphicon-file text-primary"></i>
+                    </td>
                     <td class="text-center" style="cursor: pointer;">
                       <i data-ng-click="confirmDeleteComment(comment.CommentID)" class="glyphicon glyphicon-trash text-danger"></i>
                     </td>

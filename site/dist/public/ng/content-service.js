@@ -16,7 +16,29 @@ angular.module('myApp').factory('contentService', function ($http, $q) {
           return deferred.promise;
         },
 
-        getPage: function () {
+        getPage: function (request) {
+            var deferred = $q.defer();
+
+            $http.post(apiURL + "loadPage", request)
+            .then(function (res) {
+              deferred.resolve(res);
+            })
+            .catch(function( err) {
+              console.log("Error getting page POST: " + err);
+            })
+            return deferred.promise;
+        },
+        savePage: function (request) {
+            var deferred = $q.defer();
+
+            $http.post(apiURL + "savePage", request)
+            .then(function (res) {
+              deferred.resolve(res);
+            })
+            .catch(function( err) {
+              console.log("Error saving page POST: " + err);
+            })
+            return deferred.promise;
         },
         addComment: function (commentData) {
           var deferred = $q.defer();

@@ -12,6 +12,7 @@ import * as sqlite3        from "sqlite3";
 import * as csprng         from "csprng";
 import { createHash }      from "crypto";
 import * as jwt            from "jsonwebtoken";
+import { returnHTML }      from "./scripts/markdown";
 
 var db = new sqlite3.Database('database.sqlite');
 var app : express.Application = express();
@@ -26,6 +27,14 @@ export interface DecodedToken {
     decoded : any
 }
 
+interface Page {
+    Title:string;
+    Content: string;
+    PrivateView : number;
+    Creator: number;
+    PrivateEdit: number;
+    LastEdit: number;
+}
 // http app used to redirect user to https express app
 function configureHttpApplication ( httpApp : express.Application ) : void
 {
@@ -168,26 +177,33 @@ function setupApi () : void {
                  }
       });
   });
+// page { pageID:number }
+  router.post('/loadPage', (req : express.Request & { decoded : DecodedToken, page? : Page  }, res : express.Response, next : express.NextFunction) =>
+  {
+      db.get('SELECT * FROM Pages WHERE Id = ?', req.body.pageID, (err,row) => {
+          if (err){
+              console.error('Error:', err);
+              res.json({ success: false });
+          }
+          else if (!row){
+              res.json({ success: false });
+              console.error('Page', req.body.pageID, 'doesn\'t exist!');
+          }
+          else{
+             // Need to be logged in to view
+             if(row.PrivateView == 1){
+                 req.page = <Page>row;
+                 next();
+             }
+             else{
+                 loadPage(<Page>row, req, res);
+             }
+          }
+      });
+  });
 
   // TOKENS NEEDED TO ACCESS REST OF API
-  router.use(function (req : express.Request & { decoded : DecodedToken }, res : express.Response, next : express.NextFunction) {
-    var token = req.body.token || req.query.token || req.headers['x-access-token'];
-    // decode token
-    if (token) {
-      jwt.verify(token, sslOptions.cert, { algorithms: ['RS256'] }, (err, decoded) => {
-        if (err) {
-            return res.json({ success: false,
-                              message: "Failed to authenticate token." });
-        } else {
-            req.decoded = decoded;
-            next();
-        }
-      });
-    } else {
-      // no token provided
-      return res.status(403).send({success: false, message: "No token provided."});
-    }
-  });
+  router.use(checkLoggedIn);
 
   // PROTECTED ROUTES (TOKEN NEEDED)
   router.post('/makeComment', function(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
@@ -200,7 +216,7 @@ function setupApi () : void {
                 , req.body.pageID
                 , req.decoded['name'] ]);
   });
-
+  router.post('/savePage', saveContent);
 
   router.post('/changepw', attemptChangePassword);
 
@@ -342,4 +358,81 @@ function deleteAccount(userID : number, res : express.Response) : void {
       res.json({ success: true });
     }
   });
+}
+
+function checkLoggedIn(req : express.Request & { decoded : DecodedToken, page? : Page }, res : express.Response, next : Function) {
+  var token = req.body.token || req.query.token || req.headers['x-access-token'];
+  // decode token
+  if (token) {
+    jwt.verify(token, sslOptions.cert, { algorithms: ['RS256'] }, (err, decoded) => {
+      if (err) {
+          return res.json({ success: false,
+                            message: "Failed to authenticate token." });
+      } else {
+          req.decoded = decoded;
+          next();
+      }
+    });
+  } else {
+    // no token provided
+    return res.status(403).send({success: false, message: "No token provided."});
+}
+}
+
+
+function loadPage( page:Page, req: express.Request & { decoded : DecodedToken, page? : Page }, res : express.Response ) : void
+{
+
+    if(1 == page.PrivateEdit){
+        checkLoggedIn(req,res,
+            (req : express.Request & { decoded : DecodedToken }
+             , res : express.Response) =>{
+                 canEditCallback(0 == page.PrivateEdit || req.decoded['UserID'] == page.Creator, page, res)
+        });
+    }
+    else{
+        canEditCallback(true,page,res);
+    }
+
+}
+function canEditCallback(canEdit,page,res) : void
+{
+    res.json({ success: true,
+               htmlContent:returnHTML(page.Content),
+               page:page,
+               editable:canEdit
+           });
+}
+
+function saveContent( req: express.Request & { decoded : DecodedToken }, res : express.Response):void
+{
+    db.get('SELECT * FROM Pages WHERE Id = ?', req.body.pageID, (err,row) => {
+        if (err){
+            console.error('Error:', err);
+            res.json({ success: false });
+        }
+        else if (!row){
+            // Insert new row
+            db.run('INSERT INTO Pages (Title, Content, PrivateView, Creator, PrivateEdit, LastEdit) VALUES (?,?,?,?,?,?)',
+                [ req.body.Title,
+                  req.body.Content,
+                  req.body.PrivateView,
+                  req.decoded['UserID'],
+                  req.body.PrivateEdit,
+                  req.body.LastEdit ]);
+
+            res.json({ success: true });
+        }
+        else{
+           // update existing row
+           db.run("UPDATE Pages SET Title = ?, Content = ?, PrivateView = ?, PrivateEdit = ?, LastEdit = ? WHERE Id = ?",
+             req.body.Title,
+             req.body.Content,
+             req.body.PrivateView,
+             req.body.PrivateEdit,
+             req.body.LastEdit, req.body.pageID );
+        }
+    });
+    res.json({ htmlContent:returnHTML(req.body.Content) });
+
 }

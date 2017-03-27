@@ -2,26 +2,46 @@
   <h2 class="content-title">Example Content Page</h2>
 </div>
 <div class="container">
-    <ul class="media-list list-group">
-        <li class="media list-group-item" ng-repeat="x in comments">
-            <div class="media-left media-middle">
-          <a href="#">
-            <img class="media-object " src="https://lorempixel.com/64/64" alt="profile picture" />
-          </a>
-        </div>
-        <div class="media-body">
-          <h4 class="media-heading"> {{ x.Title }} </h4>
-          {{ x.Content }}
-        </div>
-        </li>
-    </ul>
-    <form name="commentForm" data-ng-submit="makeComment()">
-         <div class="form-group">
-             <input name="title" required="required" type="text" class="form-control" placeholder="Title" data-ng-model="newComment.title"/>
-         </div>
-         <div class="form-group">
-            <textarea name="body" type="text" required="required" class="form-control" rows="3" placeholder="Comment" data-ng-model="newComment.body"/>
-         </div>
-         <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+
+    <!-- HTML Section (not editing) -->
+    <div data-ng-show="!isEditing" class="contentBox" id="rounded" data-ng-bind-html="pageInfo.htmlContent"> </div>
+
+    <!-- Markdown Section (editing) -->
+    <div data-ng-show="isEditing" class="markdownArea">
+        <form name="markdownForm" data-ng-submit="saveContent()">
+             <div class="form-group">
+                 <input name="pageTitle" required="required" type="text" class="form-control" placeholder="Page Title" data-ng-model="pageInfo.page.Title"/>
+             </div>
+             <div class="form-group">
+                <textarea name="content" type="text" required="required" class="form-control" rows="8" placeholder="Content" data-ng-model="pageInfo.page.Content"/>
+             </div>
+             <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+    <!-- Comment Section -->
+    <div data-ng-show="!isEditing" class="commentBox" >
+        <ul class="media-list list-group">
+            <li class="media list-group-item" ng-repeat="x in comments">
+                <div class="media-left media-middle">
+              <a href="#">
+                <img class="media-object " src="https://lorempixel.com/64/64" alt="profile picture" />
+              </a>
+            </div>
+            <div class="media-body">
+              <h4 class="media-heading"> {{ x.Title }} </h4>
+              {{ x.Content }}
+            </div>
+            </li>
+        </ul>
+        <form name="commentForm" data-ng-submit="makeComment()">
+             <div class="form-group">
+                 <input name="title" required="required" type="text" class="form-control" placeholder="Title" data-ng-model="newComment.title"/>
+             </div>
+             <div class="form-group">
+                <textarea name="body" type="text" required="required" class="form-control" rows="3" placeholder="Comment" data-ng-model="newComment.body"/>
+             </div>
+             <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
 </div>

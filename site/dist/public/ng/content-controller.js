@@ -14,7 +14,7 @@ angular.module('myApp')
                           );
         }
         getComments();
-
+        $scope.isEditing = false;
         $scope.makeComment = function(){
             if( "undefined" !== typeof $scope.newComment ){
                 contentService.addComment({ token:localStorage.getItem('token'),
@@ -24,4 +24,22 @@ angular.module('myApp')
                 getComments();
             }
         }
+
+        contentService.getPage({token:localStorage.getItem('token'),
+                                  pageID: 1}
+                              ).then((res) => {
+                                  var response = angular.fromJson(res).data;
+                                  if (response.success){
+
+                                      $scope.pageInfo = response;
+                                      var content =
+                                      console.log($scope.pageInfo.htmlContent);
+                                  }
+                                  else
+                                      $scope.pageInfo = {};
+                                  }
+                              );
     });
+
+ // input boxes content
+ // htmlContent

@@ -1,4 +1,4 @@
-var app = angular.module('myApp', ['ui.router', 'angular-jwt']);
+var app = angular.module('myApp', ['ui.router', 'angular-jwt','ngSanitize']);
 
 app.config(function ($stateProvider, $urlRouterProvider) {
   // If incorrectly type in a URL, takes you to homepage

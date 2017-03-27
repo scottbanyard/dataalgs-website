@@ -1,23 +1,26 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const express = require("express");
-const morgan = require("morgan");
-const bodyParser = require("body-parser");
-const methodOverride = require("method-override");
-const fs = require("fs");
-const https = require("https");
-const http = require("http");
-const helmet = require("helmet");
-const sqlite3 = require("sqlite3");
-const csprng = require("csprng");
-const crypto_1 = require("crypto");
-const jwt = require("jsonwebtoken");
+exports.__esModule = true;
+// set up ========================
+var express = require("express");
+var morgan = require("morgan");
+var bodyParser = require("body-parser");
+var methodOverride = require("method-override");
+var fs = require("fs");
+var https = require("https");
+var http = require("http");
+var helmet = require("helmet");
+var sqlite3 = require("sqlite3");
+var csprng = require("csprng");
+var crypto_1 = require("crypto");
+var jwt = require("jsonwebtoken");
+var markdown_1 = require("./scripts/markdown");
 var db = new sqlite3.Database('database.sqlite');
 var app = express();
 var httpApp = express();
 configureHttpApplication(httpApp);
 configureApplication(app);
 var sslOptions;
+// http app used to redirect user to https express app
 function configureHttpApplication(httpApp) {
     httpApp.set('port', process.env.PORT || 8070);
     httpApp.use(helmet());
@@ -36,10 +39,12 @@ function configureApplication(app) {
     app.use(helmet());
     app.use(lower);
     app.use(ban);
+    // Make the URL lower case.
     function lower(req, res, next) {
         req.url = req.url.toLowerCase();
         next();
     }
+    // Forbid access to the URLs in the banned list.
     function ban(req, res, next) {
         for (var i = 0; i < banned.length; i++) {
             var b = banned[i];
@@ -50,10 +55,18 @@ function configureApplication(app) {
         }
         next();
     }
+    // Read in SSL certificates to provide secure data transmission using HTTPS
     sslOptions = {
         key: fs.readFileSync('ssl/server.key'),
-        cert: fs.readFileSync('ssl/server.crt'),
+        cert: fs.readFileSync('ssl/server.crt')
     };
+    // Check a folder for files/subfolders with non-lowercase names.  Add them to
+    // the banned list so they don't get delivered, making the site case sensitive,
+    // so that it can be moved from Windows to Linux, for example. Synchronous I/O
+    // is used because this function is only called during startup.  This avoids
+    // expensive file system operations during normal execution.  A file with a
+    // non-lowercase name added while the server is running will get delivered, but
+    // it will be detected and banned when the server is next restarted.
     function banUpperCase(root, folder) {
         var folderBit = 1 << 14;
         var names = fs.readdirSync(root + folder);
@@ -68,6 +81,7 @@ function configureApplication(app) {
             banUpperCase(root, file);
         }
     }
+    // Called by express.static.  Deliver response as XHTML.
     function deliverXHTML(res, path, stat) {
         if (path.endsWith(".html")) {
             res.header("Content-Type", "application/xhtml+xml");
@@ -75,23 +89,36 @@ function configureApplication(app) {
     }
     var options = { setHeaders: deliverXHTML };
     app.use(express.static(__dirname + '/dist/public', options));
+    // NB Only dev - logs to console
     app.use(morgan('dev'));
+    // Allows API calls to parse JSON
     app.use(bodyParser.urlencoded({ 'extended': false }));
     app.use(bodyParser.json({ type: 'application/json' }));
+    // Overrides DELETE and PUT
     app.use(methodOverride());
+    // Need to setup API before we listen
     setupApi();
-    var server = https.createServer(sslOptions, app).listen(app.get('port'), () => console.log("Express HTTPS server listening on port " + app.get('port')));
+    // Start up secure HTTPS server
+    var server = https.createServer(sslOptions, app).listen(app.get('port'), function () {
+        return console.log("Express HTTPS server listening on port " + app.get('port'));
+    });
 }
 function setupApi() {
     var router = express.Router();
+    // Make sure we don't stop at 1 route
     router.use(function (req, res, next) {
         next();
     });
+    // -------------------- API --------------------
+    // UNPROTECTED ROUTES (NO TOKEN NEEDED)
+    // LOGIN
     router.post('/login', function (req, res) {
         var email = req.body.email;
         var password = req.body.password;
+        // CHECK WITH DATABASE HERE USING LOGIN.TS
         attemptLogin(email, password, res);
     });
+    // REGISTER
     router.post('/register', function (req, res) {
         var firstName = req.body.firstName;
         var lastName = req.body.lastName;
@@ -99,7 +126,7 @@ function setupApi() {
     });
     router.post('/content', function (req, res) {
         var pageID = req.body.pageID;
-        db.all('SELECT * FROM Comments WHERE PageID = ?', pageID, (err, rows) => {
+        db.all('SELECT * FROM Comments WHERE PageID = ?', pageID, function (err, rows) {
             if (err) {
                 console.error('Error:', err);
                 res.json({ success: false });
@@ -108,28 +135,37 @@ function setupApi() {
                 res.json({ success: false });
             }
             else {
+                //  console.log("Successful: ",rows);
                 res.json({ success: true, rows: rows });
             }
         });
     });
-    router.use(function (req, res, next) {
-        var token = req.body.token || req.query.token || req.headers['x-access-token'];
-        if (token) {
-            jwt.verify(token, sslOptions.cert, { algorithms: ['RS256'] }, (err, decoded) => {
-                if (err) {
-                    return res.json({ success: false,
-                        message: "Failed to authenticate token." });
-                }
-                else {
-                    req.decoded = decoded;
+    // page { pageID:number }
+    router.post('/loadPage', function (req, res, next) {
+        db.get('SELECT * FROM Pages WHERE Id = ?', req.body.pageID, function (err, row) {
+            if (err) {
+                console.error('Error:', err);
+                res.json({ success: false });
+            }
+            else if (!row) {
+                res.json({ success: false });
+                console.error('Page', req.body.pageID, 'doesn\'t exist!');
+            }
+            else {
+                // Need to be logged in to view
+                if (row.PrivateView == 1) {
+                    req.page = row;
                     next();
                 }
-            });
-        }
-        else {
-            return res.status(403).send({ success: false, message: "No token provided." });
-        }
+                else {
+                    loadPage(row, req, res);
+                }
+            }
+        });
     });
+    // TOKENS NEEDED TO ACCESS REST OF API
+    router.use(checkLoggedIn);
+    // PROTECTED ROUTES (TOKEN NEEDED)
     router.post('/makeComment', function (req, res) {
         console.log('page', req.body.pageID);
         db.run('INSERT INTO Comments (UserID, Date, Title, Content, PageID, Name) VALUES (?,?,?,?,?,?)', [req.decoded['userID'],
@@ -139,12 +175,14 @@ function setupApi() {
             req.body.pageID,
             req.decoded['name']]);
     });
+    router.post('/savePage', saveContent);
     router.post('/changepw', attemptChangePassword);
     router.post('/deleteaccount', attemptDeleteAccount);
+    // API always begins with localhost8080/api
     app.use('/api', router);
 }
 function createToken(id, name, res) {
-    jwt.sign({ userID: id, name: name }, sslOptions.key, { algorithm: 'RS256', expiresIn: "10h" }, (err, token) => {
+    jwt.sign({ userID: id, name: name }, sslOptions.key, { algorithm: 'RS256', expiresIn: "10h" }, function (err, token) {
         if (err) {
             console.error("Error creating token: " + err);
         }
@@ -153,13 +191,15 @@ function createToken(id, name, res) {
         }
     });
 }
+// Database specifics
+// Hashes a password
 function hashPW(password, salt) {
     return crypto_1.createHash('sha256')
         .update(salt + password)
         .digest('hex');
 }
 function attemptLogin(email, password, res) {
-    db.get('SELECT PassSalt, PassHash, Id, Name FROM UserAccounts WHERE Email = ?', email, (err, row) => {
+    db.get('SELECT PassSalt, PassHash, Id, Name FROM UserAccounts WHERE Email = ?', email, function (err, row) {
         if (err) {
             console.error('Error:', err);
             res.json({ success: false, error: "Error" });
@@ -178,7 +218,7 @@ function attemptLogin(email, password, res) {
     });
 }
 function createNewUser(name, email, password, res) {
-    db.get('SELECT * FROM UserAccounts WHERE Email = ?', email, (err, row) => {
+    db.get('SELECT * FROM UserAccounts WHERE Email = ?', email, function (err, row) {
         if (err) {
             console.error('Error:', err);
             res.json({ success: false, error: "Error" });
@@ -189,7 +229,7 @@ function createNewUser(name, email, password, res) {
                 error: "Email already exists in our system" });
         }
         else {
-            const salt = csprng();
+            var salt = csprng();
             db.run('INSERT INTO UserAccounts (Name, Email, PassSalt, PassHash) VALUES (?,?,?,?)', [name, email, salt, hashPW(password, salt)]);
             console.log('Account for', email, 'successfully created');
             res.json({ success: true });
@@ -198,7 +238,7 @@ function createNewUser(name, email, password, res) {
 }
 function attemptChangePassword(req, res) {
     var userID = req.decoded['userID'];
-    db.get('SELECT PassSalt, PassHash, Email FROM UserAccounts WHERE Id = ?', userID, (err, row) => {
+    db.get('SELECT PassSalt, PassHash, Email FROM UserAccounts WHERE Id = ?', userID, function (err, row) {
         if (err) {
             console.error('Error:', err);
             res.json({ success: false, error: "Error" });
@@ -216,8 +256,8 @@ function attemptChangePassword(req, res) {
     });
 }
 function changePassword(userID, password, res) {
-    const salt = csprng();
-    db.run("UPDATE UserAccounts SET PassSalt = ?, PassHash = ? WHERE Id = ?", salt, hashPW(password, salt), userID, (err, row) => {
+    var salt = csprng();
+    db.run("UPDATE UserAccounts SET PassSalt = ?, PassHash = ? WHERE Id = ?", salt, hashPW(password, salt), userID, function (err, row) {
         if (err) {
             console.log(err);
             res.json({ success: false, error: "Error in database." });
@@ -229,7 +269,7 @@ function changePassword(userID, password, res) {
 }
 function attemptDeleteAccount(req, res) {
     var userID = req.decoded['userID'];
-    db.get('SELECT PassSalt, PassHash, Email FROM UserAccounts WHERE Id = ?', userID, (err, row) => {
+    db.get('SELECT PassSalt, PassHash, Email FROM UserAccounts WHERE Id = ?', userID, function (err, row) {
         if (err) {
             console.error('Error:', err);
             res.json({ success: false, error: "Error" });
@@ -247,7 +287,7 @@ function attemptDeleteAccount(req, res) {
     });
 }
 function deleteAccount(userID, res) {
-    db.run("DELETE FROM UserAccounts WHERE Id = ?", userID, (err) => {
+    db.run("DELETE FROM UserAccounts WHERE Id = ?", userID, function (err) {
         if (err) {
             console.error("Error: " + err);
             res.json({ success: false, error: "Error" });
@@ -256,4 +296,64 @@ function deleteAccount(userID, res) {
             res.json({ success: true });
         }
     });
+}
+function checkLoggedIn(req, res, next) {
+    var token = req.body.token || req.query.token || req.headers['x-access-token'];
+    // decode token
+    if (token) {
+        jwt.verify(token, sslOptions.cert, { algorithms: ['RS256'] }, function (err, decoded) {
+            if (err) {
+                return res.json({ success: false,
+                    message: "Failed to authenticate token." });
+            }
+            else {
+                req.decoded = decoded;
+                next();
+            }
+        });
+    }
+    else {
+        // no token provided
+        return res.status(403).send({ success: false, message: "No token provided." });
+    }
+}
+function loadPage(page, req, res) {
+    if (1 == page.PrivateEdit) {
+        checkLoggedIn(req, res, function (req, res) {
+            canEditCallback(0 == page.PrivateEdit || req.decoded['UserID'] == page.Creator, page, res);
+        });
+    }
+    else {
+        canEditCallback(true, page, res);
+    }
+}
+function canEditCallback(canEdit, page, res) {
+    res.json({ success: true,
+        htmlContent: markdown_1.returnHTML(page.Content),
+        page: page,
+        editable: canEdit
+    });
+}
+function saveContent(req, res) {
+    db.get('SELECT * FROM Pages WHERE Id = ?', req.body.pageID, function (err, row) {
+        if (err) {
+            console.error('Error:', err);
+            res.json({ success: false });
+        }
+        else if (!row) {
+            // Insert new row
+            db.run('INSERT INTO Pages (Title, Content, PrivateView, Creator, PrivateEdit, LastEdit) VALUES (?,?,?,?,?,?)', [req.body.Title,
+                req.body.Content,
+                req.body.PrivateView,
+                req.decoded['UserID'],
+                req.body.PrivateEdit,
+                req.body.LastEdit]);
+            res.json({ success: true });
+        }
+        else {
+            // update existing row
+            db.run("UPDATE Pages SET Title = ?, Content = ?, PrivateView = ?, PrivateEdit = ?, LastEdit = ? WHERE Id = ?", req.body.Title, req.body.Content, req.body.PrivateView, req.body.PrivateEdit, req.body.LastEdit, req.body.pageID);
+        }
+    });
+    res.json({ htmlContent: markdown_1.returnHTML(req.body.Content) });
 }

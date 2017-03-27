@@ -37,5 +37,17 @@ tr.padding td {
 .contentBox{
     background-color: white;
     padding:15px;
-
+}
+.comment-header {
+  color:white;
+  text-align: center;
+}
+tbody {
+  background-color: white;
+}
+.pointer {
+  cursor: pointer;
+}
+.white {
+  color:white;
 }

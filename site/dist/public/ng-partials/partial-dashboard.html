@@ -1,0 +1,172 @@
+<div class="container">
+    <div class="row">
+        <div class="col-sm-3 col-md-3">
+            <div class="panel-group" id="accordion">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne"><span class="glyphicon glyphicon-folder-close">
+                            </span>Content</a>
+                        </h4>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <table class="table">
+                                <tr class="border_bottom padding">
+                                    <td>
+                                        <span class="glyphicon glyphicon-file text-primary"></span><a href="">My Pages</a>
+                                    </td>
+                                </tr>
+                                <tr class="border_bottom padding">
+                                    <td>
+                                        <span class="glyphicon glyphicon-flash text-success"></span><a href="">My Favourites</a>
+                                    </td>
+                                </tr>
+                                <tr class="padding">
+                                    <td>
+                                        <span class="glyphicon glyphicon-comment text-info"></span><a data-ng-click="showOrHideMyComments()" href="">My Comments</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo"><span class="glyphicon glyphicon-th">
+                            </span>Create</a>
+                        </h4>
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <table class="table">
+                                <tr class="border_bottom padding">
+                                    <td>
+                                        <span class="glyphicon glyphicon-globe text-primary"></span><a href="">Public Page</a>
+                                    </td>
+                                </tr>
+                                <tr class="padding">
+                                    <td>
+                                        <span class="glyphicon glyphicon-lock text-success"></span><a href="">Private Page</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree"><span class="glyphicon glyphicon-user">
+                            </span>Account</a>
+                        </h4>
+                    </div>
+                    <div id="collapseThree" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <table class="table">
+                                <tr class="border_bottom padding">
+                                    <td>
+                                      <span class="glyphicon glyphicon-wrench text-primary"></span><a href="" data-ng-click="showOrHidePWForm()">Change Password</a>
+                                    </td>
+                                </tr>
+                                <tr class="border_bottom padding">
+                                    <td>
+                                      <span class="glyphicon glyphicon-thumbs-down text-primary"></span><a href="">Report User</a>
+                                    </td>
+                                </tr>
+                                <tr class="padding">
+                                    <td>
+                                        <span class="glyphicon glyphicon-trash text-danger"></span><a href="" data-ng-click="showOrHideDeleteForm()" class="text-danger">Delete Account</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-9 col-md-9">
+            <div class="well">
+              <h1 class="center">Dashboard</h1>
+            </div>
+
+            <!-- Change Password Form -->
+            <div class="col-md-10 col-md-offset-1" data-ng-show="showChangePWForm">
+              <h2 class="white">Change Password</h2>
+              <form name="form" data-ng-submit="attemptChangePassword()">
+                <div class="form-group" data-ng-class="{ 'has-error': form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required }">
+                  <label class="white" for="currentpassword">Current Password</label>
+                  <input required="required" type="password" name="currentpassword" id="currentpassword" class="form-control" data-ng-model="user.currentPassword" />
+                  <span data-ng-show="form.currentpassword.$dirty &amp;&amp; form.currentpassword.$error.required" class="help-block">Current Password is required</span>
+                </div>
+                <div class="form-group" data-ng-class="{ 'has-error': form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required }">
+                  <label class="white" for="newpassword">New Password</label>
+                  <input required="required" type="password" name="newpassword" id="newpassword" class="form-control" data-ng-model="user.newPassword"/>
+                  <span data-ng-show="form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required" class="help-block">New Password is required</span>
+                </div>
+                <div class="form-group" data-ng-class="{ 'has-error': form.confirmpassword.$dirty &amp;&amp; form.confirmpassword.$error.required }">
+                  <label class="white" for="confirmpassword">Confirm Password</label>
+                  <input required="required" type="password" name="confirmpassword" id="confirmpassword" class="form-control" data-ng-model="user.confirmPassword"/>
+                  <span data-ng-show="form.confirmpassword.$dirty &amp;&amp; form.confirmpassword.$error.required" class="help-block">Confirm Password is required</span>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">Change Password</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Delete Account Form -->
+            <div class="col-md-10 col-md-offset-1" data-ng-show="showDeleteAccForm">
+              <h2 class="white">Delete Account</h2>
+              <form name="form" data-ng-submit="attemptDeleteAccount()">
+                <div class="form-group" data-ng-class="{ 'has-error': form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required }">
+                  <label class="white" for="newpassword">Password</label>
+                  <input required="required" type="password" name="newpassword" id="newpassword" class="form-control" data-ng-model="user.currentPassword"/>
+                  <span data-ng-show="form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required" class="help-block">Password is required</span>
+                </div>
+                <div class="form-group" data-ng-class="{ 'has-error': form.confirmpassword.$dirty &amp;&amp; form.confirmpassword.$error.required }">
+                  <label class="white" for="confirmpassword">Confirm Password</label>
+                  <input required="required" type="password" name="confirmpassword" id="confirmpassword" class="form-control" data-ng-model="user.confirmPassword"/>
+                  <span data-ng-show="form.confirmpassword.$dirty &amp;&amp; form.confirmpassword.$error.required" class="help-block">Confirm Password is required</span>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">Delete Account</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- My Comments -->
+            <div class="col-md-12" data-ng-show="showMyComments" data-ng-cloak="">
+              <h2 class="center white">My Comments</h2>
+              <h3 data-ng-show="noComments" class="center white">{{ noCommentsError }}</h3>
+              <table data-ng-show="!noComments" class="table table-hover table-bordered">
+                <thead>
+                  <tr>
+                    <th width="12%" class="comment-header">Date</th>
+                    <th class="comment-header">Title</th>
+                    <th class="comment-header">Content</th>
+                    <th width="10%" class="comment-header">Rating</th>
+                    <th width="10%" class="comment-header">Page</th>
+                    <th width="10%" class="comment-header">Delete?</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr data-ng-repeat="comment in myComments">
+                    <td class="">{{ comment.Date }}</td>
+                    <td class="">{{ comment.Title }}</td>
+                    <td class="">{{ comment.Content }}</td>
+                    <td class="">{{ comment.Rating }}</td>
+                    <td class="center pointer">
+                      <i data-ng-click="takeToPage(comment.PageID)" class="glyphicon glyphicon-file text-primary"></i>
+                    </td>
+                    <td class="center pointer">
+                      <i data-ng-click="confirmDeleteComment(comment.CommentID)" class="glyphicon glyphicon-trash text-danger"></i>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+        </div>
+    </div>
+</div>

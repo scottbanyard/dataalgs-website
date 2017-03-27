@@ -222,6 +222,10 @@ function setupApi () : void {
 
   router.post('/deleteaccount', attemptDeleteAccount);
 
+  router.post('/mycomments', getMyComments);
+
+  router.post('/deletecomment', deleteComment);
+
   // API always begins with localhost8080/api
   app.use('/api', router);
 }
@@ -238,6 +242,11 @@ function createToken( id : number, name : string, res : express.Response )
                 res.json({ success: true, token: token });
               }
             });
+}
+
+// Converts date from number stored in database to local date
+function convertDate(date : number) : string {
+  return new Date(date).toLocaleDateString();
 }
 
 // Database specifics
@@ -434,5 +443,41 @@ function saveContent( req: express.Request & { decoded : DecodedToken }, res : e
         }
     });
     res.json({ htmlContent:returnHTML(req.body.Content) });
+}
 
+function getMyComments(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
+  var userID : number = req.decoded['userID'];
+  var comments : object[] = [];
+  var commentNumber : number = 0;
+  db.each('SELECT * FROM Comments WHERE UserId = ?', userID, (err,row) => {
+    if (err){
+        console.error('Error:', err);
+        res.json({ success: false, error: "Error - please check your connection."});
+    }
+    else if (!row){
+        console.error('User does not exist');
+        res.json({ success: false, error: "You have not made any comments. Start today!"});
+    } else {
+        row.Date = convertDate(row.Date);
+        comments[commentNumber] = row;
+        commentNumber++;
+    }
+  }, (err, row) => {
+    if (commentNumber > 0) {
+      res.json({ success: true, comments: comments });
+    } else {
+      res.json({ success: false, error: "You have not made any comments. Start today!"});
+    }
+  });
+}
+
+function deleteComment(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
+  db.run("DELETE FROM Comments WHERE CommentID = ?", req.body.commentID, (err) => {
+    if (err) {
+      console.error("Error: " + err);
+      res.json({ success: false, error: "Error"});
+    } else {
+      res.json({ success: true });
+    }
+  });
 }

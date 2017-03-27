@@ -1,6 +1,7 @@
-angular.module('myApp').controller('accountController', function($rootScope, $scope, authService, $state) {
+angular.module('myApp').controller('dashboardController', function($rootScope, $scope, authService, $state, contentService) {
     $scope.showChangePWForm = false;
     $scope.showDeleteAccForm = false;
+    $scope.showMyComments = false;
 
     $scope.showOrHidePWForm = function () {
       if ($scope.showChangePWForm) {
@@ -8,6 +9,7 @@ angular.module('myApp').controller('accountController', function($rootScope, $sc
       } else {
         $scope.showChangePWForm = true;
         $scope.showDeleteAccForm = false;
+        $scope.showMyComments = false;
       }
     }
 
@@ -16,6 +18,18 @@ angular.module('myApp').controller('accountController', function($rootScope, $sc
         $scope.showDeleteAccForm = false;
       } else {
         $scope.showDeleteAccForm = true;
+        $scope.showChangePWForm = false;
+        $scope.showMyComments = false;
+      }
+    }
+
+    $scope.showOrHideMyComments = function () {
+      if ($scope.showMyComments) {
+        $scope.showMyComments = false;
+      } else {
+        $scope.getMyComments();
+        $scope.showMyComments = true;
+        $scope.showDeleteAccForm = false;
         $scope.showChangePWForm = false;
       }
     }
@@ -118,4 +132,66 @@ angular.module('myApp').controller('accountController', function($rootScope, $sc
       }
     }
 
+    $scope.getMyComments = function () {
+      contentService.getMyComments({token : localStorage.getItem('token')}).then(function (res) {
+        var response = angular.fromJson(res).data;
+        if (response.success) {
+          $scope.myComments = response.comments;
+          $scope.noComments = false;
+          $scope.numberOfComments = response.comments.length;
+        } else {
+          console.log(response.error);
+          $scope.noComments = true;
+          $scope.noCommentsError = response.error;
+        }
+      });
+    }
+
+    $scope.confirmDeleteComment = function (commentID) {
+      swal({
+        title: "Are you sure you want to delete this comment?",
+        text: "You will not be able to recover this!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes, delete it!",
+        closeOnConfirm: false
+      },
+      // Callback for confirming delete comment
+        function(){
+          contentService.deleteComment({commentID: commentID, token: localStorage.getItem('token')}).then(function (res) {
+            var response = angular.fromJson(res).data;
+            if (response.success) {
+              // Successfully deleted comment so refresh comments
+              $scope.getMyComments();
+              swal({
+                html: true,
+                title: "<b>Success!</b>",
+                text: "You have successfully deleted that comment.",
+                type: "success"
+                },
+                function(){
+                  swal.close();
+              });
+            } else {
+              swal({
+                title: "Error!",
+                text: response.error,
+                type: "error"
+                },
+                function(){
+                  swal.close();
+              });
+              console.log(response.error);
+            }
+          },
+          function(err) {
+            console.log("Delete Account Error :" + err);
+          });
+      });
+    }
+
+    $scope.takeToPage = function (pageID) {
+      console.log(pageID);
+    }
 });

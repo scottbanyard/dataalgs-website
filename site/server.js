@@ -178,6 +178,8 @@ function setupApi() {
     router.post('/savePage', saveContent);
     router.post('/changepw', attemptChangePassword);
     router.post('/deleteaccount', attemptDeleteAccount);
+    router.post('/mycomments', getMyComments);
+    router.post('/deletecomment', deleteComment);
     // API always begins with localhost8080/api
     app.use('/api', router);
 }
@@ -190,6 +192,10 @@ function createToken(id, name, res) {
             res.json({ success: true, token: token });
         }
     });
+}
+// Converts date from number stored in database to local date
+function convertDate(date) {
+    return new Date(date).toLocaleDateString();
 }
 // Database specifics
 // Hashes a password
@@ -356,4 +362,42 @@ function saveContent(req, res) {
         }
     });
     res.json({ htmlContent: markdown_1.returnHTML(req.body.Content) });
+}
+function getMyComments(req, res) {
+    var userID = req.decoded['userID'];
+    var comments = [];
+    var commentNumber = 0;
+    db.each('SELECT * FROM Comments WHERE UserId = ?', userID, function (err, row) {
+        if (err) {
+            console.error('Error:', err);
+            res.json({ success: false, error: "Error - please check your connection." });
+        }
+        else if (!row) {
+            console.error('User does not exist');
+            res.json({ success: false, error: "You have not made any comments. Start today!" });
+        }
+        else {
+            row.Date = convertDate(row.Date);
+            comments[commentNumber] = row;
+            commentNumber++;
+        }
+    }, function (err, row) {
+        if (commentNumber > 0) {
+            res.json({ success: true, comments: comments });
+        }
+        else {
+            res.json({ success: false, error: "You have not made any comments. Start today!" });
+        }
+    });
+}
+function deleteComment(req, res) {
+    db.run("DELETE FROM Comments WHERE CommentID = ?", req.body.commentID, function (err) {
+        if (err) {
+            console.error("Error: " + err);
+            res.json({ success: false, error: "Error" });
+        }
+        else {
+            res.json({ success: true });
+        }
+    });
 }

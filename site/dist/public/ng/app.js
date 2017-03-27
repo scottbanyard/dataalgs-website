@@ -42,11 +42,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
           controller: 'pagesController',
           data: { pageTitle: "My Pages", auth: true }
       })
-      .state('accountPage', {
-          url: '/account',
-          templateUrl: 'ng-partials/partial-account.html',
-          controller: 'accountController',
-          data: { pageTitle: "My Account", auth: true }
+      .state('dashboardPage', {
+          url: '/dashboard',
+          templateUrl: 'ng-partials/partial-dashboard.html',
+          controller: 'dashboardController',
+          data: { pageTitle: "Dashboard", auth: true }
       })
 
 });

@@ -30,3 +30,9 @@ tr.padding td {
 tbody {
   background-color: white;
 }
+.pointer {
+  cursor: pointer;
+}
+.white {
+  color:white;
+}

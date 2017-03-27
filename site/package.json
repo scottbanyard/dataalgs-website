@@ -30,6 +30,7 @@
     "angular-jwt": "^0.1.9",
     "body-parser": "^1.17.1",
     "cookie-parser": "^1.4.3",
+    "csprng": "^0.1.2",
     "express": "^4.15.2",
     "helmet": "^3.5.0",
     "jsonwebtoken": "^7.3.0",
@@ -37,6 +38,7 @@
     "morgan": "^1.8.1",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
+    "sqlite3": "^3.1.8",
     "ts-optional": "^1.0.2"
   }
 }

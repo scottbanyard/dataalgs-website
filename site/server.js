@@ -124,7 +124,7 @@ function setupApi() {
         var lastName = req.body.lastName;
         createNewUser(firstName + lastName, req.body.email, req.body.password, res);
     });
-    router.post('/content', function (req, res) {
+    router.post('/allComments', function (req, res) {
         var pageID = req.body.pageID;
         db.all('SELECT * FROM Comments WHERE PageID = ?', pageID, function (err, rows) {
             if (err) {
@@ -136,6 +136,9 @@ function setupApi() {
             }
             else {
                 //  console.log("Successful: ",rows);
+                for (var i = 0; i < rows.length; i++) {
+                    rows[i].Date = convertDate(rows[i].Date);
+                }
                 res.json({ success: true, rows: rows });
             }
         });

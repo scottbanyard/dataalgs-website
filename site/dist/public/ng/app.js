@@ -48,6 +48,12 @@ app.config(function ($stateProvider, $urlRouterProvider) {
           controller: 'dashboardController',
           data: { pageTitle: "Dashboard", auth: true }
       })
+      .state('canvasPage', {
+          url: '/canvas',
+          templateUrl: 'ng-partials/partial-canvas.html',
+          controller: 'canvasController',
+          data: { pageTitle: "Canvas", auth: true }
+      })
 
 });
 

@@ -51,3 +51,10 @@ tbody {
 .white {
   color:white;
 }
+#canvas {
+    background:white;
+    border: 1px gray solid;
+    float: left;
+    width:100%;
+    height:auto;
+}

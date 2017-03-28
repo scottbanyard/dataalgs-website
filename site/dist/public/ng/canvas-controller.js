@@ -1,13 +1,16 @@
 angular.module('myApp')
 .controller('canvasController',
     ( $scope ) => {
+
+
+        var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+        canvas.addEventListener("click", drawShape, false);
+
         $scope.title = "Canvas controller";
-
-    $scope.shape = 'Circle';
-    var canvas = document.getElementById('canvas');
-    var context = canvas.getContext('2d');
-
-    canvas.addEventListener("click", drawShape, false);
+        $scope.colour = {red:122,green:122,blue:122};
+        $scope.cssColour = 'rgb(122,122,122)';
+        $scope.shape = 'Circle';
 
     function getMousePosition(event){
         var rect = canvas.getBoundingClientRect();
@@ -29,8 +32,17 @@ angular.module('myApp')
         else if($scope.shape == 'Square'){
             context.rect(coords.x-7, coords.y-7, 15, 15);
         }
-
+        context.strokeStyle=$scope.cssColour;
         context.stroke();
         context.closePath();
     }
+
+    $scope.setColourValue = function(){
+        var red = $scope.colour.red.toString();
+        var green = $scope.colour.green.toString();
+        var blue = $scope.colour.blue.toString();
+        var col = ['rgb(',')'].join([red,green,blue].join(','));
+        $scope.cssColour = col;
+    }
+
 });

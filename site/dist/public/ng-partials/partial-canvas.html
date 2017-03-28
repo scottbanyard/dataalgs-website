@@ -4,6 +4,16 @@
       <button type="button" class="btn btn-primary" data-ng-click="shape='Circle'">Circle</button>
       <button type="button" class="btn btn-primary" data-ng-click="shape='Square'">Square</button>
     </div>
+    <button class="btn" data-ng-style="{'background-color' : cssColour }" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+      Toggle Colour Picker
+    </button>
+    <div class="collapse" id="collapseExample">
+      <div class="well">
+          Red : {{ colour.red }} <input type="range" data-ng-model="colour.red" min="0" max="255" data-ng-change="setColourValue()"/>
+          Green : {{ colour.green }} <input type="range" data-ng-model="colour.green" min="0" max="255" data-ng-change="setColourValue()"/>
+          Blue : {{ colour.blue }} <input type="range" data-ng-model="colour.blue" min="0" max="255" data-ng-change="setColourValue()"/>
+      </div>
+    </div>
     <div class="row">
         <div class="col-md-8">
             <canvas id="canvas" ></canvas>

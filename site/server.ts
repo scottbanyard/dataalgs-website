@@ -160,6 +160,8 @@ function setupApi () : void {
                    res );
   });
 
+  router.get('/getAllPublicPages', getAllPublicPages);
+
   router.post('/allComments', function(req, res) : void {
     var pageID : number = req.body.pageID;
     db.all( 'SELECT * FROM Comments WHERE PageID = ?', pageID,
@@ -180,7 +182,7 @@ function setupApi () : void {
                  }
       });
   });
-// page { pageID:number }
+
   router.post('/loadPage', (req : express.Request & { decoded : DecodedToken, page? : Page  }, res : express.Response, next : express.NextFunction) =>
   {
       db.get('SELECT * FROM Pages WHERE Id = ?', req.body.pageID, (err,row) => {
@@ -209,16 +211,8 @@ function setupApi () : void {
   router.use(checkLoggedIn);
 
   // PROTECTED ROUTES (TOKEN NEEDED)
-  router.post('/makeComment', function(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
-      console.log('page',req.body.pageID);
-        db.run('INSERT INTO Comments (UserID, Date, Title, Content, PageID, Name) VALUES (?,?,?,?,?,?)',
-                [ req.decoded['userID']
-                , req.body.time
-                , req.body.comment.title
-                , req.body.comment.body
-                , req.body.pageID
-                , req.decoded['name'] ]);
-  });
+  router.post('/makeComment', makeComment);
+
   router.post('/savePage', saveContent);
 
   router.post('/changepw', attemptChangePassword);
@@ -448,6 +442,17 @@ function saveContent( req: express.Request & { decoded : DecodedToken }, res : e
     res.json({ htmlContent:returnHTML(req.body.Content) });
 }
 
+function makeComment(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
+  console.log('page',req.body.pageID);
+  db.run('INSERT INTO Comments (UserID, Date, Title, Content, PageID, Name) VALUES (?,?,?,?,?,?)',
+            [ req.decoded['userID']
+            , req.body.time
+            , req.body.comment.title
+            , req.body.comment.body
+            , req.body.pageID
+            , req.decoded['name'] ]);
+}
+
 function getMyComments(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
   var userID : number = req.decoded['userID'];
   var comments : object[] = [];
@@ -482,5 +487,20 @@ function deleteComment(req : express.Request & { decoded : DecodedToken }, res :
     } else {
       res.json({ success: true });
     }
+  });
+}
+
+function getAllPublicPages(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
+  db.all("SELECT Id, Title, Creator, LastEdit FROM Pages WHERE PrivateView = 0", function(err, rows) {
+      if (err) {
+        res.json({ success: false, error: "Error"});
+      } else if (!rows) {
+        res.json({ success: false, error: "There are no public pages currently!"});
+      } else {
+        rows.forEach(function (row) {
+          row.LastEdit = convertDate(row.LastEdit);
+        });
+        res.json({ success: true, pages: rows });
+      }
   });
 }

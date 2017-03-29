@@ -124,6 +124,7 @@ function setupApi() {
         var lastName = req.body.lastName;
         createNewUser(firstName + lastName, req.body.email, req.body.password, res);
     });
+    router.get('/getAllPublicPages', getAllPublicPages);
     router.post('/allComments', function (req, res) {
         var pageID = req.body.pageID;
         db.all('SELECT * FROM Comments WHERE PageID = ?', pageID, function (err, rows) {
@@ -135,7 +136,7 @@ function setupApi() {
                 res.json({ success: false });
             }
             else {
-                //  console.log("Successful: ",rows);
+                // Convert each date to local readable date
                 for (var i = 0; i < rows.length; i++) {
                     rows[i].Date = convertDate(rows[i].Date);
                 }
@@ -143,7 +144,6 @@ function setupApi() {
             }
         });
     });
-    // page { pageID:number }
     router.post('/loadPage', function (req, res, next) {
         db.get('SELECT * FROM Pages WHERE Id = ?', req.body.pageID, function (err, row) {
             if (err) {
@@ -169,15 +169,7 @@ function setupApi() {
     // TOKENS NEEDED TO ACCESS REST OF API
     router.use(checkLoggedIn);
     // PROTECTED ROUTES (TOKEN NEEDED)
-    router.post('/makeComment', function (req, res) {
-        console.log('page', req.body.pageID);
-        db.run('INSERT INTO Comments (UserID, Date, Title, Content, PageID, Name) VALUES (?,?,?,?,?,?)', [req.decoded['userID'],
-            req.body.time,
-            req.body.comment.title,
-            req.body.comment.body,
-            req.body.pageID,
-            req.decoded['name']]);
-    });
+    router.post('/makeComment', makeComment);
     router.post('/savePage', saveContent);
     router.post('/changepw', attemptChangePassword);
     router.post('/deleteaccount', attemptDeleteAccount);
@@ -366,6 +358,15 @@ function saveContent(req, res) {
     });
     res.json({ htmlContent: markdown_1.returnHTML(req.body.Content) });
 }
+function makeComment(req, res) {
+    console.log('page', req.body.pageID);
+    db.run('INSERT INTO Comments (UserID, Date, Title, Content, PageID, Name) VALUES (?,?,?,?,?,?)', [req.decoded['userID'],
+        req.body.time,
+        req.body.comment.title,
+        req.body.comment.body,
+        req.body.pageID,
+        req.decoded['name']]);
+}
 function getMyComments(req, res) {
     var userID = req.decoded['userID'];
     var comments = [];
@@ -401,6 +402,23 @@ function deleteComment(req, res) {
         }
         else {
             res.json({ success: true });
+        }
+    });
+}
+function getAllPublicPages(req, res) {
+    db.all("SELECT Id, Title, Creator, LastEdit FROM Pages WHERE PrivateView = 0", function (err, rows) {
+        if (err) {
+            res.json({ success: false, error: "Error" });
+        }
+        else if (!rows) {
+            res.json({ success: false, error: "There are no public pages currently!" });
+        }
+        else {
+            rows.forEach(function (row) {
+                row.LastEdit = convertDate(row.LastEdit);
+            });
+            console.log(rows);
+            res.json({ success: true, pages: rows });
         }
     });
 }

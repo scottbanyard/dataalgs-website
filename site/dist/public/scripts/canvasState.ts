@@ -52,9 +52,7 @@ class CanvasState{
     }
     addShape(shape:Shape)
     {
-        console.log( this.shapes, shape );
         this.shapes.push(shape);
-        console.log( this.shapes, shape );
     }
     replaceShape( index : number, shape:Shape )
     {

@@ -2,6 +2,8 @@ angular.module('myApp')
 .controller('canvasController',
     ( $scope ) => {
         var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+        var canvasState = new CanvasState();
         canvas.onclick = newShape;
 
         $scope.title = "Canvas controller";
@@ -65,4 +67,15 @@ angular.module('myApp')
             canvasState.getShapes().map(drawShape);
         }
 
+        function drawAllColours()
+        {
+            function rgb(a,b,c)
+            {
+                return {red : a, green :b, blue : c};
+            }
+            var red    = rgb(255,0,0); // top left
+            var blue   = rgb(0,0,255); // top right
+            var green  = rgb(0,255,0); // bottom right
+            var yellow = rgb(255,255,0); // bottom left
+        }
 });

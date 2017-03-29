@@ -19,9 +19,7 @@ class CanvasState {
         this.shapes = [];
     }
     addShape(shape) {
-        console.log(this.shapes, shape);
         this.shapes.push(shape);
-        console.log(this.shapes, shape);
     }
     replaceShape(index, shape) {
         if (index >= 0 && index < this.shapes.length) {

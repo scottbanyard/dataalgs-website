@@ -1,6 +1,7 @@
 .home-title {
   color:white;
   font-size: 3em;
+  padding-bottom: 1em;
 }
 .content-title {
   color:white;
@@ -57,4 +58,10 @@ tbody {
     float: left;
     width:100%;
     height:auto;
+}
+.pages-box {
+  padding-top: 1em;
+  padding-bottom: 1em;
+  background-color: grey;
+  border-radius: 1em;
 }

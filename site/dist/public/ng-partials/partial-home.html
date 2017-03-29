@@ -1,3 +1,23 @@
 <div class="container" align="center">
   <h2 class="home-title">Algorithms &amp; Data Structures Educational Resource</h2>
 </div>
+
+<div class="col-md-4 col-md-offset-1 pages-box">
+  <h2 class="white center">Most Popular</h2>
+  <ul class="list-group">
+    <li class="list-group-item justify-content-between pointer" data-ng-repeat="page in pages"> <!-- orderBy: rating when added? -->
+      {{ page.Title }}
+      <span class="badge badge-default badge-pill">{{ page.LastEdit }}</span> <!-- Rating ? -->
+    </li>
+  </ul>
+</div>
+
+<div class="col-md-4 col-md-offset-1 pages-box">
+  <h2 class="white center">Recently Edited</h2>
+  <ul class="list-group">
+    <li class="list-group-item justify-content-between pointer" data-ng-repeat="page in pages | orderBy: LastEdit">
+      {{ page.Title }}
+      <span class="badge badge-default badge-pill">{{ page.LastEdit }}</span>
+    </li>
+  </ul>
+</div>

@@ -1,22 +1,33 @@
 <div class="container">
     <h1>{{ title }}</h1>
-    <div class="btn-group">
+    <!-- <div class="btn-group">
       <button type="button" class="btn btn-primary" data-ng-click="shape='Circle'">Circle</button>
       <button type="button" class="btn btn-primary" data-ng-click="shape='Square'">Square</button>
+    </div> -->
+    <div class="btn-group">
+        <button class="btn" type="button" data-toggle="collapse" data-target="#shapePicker">Shapes
+        </button>
+        <button class="btn" data-ng-style="{'background-color' : cssColour }" type="button" data-toggle="collapse" data-target="#colourPicker" aria-expanded="false" aria-controls="colourPicker">
+          Colour Picker
+        </button>
     </div>
-    <button class="btn" data-ng-style="{'background-color' : cssColour }" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-      Toggle Colour Picker
-    </button>
-    <div class="collapse" id="collapseExample">
+
+    <div class="collapse" id="colourPicker">
       <div class="well">
           Red : {{ colour.red }} <input type="range" data-ng-model="colour.red" min="0" max="255" data-ng-change="setColourValue()"/>
           Green : {{ colour.green }} <input type="range" data-ng-model="colour.green" min="0" max="255" data-ng-change="setColourValue()"/>
           Blue : {{ colour.blue }} <input type="range" data-ng-model="colour.blue" min="0" max="255" data-ng-change="setColourValue()"/>
       </div>
     </div>
+    <div class="collapse" id="shapePicker">
+        <div class="btn-group">
+          <button type="button" class="btn" data-ng-click="shape='Circle'">Circle</button>
+          <button type="button" class="btn" data-ng-click="shape='Rectangle'">Square</button>
+      </div>
+    </div>
     <div class="row">
-        <div class="col-md-8">
-            <canvas id="canvas" ></canvas>
-        </div>
+        <!-- <div class="col-md-8"> -->
+            <canvas id="canvas"> Your browser doesn't support canvas! </canvas>
+        <!-- </div> -->
     </div>
 </div>

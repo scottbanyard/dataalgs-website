@@ -52,12 +52,14 @@ tbody {
 .white {
   color:white;
 }
-.canvas {
-    background:white;
-    border: 1px gray solid;
-    float: left;
+.fillspace{
     width:100%;
     height:auto;
+}
+.canvas {
+    background:white;
+    border: 1px solid gray;
+    float: center;
 }
 .pages-box {
   padding-top: 1em;

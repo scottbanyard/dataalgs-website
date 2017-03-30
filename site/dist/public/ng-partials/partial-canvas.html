@@ -10,24 +10,39 @@
         <button class="btn" data-ng-style="{'background-color' : cssColour }" type="button" data-toggle="collapse" data-target="#colourPicker" aria-expanded="false" aria-controls="colourPicker">
           Colour Picker
         </button>
-    </div>
 
-    <div class="collapse" id="colourPicker">
-      <div class="well">
-          Red : {{ colour.red }} <input type="range" data-ng-model="colour.red" min="0" max="255" data-ng-change="setColourValue()"/>
-          Green : {{ colour.green }} <input type="range" data-ng-model="colour.green" min="0" max="255" data-ng-change="setColourValue()"/>
-          Blue : {{ colour.blue }} <input type="range" data-ng-model="colour.blue" min="0" max="255" data-ng-change="setColourValue()"/>
-      </div>
     </div>
     <div class="collapse" id="shapePicker">
-        <div class="btn-group">
-          <button type="button" class="btn" data-ng-click="shape='Circle'">Circle</button>
-          <button type="button" class="btn" data-ng-click="shape='Rectangle'">Square</button>
-      </div>
+        <div class="container-fluid"> 
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        <svg class="img-fluid" xmlns="http://www.w3.org/2000/svg"
+                             viewBox="0 0 138 68">
+                             <rect x="68" y="2" height="64" width="64" data-ng-style="{'stroke': cssColour }" data-ng-click="shape='Rectangle'">
+                                 <title>Rectangle</title>
+                             </rect>
+                            <circle cx="34" cy="34" r="32" data-ng-style="{'stroke': cssColour }" data-ng-click="shape='Circle'">
+                                <title>Circle</title>
+                            </circle >
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+
     </div>
-    <div class="row">
-        <!-- <div class="col-md-8"> -->
-            <canvas id="canvas"> Your browser doesn't support canvas! </canvas>
-        <!-- </div> -->
+    <div class="collapse fillspace" id="colourPicker">
+        <div class="row">
+            <span class="label" data-ng-style="{'background-color' : cssColour }">Current Colour</span>
+            <span class="label" data-ng-style="{'background-color' : selected }">Selected Colour</span>
+            <canvas id="grad" class="fillspace center">
+                Your browser doesn't support canvas!
+            </canvas>
+        </div>
     </div>
+
+    <div class="row" >
+        <canvas id="canvas" class="canvas fillspace"> Your browser doesn't support canvas! </canvas>
+    </div>
+
 </div>

@@ -36,12 +36,6 @@ app.config(function ($stateProvider, $urlRouterProvider) {
           controller: 'contentController',
           data: { pageTitle: "Content", auth: false }
       })
-      .state('pagesPage', {
-          url: '/mypages',
-          templateUrl: 'ng-partials/partial-mypages.html',
-          controller: 'pagesController',
-          data: { pageTitle: "My Pages", auth: true }
-      })
       .state('dashboardPage', {
           url: '/dashboard',
           templateUrl: 'ng-partials/partial-dashboard.html',
@@ -53,6 +47,12 @@ app.config(function ($stateProvider, $urlRouterProvider) {
           templateUrl: 'ng-partials/partial-canvas.html',
           controller: 'canvasController',
           data: { pageTitle: "Canvas", auth: true }
+      })
+      .state('createPage', {
+          url: '/create',
+          templateUrl: 'ng-partials/partial-create.html',
+          controller: 'createController',
+          data: { pageTitle: "Page Creation", auth: true }
       })
 
 });

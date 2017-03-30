@@ -33,7 +33,7 @@ angular.module('myApp')
                                       $scope.pageInfo = response;
                                       var content = $scope.pageInfo.htmlContent;
                                   }
-                                  else {
+                                  else
                                       // Don't have the access rights to view page or it doesn't exist, take back to home page.
                                       $state.go('homePage');
                                   }

@@ -2,12 +2,14 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
     $scope.showChangePWForm = false;
     $scope.showDeleteAccForm = false;
     $scope.showMyComments = false;
+    $scope.showMyPages = false;
 
     $scope.showOrHidePWForm = function () {
       if ($scope.showChangePWForm) {
         $scope.showChangePWForm = false;
       } else {
         $scope.showChangePWForm = true;
+        $scope.showMyPages = false;
         $scope.showDeleteAccForm = false;
         $scope.showMyComments = false;
       }
@@ -18,6 +20,7 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
         $scope.showDeleteAccForm = false;
       } else {
         $scope.showDeleteAccForm = true;
+        $scope.showMyPages = false;
         $scope.showChangePWForm = false;
         $scope.showMyComments = false;
       }
@@ -29,6 +32,19 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
       } else {
         $scope.getMyComments();
         $scope.showMyComments = true;
+        $scope.showMyPages = false;
+        $scope.showDeleteAccForm = false;
+        $scope.showChangePWForm = false;
+      }
+    }
+
+    $scope.showOrHideMyPages = function () {
+      if ($scope.showMyPages) {
+        $scope.showMyPages = false;
+      } else {
+        $scope.getMyPages();
+        $scope.showMyPages = true;
+        $scope.showMyComments = false;
         $scope.showDeleteAccForm = false;
         $scope.showChangePWForm = false;
       }
@@ -191,7 +207,66 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
       });
     }
 
+    $scope.getMyPages = function () {
+      contentService.getMyPages({token : localStorage.getItem('token')}).then(function (res) {
+        var response = angular.fromJson(res).data;
+        if (response.success) {
+          $scope.myPages = response.pages;
+          $scope.noPages = false;
+          $scope.numberOfPages = response.pages.length;
+        } else {
+          console.log(response.error);
+          $scope.noPages = true;
+          $scope.noPagesError = response.error;
+        }
+      });
+    }
+
     $scope.takeToPage = function (pageID) {
-      console.log(pageID);
+      $state.go('contentPage', {id: pageID});
+    }
+
+    $scope.confirmDeletePage = function (pageID) {
+      swal({
+        title: "Are you sure you want to delete this page?",
+        text: "You will not be able to recover this!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes, delete it!",
+        closeOnConfirm: false
+      },
+      // Callback for confirming delete page
+        function(){
+          contentService.deletePage({pageID: pageID, token: localStorage.getItem('token')}).then(function (res) {
+            var response = angular.fromJson(res).data;
+            if (response.success) {
+              // Successfully deleted page so refresh comments
+              $scope.getMyPages();
+              swal({
+                html: true,
+                title: "<b>Success!</b>",
+                text: "You have successfully deleted that page.",
+                type: "success"
+                },
+                function(){
+                  swal.close();
+              });
+            } else {
+              swal({
+                title: "Error!",
+                text: response.error,
+                type: "error"
+                },
+                function(){
+                  swal.close();
+              });
+              console.log(response.error);
+            }
+          },
+          function(err) {
+            console.log("Delete Account Error :" + err);
+          });
+      });
     }
 });

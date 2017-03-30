@@ -51,7 +51,7 @@ tbody {
 .white {
   color:white;
 }
-#canvas {
+.canvas {
     background:white;
     border: 1px gray solid;
     float: left;

@@ -16,6 +16,22 @@ angular.module('myApp').factory('contentService', function ($http, $q) {
           return deferred.promise;
         },
 
+        getAllPublicPages: function (request) {
+          var pages = null;
+          var deferred = $q.defer();
+
+          $http.get(apiURL + "getAllPublicPages").then(function (result) {
+              pages = result.data;
+              deferred.resolve(pages);
+          }, function (error) {
+              pages = error;
+              deferred.reject(pages);
+          });
+
+          pages = deferred.promise;
+          return deferred.promise;
+        },
+
         getPage: function (request) {
             var deferred = $q.defer();
 

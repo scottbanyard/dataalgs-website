@@ -1,6 +1,9 @@
 angular.module('myApp')
 .controller('contentController',
     ($scope, contentService, $state, $stateParams) => {
+
+        $scope.isEditing = false;
+
         function getComments(){
             contentService.getComments({ pageID: $state.params.id })
                           .then((res) => {
@@ -13,9 +16,8 @@ angular.module('myApp')
                               }
                           );
         }
-        getComments();
-        $scope.isEditing = false;
-        $scope.makeComment = function(){
+
+        $scope.makeComment = function() {
             if( "undefined" !== typeof $scope.newComment ){
                 contentService.addComment({ token:localStorage.getItem('token'),
                                             comment: $scope.newComment,
@@ -32,12 +34,15 @@ angular.module('myApp')
                                   if (response.success){
                                       $scope.pageInfo = response;
                                       var content = $scope.pageInfo.htmlContent;
+                                      getComments();
                                   }
-                                  else
-                                      // Don't have the access rights to view page or it doesn't exist, take back to home page.
+                                  else {
                                       $state.go('homePage');
                                   }
-                              );
+                                }, (err) => {
+                                      // Don't have the access rights to view page or it doesn't exist, take back to home page. (POST will return 403)
+                                      $state.go('homePage');
+                                });
     });
 
  // input boxes content

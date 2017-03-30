@@ -39,11 +39,13 @@ angular.module('myApp').factory('contentService', function ($http, $q) {
             .then(function (res) {
               deferred.resolve(res);
             })
-            .catch(function( err) {
+            .catch(function(err) {
               console.log("Error getting page POST: " + err);
+              deferred.reject(err);
             })
             return deferred.promise;
         },
+
         savePage: function (request) {
             var deferred = $q.defer();
 
@@ -91,7 +93,7 @@ angular.module('myApp').factory('contentService', function ($http, $q) {
             deferred.resolve(res);
           })
           .catch(function( err) {
-            console.log("Error getting page POST: " + err);
+            console.log("Error deleting comment POST: " + err);
           })
           return deferred.promise;
         },
@@ -104,7 +106,7 @@ angular.module('myApp').factory('contentService', function ($http, $q) {
             deferred.resolve(res);
           })
           .catch(function( err) {
-            console.log("Error getting page POST: " + err);
+            console.log("Error getting my pages POST: " + err);
           })
           return deferred.promise;
         },

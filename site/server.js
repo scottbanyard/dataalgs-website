@@ -339,7 +339,19 @@ function canEditCallback(canEdit, page, res) {
     });
 }
 function loadPrivatePage(req, res) {
-    console.log(req.page);
+    var userID = req.decoded['userID'];
+    var pageCreator = req.page.Creator;
+    if (pageCreator == userID) {
+        res.json({ success: true,
+            htmlContent: markdown_1.returnHTML(req.page.Content),
+            page: req.page
+        });
+    }
+    else {
+        res.json({ success: false,
+            error: "Not authorised - don't own the private page."
+        });
+    }
 }
 function saveContent(req, res) {
     db.get('SELECT * FROM Pages WHERE Id = ?', req.body.pageID, function (err, row) {
@@ -365,7 +377,6 @@ function saveContent(req, res) {
     res.json({ htmlContent: markdown_1.returnHTML(req.body.Content) });
 }
 function makeComment(req, res) {
-    console.log('page', req.body.pageID);
     db.run('INSERT INTO Comments (UserID, Date, Title, Content, PageID, Name) VALUES (?,?,?,?,?,?)', [req.decoded['userID'],
         req.body.time,
         req.body.comment.title,

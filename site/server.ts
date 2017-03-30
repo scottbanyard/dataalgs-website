@@ -210,7 +210,6 @@ function setupApi () : void {
   // TOKENS NEEDED TO ACCESS REST OF API
   router.use(checkLoggedIn);
 
-
   // PROTECTED ROUTES (TOKEN NEEDED)
   router.post('/loadPage', loadPrivatePage);
 
@@ -419,7 +418,18 @@ function canEditCallback(canEdit,page,res) : void
 }
 
 function loadPrivatePage(req: express.Request & { decoded : DecodedToken, page : Page }, res : express.Response ) : void {
-  console.log(req.page);
+  var userID : number = req.decoded['userID'];
+  var pageCreator : number = req.page.Creator;
+  if (pageCreator == userID) {
+    res.json({ success: true,
+               htmlContent:returnHTML(req.page.Content),
+               page:req.page
+           });
+  } else {
+    res.json({ success: false,
+               error: "Not authorised - don't own the private page."
+           });
+  }
 }
 
 
@@ -456,7 +466,6 @@ function saveContent( req: express.Request & { decoded : DecodedToken }, res : e
 }
 
 function makeComment(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
-  console.log('page',req.body.pageID);
   db.run('INSERT INTO Comments (UserID, Date, Title, Content, PageID, Name) VALUES (?,?,?,?,?,?)',
             [ req.decoded['userID']
             , req.body.time

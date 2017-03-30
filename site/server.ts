@@ -162,6 +162,8 @@ function setupApi () : void {
 
   router.get('/getAllPublicPages', getAllPublicPages);
 
+  router.post('/previewHTML', parseMarkdown);
+
   router.post('/allComments', function(req, res) : void {
     var pageID : number = req.body.pageID;
     db.all( 'SELECT * FROM Comments WHERE PageID = ?', pageID,
@@ -245,6 +247,10 @@ function createToken( id : number, name : string, res : express.Response )
                 res.json({ success: true, token: token });
               }
             });
+}
+
+function parseMarkdown(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
+  res.json({ success: true, html: returnHTML(req.body.content) });
 }
 
 // Converts date from number stored in database to local date

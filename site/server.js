@@ -125,6 +125,7 @@ function setupApi() {
         createNewUser(firstName + lastName, req.body.email, req.body.password, res);
     });
     router.get('/getAllPublicPages', getAllPublicPages);
+    router.post('/previewHTML', parseMarkdown);
     router.post('/allComments', function (req, res) {
         var pageID = req.body.pageID;
         db.all('SELECT * FROM Comments WHERE PageID = ?', pageID, function (err, rows) {
@@ -190,6 +191,9 @@ function createToken(id, name, res) {
             res.json({ success: true, token: token });
         }
     });
+}
+function parseMarkdown(req, res) {
+    res.json({ success: true, html: markdown_1.returnHTML(req.body.content) });
 }
 // Converts date from number stored in database to local date
 function convertDate(date) {

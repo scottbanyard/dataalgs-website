@@ -123,5 +123,18 @@ angular.module('myApp').factory('contentService', function ($http, $q) {
           })
           return deferred.promise;
         },
+
+        previewHTML: function (request) {
+          var deferred = $q.defer();
+
+          $http.post(apiURL + "previewHTML", request)
+          .then(function (res) {
+            deferred.resolve(res);
+          })
+          .catch(function( err) {
+            console.log("Error getting page POST: " + err);
+          })
+          return deferred.promise;
+        }
     }
 });

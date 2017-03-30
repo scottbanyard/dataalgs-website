@@ -223,6 +223,10 @@ function setupApi () : void {
 
   router.post('/deletecomment', deleteComment);
 
+  router.post('/mypages', getMyPages);
+
+  router.post('/deletepage', deletePage);
+
   // API always begins with localhost8080/api
   app.use('/api', router);
 }
@@ -502,5 +506,41 @@ function getAllPublicPages(req : express.Request & { decoded : DecodedToken }, r
         });
         res.json({ success: true, pages: rows });
       }
+  });
+}
+
+function getMyPages(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
+  var userID : number = req.decoded['userID'];
+  var pages : object[] = [];
+  var pageNumber : number = 0;
+  db.each('SELECT * FROM Pages WHERE Creator = ?', userID, (err,row) => {
+    if (err){
+        console.error('Error:', err);
+        res.json({ success: false, error: "Error - please check your connection."});
+    }
+    else if (!row){
+        res.json({ success: false, error: "You have not made any pages. Start today using the Create tab!"});
+    } else {
+        row.LastEdit = convertDate(row.LastEdit);
+        pages[pageNumber] = row;
+        pageNumber++;
+    }
+  }, (err, row) => {
+    if (pageNumber > 0) {
+      res.json({ success: true, pages: pages });
+    } else {
+      res.json({ success: false, error: "You have not made any pages. Start today using the Create tab!"});
+    }
+  });
+}
+
+function deletePage(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
+  db.run("DELETE FROM Pages WHERE Id = ?", req.body.pageID, (err) => {
+    if (err) {
+      console.error("Error: " + err);
+      res.json({ success: false, error: "Error"});
+    } else {
+      res.json({ success: true });
+    }
   });
 }

@@ -1,4 +1,4 @@
-angular.module('myApp').controller('homeController', function($scope, contentService) {
+angular.module('myApp').controller('homeController', function($scope, contentService, $state, $stateParams) {
   $scope.getPages = function () {
     contentService.getAllPublicPages().then(function (res) {
       if (res.success) {
@@ -9,5 +9,9 @@ angular.module('myApp').controller('homeController', function($scope, contentSer
     });
   }
   $scope.getPages();
+
+  $scope.selectedPublicPage = function (id) {
+    $state.go('contentPage', {id: id});
+  }
 
 });

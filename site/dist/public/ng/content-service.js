@@ -94,6 +94,32 @@ angular.module('myApp').factory('contentService', function ($http, $q) {
             console.log("Error getting page POST: " + err);
           })
           return deferred.promise;
-        }
+        },
+
+        getMyPages: function (request) {
+          var deferred = $q.defer();
+
+          $http.post(apiURL + "mypages", request)
+          .then(function (res) {
+            deferred.resolve(res);
+          })
+          .catch(function( err) {
+            console.log("Error getting page POST: " + err);
+          })
+          return deferred.promise;
+        },
+
+        deletePage: function (request) {
+          var deferred = $q.defer();
+
+          $http.post(apiURL + "deletepage", request)
+          .then(function (res) {
+            deferred.resolve(res);
+          })
+          .catch(function( err) {
+            console.log("Error getting page POST: " + err);
+          })
+          return deferred.promise;
+        },
     }
 });

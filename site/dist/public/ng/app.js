@@ -31,7 +31,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
           data: { pageTitle: "About Us", auth: false }
       })
       .state('contentPage', {
-          url: '/content',
+          url: '/content/:id',
           templateUrl: 'ng-partials/partial-content.html',
           controller: 'contentController',
           data: { pageTitle: "Content", auth: false }

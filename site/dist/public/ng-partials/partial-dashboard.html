@@ -14,7 +14,7 @@
                             <table class="table">
                                 <tr class="border_bottom padding">
                                     <td>
-                                        <span class="glyphicon glyphicon-file text-primary"></span><a href="">My Pages</a>
+                                        <span class="glyphicon glyphicon-file text-primary"></span><a data-ng-click="showOrHideMyPages()" href="">My Pages</a>
                                     </td>
                                 </tr>
                                 <tr class="border_bottom padding">
@@ -162,6 +162,38 @@
                     </td>
                     <td class="center pointer">
                       <i data-ng-click="confirmDeleteComment(comment.CommentID)" class="glyphicon glyphicon-trash text-danger"></i>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- My Pages -->
+            <div class="col-md-12" data-ng-show="showMyPages" data-ng-cloak="">
+              <h2 class="center white">My Pages</h2>
+              <h3 data-ng-show="noPages" class="center white">{{ noPagesError }}</h3>
+              <table data-ng-show="!noPages" class="table table-hover table-bordered">
+                <thead>
+                  <tr>
+                    <th class="comment-header">Title</th>
+                    <th class="comment-header">View Page</th>
+                    <th class="comment-header">Private View?</th>
+                    <th class="comment-header">Private Edit?</th>
+                    <th class="comment-header">Last Edit</th>
+                    <th class="comment-header">Delete?</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr data-ng-repeat="page in myPages">
+                    <td class="">{{ page.Title }}</td>
+                    <td class="center pointer">
+                      <i data-ng-click="takeToPage(page.Id)" class="glyphicon glyphicon-file text-primary"></i>
+                    </td>
+                    <td class="">{{ page.PrivateView == 0 ? "No" : "Yes" }}</td>
+                    <td class="">{{ page.PrivateEdit == 0 ? "No" : "Yes" }}</td>
+                    <td class="">{{ page.LastEdit }}</td>
+                    <td class="center pointer">
+                      <i data-ng-click="confirmDeletePage(page.Id)" class="glyphicon glyphicon-trash text-danger"></i>
                     </td>
                   </tr>
                 </tbody>

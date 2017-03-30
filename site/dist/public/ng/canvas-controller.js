@@ -3,17 +3,38 @@ angular.module('myApp')
     ( $scope ) => {
         var canvas = document.getElementById('canvas');
         var context = canvas.getContext('2d');
-        var canvasState = new CanvasState();
         canvas.onclick = newShape;
 
-        $scope.title = "Canvas controller";
-        $scope.colour = {red:122,green:122,blue:122};
-        $scope.cssColour = toCSSColour($scope.colour);
-        $scope.setColourValue = () => {
-            $scope.cssColour = toCSSColour($scope.colour);
-        }
-        $scope.shape = 'Circle';
+        var colourCanvas = document.getElementById('grad');
+        var colourContext = colourCanvas.getContext('2d');
 
+
+        var colImg = new Image();
+        colImg.onload = () => {
+            colourCanvas.width = colImg.width;
+            colourCanvas.height = colImg.height;
+            colourContext.drawImage(colImg, 0, 0, colImg.width, colImg.height);
+        }
+        colImg.src = "imgs/colours.png";
+
+        colourCanvas.onclick = (event) => {
+            $scope.$apply(() => {
+                var col = currentColour(event);
+                $scope.cssColour = rgbCSS(col);
+                $scope.colour = rgb(col);
+            })
+        };
+        colourCanvas.onmousemove = (event) => {
+            $scope.$apply(() => $scope.selected = rgbCSS(currentColour(event)));
+        };
+
+        var canvasState = new CanvasState();
+
+        $scope.title = "Canvas controller";
+        $scope.colour = {red : 122, green:122, blue:122};
+        $scope.cssColour = "rgb(122,122,122)";
+        $scope.selected = "white";
+        $scope.shape = 'Circle';
         function getMousePosition(event)
         {
             var rect = canvas.getBoundingClientRect();
@@ -27,14 +48,12 @@ angular.module('myApp')
 
         function newShape(event)
         {
-            var rect = canvas.getBoundingClientRect();
             var coords = getMousePosition(event);
             var shape = { kind:angular.copy($scope.shape),
                           centre:coords,
                           colour:angular.copy($scope.colour)};
             if($scope.shape == 'Circle'){
-                console.log(canvas.width);
-                shape.radius = Math.round(canvas.width / 10);
+                shape.radius = Math.round(7);
                 canvasState.addShape(shape);
             }
             else if($scope.shape == 'Rectangle'){
@@ -42,7 +61,6 @@ angular.module('myApp')
                 shape.height = 15;
                 canvasState.addShape(shape);
             }
-
             redrawAll();
         }
 
@@ -67,15 +85,17 @@ angular.module('myApp')
             canvasState.getShapes().map(drawShape);
         }
 
-        function drawAllColours()
+        function currentColour(event){
+            var x = event.layerX;
+            var y = event.layerY;
+            return colourContext.getImageData(x, y, 1, 1).data;
+        }
+        function rgb(data)
         {
-            function rgb(a,b,c)
-            {
-                return {red : a, green :b, blue : c};
-            }
-            var red    = rgb(255,0,0); // top left
-            var blue   = rgb(0,0,255); // top right
-            var green  = rgb(0,255,0); // bottom right
-            var yellow = rgb(255,255,0); // bottom left
+            return {red : data[0], green :data[1], blue : data[2]};
+        }
+        function rgbCSS(data)
+        {
+            return ['rgb(',')'].join(data.slice(0,3).join(','));
         }
 });

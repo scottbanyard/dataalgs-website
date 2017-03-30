@@ -169,6 +169,7 @@ function setupApi() {
     // TOKENS NEEDED TO ACCESS REST OF API
     router.use(checkLoggedIn);
     // PROTECTED ROUTES (TOKEN NEEDED)
+    router.post('/loadPage', loadPrivatePage);
     router.post('/makeComment', makeComment);
     router.post('/savePage', saveContent);
     router.post('/changepw', attemptChangePassword);
@@ -336,6 +337,9 @@ function canEditCallback(canEdit, page, res) {
         page: page,
         editable: canEdit
     });
+}
+function loadPrivatePage(req, res) {
+    console.log(req.page);
 }
 function saveContent(req, res) {
     db.get('SELECT * FROM Pages WHERE Id = ?', req.body.pageID, function (err, row) {

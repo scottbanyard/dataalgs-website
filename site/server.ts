@@ -210,7 +210,10 @@ function setupApi () : void {
   // TOKENS NEEDED TO ACCESS REST OF API
   router.use(checkLoggedIn);
 
+
   // PROTECTED ROUTES (TOKEN NEEDED)
+  router.post('/loadPage', loadPrivatePage);
+
   router.post('/makeComment', makeComment);
 
   router.post('/savePage', saveContent);
@@ -405,6 +408,7 @@ function loadPage( page:Page, req: express.Request & { decoded : DecodedToken, p
     }
 
 }
+
 function canEditCallback(canEdit,page,res) : void
 {
     res.json({ success: true,
@@ -413,6 +417,11 @@ function canEditCallback(canEdit,page,res) : void
                editable:canEdit
            });
 }
+
+function loadPrivatePage(req: express.Request & { decoded : DecodedToken, page : Page }, res : express.Response ) : void {
+  console.log(req.page);
+}
+
 
 function saveContent( req: express.Request & { decoded : DecodedToken }, res : express.Response):void
 {

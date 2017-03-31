@@ -172,7 +172,6 @@ function setupApi() {
     // TOKENS NEEDED TO ACCESS REST OF API
     router.use(checkLoggedIn);
     // PROTECTED ROUTES (TOKEN NEEDED)
-    router.post('/checkCanEdit', checkCanEditPage);
     router.post('/loadPage', loadPrivatePage);
     router.post('/makeComment', makeComment);
     router.post('/savePage', saveContent);
@@ -466,9 +465,4 @@ function deletePage(req, res) {
             res.json({ success: true });
         }
     });
-}
-function checkCanEditPage(req, res) {
-    var userID = req.decoded['userID'];
-    var creatorID = req.body.Creator;
-    console.log("User ID : " + userID + ", creator iD : " + creatorID);
 }

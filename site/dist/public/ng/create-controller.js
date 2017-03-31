@@ -23,13 +23,11 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
                               var response = angular.fromJson(res).data;
                               if (response.success){
                                   $scope.pageInfo = response;
-                                  console.log($scope.pageInfo.page.Content);
                                   $scope.page.Title = angular.copy($scope.pageInfo.page.Title);
                                   $scope.page.PrivateView = angular.copy($scope.pageInfo.page.PrivateView);
                                   $scope.page.PrivateEdit = angular.copy($scope.pageInfo.page.PrivateEdit);
                                   $scope.page.LastEdit = angular.copy($scope.pageInfo.page.LastEdit);
-                                  $scope.markdown = angular.copy($scope.pageInfo.page.Content);
-
+                                  $('#myEditor').markdownEditor('setContent', $scope.pageInfo.page.Content); // Sets the content of the editor
                               }
                               else {
                                   $state.go('homePage');

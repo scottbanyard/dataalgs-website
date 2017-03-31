@@ -162,7 +162,9 @@ function setupApi() {
                     next();
                 }
                 else {
-                    loadPage(row, req, res);
+                    res.json({ success: true,
+                        htmlContent: markdown_1.returnHTML(row.Content),
+                        page: row });
                 }
             }
         });
@@ -324,23 +326,6 @@ function checkLoggedIn(req, res, next) {
         // no token provided
         return res.status(403).send({ success: false, message: "No token provided." });
     }
-}
-function loadPage(page, req, res) {
-    if (1 == page.PrivateEdit) {
-        checkLoggedIn(req, res, function (req, res) {
-            canEditCallback(0 == page.PrivateEdit || req.decoded['UserID'] == page.Creator, page, res);
-        });
-    }
-    else {
-        canEditCallback(true, page, res);
-    }
-}
-function canEditCallback(canEdit, page, res) {
-    res.json({ success: true,
-        htmlContent: markdown_1.returnHTML(page.Content),
-        page: page,
-        editable: canEdit
-    });
 }
 function loadPrivatePage(req, res) {
     var userID = req.decoded['userID'];

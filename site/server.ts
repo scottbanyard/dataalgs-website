@@ -203,7 +203,9 @@ function setupApi () : void {
                  next();
              }
              else{
-                 loadPage(<Page>row, req, res);
+                res.json({ success: true,
+                          htmlContent:returnHTML(row.Content),
+                          page:row});
              }
           }
       });
@@ -394,33 +396,7 @@ function checkLoggedIn(req : express.Request & { decoded : DecodedToken, page? :
   } else {
     // no token provided
     return res.status(403).send({success: false, message: "No token provided."});
-}
-}
-
-
-function loadPage( page:Page, req: express.Request & { decoded : DecodedToken, page? : Page }, res : express.Response ) : void
-{
-
-    if(1 == page.PrivateEdit){
-        checkLoggedIn(req,res,
-            (req : express.Request & { decoded : DecodedToken }
-             , res : express.Response) =>{
-                 canEditCallback(0 == page.PrivateEdit || req.decoded['UserID'] == page.Creator, page, res)
-        });
-    }
-    else{
-        canEditCallback(true,page,res);
-    }
-
-}
-
-function canEditCallback(canEdit,page,res) : void
-{
-    res.json({ success: true,
-               htmlContent:returnHTML(page.Content),
-               page:page,
-               editable:canEdit
-           });
+  }
 }
 
 function loadPrivatePage(req: express.Request & { decoded : DecodedToken, page : Page }, res : express.Response ) : void {

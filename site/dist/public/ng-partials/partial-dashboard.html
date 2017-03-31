@@ -172,6 +172,7 @@
                   <tr>
                     <th class="comment-header">Title</th>
                     <th class="comment-header">View Page</th>
+                    <th class="comment-header">Edit Page</th>
                     <th class="comment-header">Private View?</th>
                     <th class="comment-header">Private Edit?</th>
                     <th class="comment-header">Last Edit</th>
@@ -183,6 +184,9 @@
                     <td class="">{{ page.Title }}</td>
                     <td class="center pointer">
                       <i data-ng-click="takeToPage(page.Id)" class="glyphicon glyphicon-file text-primary"></i>
+                    </td>
+                    <td class="center pointer">
+                      <i data-ng-click="editPage(page.Id)" class="glyphicon glyphicon-edit text-primary"></i>
                     </td>
                     <td class="">{{ page.PrivateView == 0 ? "No" : "Yes" }}</td>
                     <td class="">{{ page.PrivateEdit == 0 ? "No" : "Yes" }}</td>

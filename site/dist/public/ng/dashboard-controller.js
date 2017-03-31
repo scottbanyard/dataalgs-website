@@ -273,4 +273,8 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
           });
       });
     }
+
+    $scope.editPage = function(id) {
+      $state.go('createPage', {id: id});
+    }
 });

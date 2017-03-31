@@ -35,6 +35,10 @@ angular.module('myApp')
                                       $scope.pageInfo = response;
                                       var content = $scope.pageInfo.htmlContent;
                                       getComments();
+                                      // If loaded page is page.PrivateEdit == 1, use contentService to check if you can edit it, if so, show edit button, else don't
+                                      // If page.PrivateEdit == 0, show edit button
+                                      // This button should take to createPage with params with the pageID
+
                                   }
                                   else {
                                       $state.go('homePage');

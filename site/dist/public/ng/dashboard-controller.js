@@ -226,7 +226,11 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
       $state.go('contentPage', {id: pageID});
     }
 
-    $scope.confirmDeletePage = function (pageID) {
+    $scope.createNewPage = function () {
+      $state.go('createPage', {id: "new-page"});
+    }
+
+    $scope.confirmDeletePage = function (pageID, pageTitle) {
       swal({
         title: "Are you sure you want to delete this page?",
         text: "You will not be able to recover this!",
@@ -246,7 +250,7 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
               swal({
                 html: true,
                 title: "<b>Success!</b>",
-                text: "You have successfully deleted that page.",
+                text: "You have deleted the page '" + pageTitle + "'.",
                 type: "success"
                 },
                 function(){

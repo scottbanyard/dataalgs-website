@@ -441,6 +441,8 @@ function loadPrivatePage(req: express.Request & { decoded : DecodedToken, page :
 
 function saveContent( req: express.Request & { decoded : DecodedToken }, res : express.Response):void
 {
+    var userID : number = req.decoded['userID'];
+    console.log(userID);
     db.get('SELECT * FROM Pages WHERE Id = ?', req.body.pageID, (err,row) => {
         if (err){
             console.error('Error:', err);
@@ -452,7 +454,7 @@ function saveContent( req: express.Request & { decoded : DecodedToken }, res : e
                 [ req.body.Title,
                   req.body.Content,
                   req.body.PrivateView,
-                  req.decoded['UserID'],
+                  userID,
                   req.body.PrivateEdit,
                   req.body.LastEdit ]);
 
@@ -466,9 +468,9 @@ function saveContent( req: express.Request & { decoded : DecodedToken }, res : e
              req.body.PrivateView,
              req.body.PrivateEdit,
              req.body.LastEdit, req.body.pageID );
+             res.json({ success: true });
         }
     });
-    res.json({ htmlContent:returnHTML(req.body.Content) });
 }
 
 function makeComment(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {

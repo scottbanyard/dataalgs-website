@@ -67,3 +67,6 @@ tbody {
   background-color: grey;
   border-radius: 0.5em;
 }
+.privacy-checkboxes {
+  padding-top:1em;
+}

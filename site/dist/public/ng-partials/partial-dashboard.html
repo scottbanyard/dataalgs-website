@@ -43,7 +43,7 @@
                             <table class="table">
                                 <tr class="padding">
                                     <td>
-                                        <span class="glyphicon glyphicon-globe text-primary"></span><a ui-sref="createPage" href="">Page</a>
+                                        <span class="glyphicon glyphicon-globe text-primary"></span><a data-ng-click="createNewPage()" href="">Page</a>
                                     </td>
                                 </tr>
                             </table>
@@ -188,7 +188,7 @@
                     <td class="">{{ page.PrivateEdit == 0 ? "No" : "Yes" }}</td>
                     <td class="">{{ page.LastEdit }}</td>
                     <td class="center pointer">
-                      <i data-ng-click="confirmDeletePage(page.Id)" class="glyphicon glyphicon-trash text-danger"></i>
+                      <i data-ng-click="confirmDeletePage(page.Id, page.Title)" class="glyphicon glyphicon-trash text-danger"></i>
                     </td>
                   </tr>
                 </tbody>

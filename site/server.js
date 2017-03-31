@@ -358,6 +358,8 @@ function loadPrivatePage(req, res) {
     }
 }
 function saveContent(req, res) {
+    var userID = req.decoded['userID'];
+    console.log(userID);
     db.get('SELECT * FROM Pages WHERE Id = ?', req.body.pageID, function (err, row) {
         if (err) {
             console.error('Error:', err);
@@ -368,7 +370,7 @@ function saveContent(req, res) {
             db.run('INSERT INTO Pages (Title, Content, PrivateView, Creator, PrivateEdit, LastEdit) VALUES (?,?,?,?,?,?)', [req.body.Title,
                 req.body.Content,
                 req.body.PrivateView,
-                req.decoded['UserID'],
+                userID,
                 req.body.PrivateEdit,
                 req.body.LastEdit]);
             res.json({ success: true });
@@ -376,9 +378,9 @@ function saveContent(req, res) {
         else {
             // update existing row
             db.run("UPDATE Pages SET Title = ?, Content = ?, PrivateView = ?, PrivateEdit = ?, LastEdit = ? WHERE Id = ?", req.body.Title, req.body.Content, req.body.PrivateView, req.body.PrivateEdit, req.body.LastEdit, req.body.pageID);
+            res.json({ success: true });
         }
     });
-    res.json({ htmlContent: markdown_1.returnHTML(req.body.Content) });
 }
 function makeComment(req, res) {
     db.run('INSERT INTO Comments (UserID, Date, Title, Content, PageID, Name) VALUES (?,?,?,?,?,?)', [req.decoded['userID'],

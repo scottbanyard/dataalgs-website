@@ -1,4 +1,4 @@
-var app = angular.module('myApp', ['ui.router', 'angular-jwt','ngSanitize']);
+var app = angular.module('myApp', ['ui.router', 'angular-jwt', 'ngSanitize']);
 
 app.config(function ($stateProvider, $urlRouterProvider) {
   // If incorrectly type in a URL, takes you to homepage
@@ -49,7 +49,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
           data: { pageTitle: "Canvas", auth: true }
       })
       .state('createPage', {
-          url: '/create',
+          url: '/create/:id',
           templateUrl: 'ng-partials/partial-create.html',
           controller: 'createController',
           data: { pageTitle: "Page Creation", auth: true }

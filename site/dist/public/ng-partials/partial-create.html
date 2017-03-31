@@ -2,4 +2,31 @@
   <h2 class="content-title">Page Creation</h2>
 </div>
 
-<textarea name="text" id="myEditor"># Test</textarea>
+<!-- Title -->
+<div class="form-group">
+  <label class="white" for="title">Title:</label>
+  <input type="text" class="form-control" id="usr" data-ng-model="page.Title"></input>
+</div>
+
+<!-- Markdown Editor -->
+<textarea name="text" id="myEditor"></textarea>
+
+<!-- Privacy checkboxes -->
+<div class="privacy-checkboxes row">
+  <div class="form-group col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2">
+    <h3 class="white">Viewable Page:</h3>
+    <label class="radio-inline white"><input type="radio" name="privateview" value="1" data-ng-model="page.PrivateView"></input>Private</label>
+    <label class="radio-inline white"><input type="radio" name="publicview" value="0" data-ng-model="page.PrivateView"></input>Public</label>
+  </div>
+
+  <div class="form-group col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2">
+    <h3 class="white">Editable Page:</h3>
+    <label class="radio-inline white"><input type="radio" name="privateedit" value="1" data-ng-model="page.PrivateEdit"></input>Private</label>
+    <label class="radio-inline white"><input type="radio" name="publicedit" value="0" data-ng-model="page.PrivateEdit"></input>Public</label>
+  </div>
+</div>
+
+<!-- Save Button -->
+<div class="row center">
+  <button data-ng-click="savePage()" type="button" class="btn btn-primary btn-lg">Save Page</button>
+</div>

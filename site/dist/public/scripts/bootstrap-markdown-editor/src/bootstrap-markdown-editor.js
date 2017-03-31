@@ -96,6 +96,17 @@
             },
             readOnly: false
         });
+
+        editor.commands.addCommand({
+            name: 'save',
+            bindKey: {win: 'Ctrl-S',  mac: 'Command-S'},
+            exec: function (editor) {
+                var selectedText = editor.session.getTextRange(editor.getSelectionRange());
+                // Calls save button on page
+                $("#save-button").click();
+            },
+            readOnly: false
+        });
     }
 
     function insertBeforeText (editor, string) {
@@ -149,6 +160,7 @@
 
                 if (options.preview === true) {
                     html += '<div class="btn-group pull-right">';
+                        html += '<button type="button" class="md-btn btn btn-sm btn-default btn-save" data-btn="save"><span class="glyphicon glyphicon-save"></span> ' + options.label.btnSave + '</button>';
                         html += '<button type="button" class="md-btn btn btn-sm btn-default btn-edit active" data-btn="edit"><span class="glyphicon glyphicon-pencil"></span> ' + options.label.btnEdit + '</button>';
                         html += '<button type="button" class="md-btn btn btn-sm btn-default btn-preview" data-btn="preview"><span class="glyphicon glyphicon-eye-open"></span> ' + options.label.btnPreview + '</button>';
                     html += '</div>'; // .btn-group
@@ -362,6 +374,8 @@
                     }
 
                     editor.resize();
+                } else if (btnType == 'save') {
+                  $('#save-button').click();
                 }
 
                 editor.focus();
@@ -428,7 +442,8 @@
             btnEdit: 'Edit',
             btnPreview: 'Preview',
             btnFullscreen: 'Fullscreen',
-            loading: 'Loading'
+            loading: 'Loading',
+            btnSave: 'Save'
         }
     };
 

@@ -107,6 +107,21 @@
             },
             readOnly: false
         });
+
+        editor.commands.addCommand({
+            name: 'code',
+            bindKey: {win: 'Ctrl-Y',  mac: 'Command-Y'},
+            exec: function (editor) {
+                var selectedText = editor.session.getTextRange(editor.getSelectionRange());
+
+                if (selectedText === '') {
+                    snippetManager.insertSnippet(editor, '```\n${1:text}\n```');
+                } else {
+                    snippetManager.insertSnippet(editor, '```\n' +  selectedText + '\n```');
+                }
+            },
+            readOnly: false
+        });
     }
 
     function insertBeforeText (editor, string) {
@@ -142,6 +157,9 @@
                 html += '<div class="btn-group">';
                     html += '<button type="button" data-mdtooltip="tooltip" title="' + options.label.btnList + '" class="md-btn btn btn-sm btn-default" data-btn="ul"><span class="glyphicon glyphicon glyphicon-list"></span></button>';
                     html += '<button type="button" data-mdtooltip="tooltip" title="' + options.label.btnOrderedList + '" class="md-btn btn btn-sm btn-default" data-btn="ol"><span class="glyphicon glyphicon-th-list"></span></button>';
+                    if (options.code === true) {
+                        html += '<button type="button" data-mdtooltip="tooltip" title="' + options.label.btnCode + '" class="md-btn btn btn-sm btn-default"      data-btn="code"><span class="glyphicon glyphicon-console"></span></button>';
+                    }
                 html += '</div>'; // .btn-group
 
                 html += '<div class="btn-group">';
@@ -160,7 +178,7 @@
 
                 if (options.preview === true) {
                     html += '<div class="btn-group pull-right">';
-                        html += '<button type="button" class="md-btn btn btn-sm btn-default btn-save" data-btn="save"><span class="glyphicon glyphicon-save"></span> ' + options.label.btnSave + '</button>';
+                        html += '<button type="button" class="md-btn btn btn-sm btn-default btn-save" data-btn="save"><span class="glyphicon glyphicon-floppy-disk"></span> ' + options.label.btnSave + '</button>';
                         html += '<button type="button" class="md-btn btn btn-sm btn-default btn-edit active" data-btn="edit"><span class="glyphicon glyphicon-pencil"></span> ' + options.label.btnEdit + '</button>';
                         html += '<button type="button" class="md-btn btn btn-sm btn-default btn-preview" data-btn="preview"><span class="glyphicon glyphicon-eye-open"></span> ' + options.label.btnPreview + '</button>';
                     html += '</div>'; // .btn-group
@@ -376,6 +394,8 @@
                     editor.resize();
                 } else if (btnType == 'save') {
                   $('#save-button').click();
+                } else if (btnType == 'code') {
+                  editor.execCommand('code');
                 }
 
                 editor.focus();
@@ -443,7 +463,8 @@
             btnPreview: 'Preview',
             btnFullscreen: 'Fullscreen',
             loading: 'Loading',
-            btnSave: 'Save'
+            btnSave: 'Save',
+            btnCode: 'Code'
         }
     };
 

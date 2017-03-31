@@ -4,6 +4,7 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
   $('#myEditor').markdownEditor({
     // Activate the preview:
     preview: true,
+    code: true,
     // This callback is called when the user click on the preview button:
     onPreview: function (content, callback) {
 

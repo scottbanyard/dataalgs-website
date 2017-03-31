@@ -1,8 +1,6 @@
 angular.module('myApp')
 .controller('contentController',
-    ($scope, contentService, $state, $stateParams) => {
-
-        $scope.isEditing = false;
+    ($scope, contentService, $state, $stateParams, jwtHelper) => {
 
         function getComments(){
             contentService.getComments({ pageID: $state.params.id })
@@ -35,18 +33,34 @@ angular.module('myApp')
                                       $scope.pageInfo = response;
                                       var content = $scope.pageInfo.htmlContent;
                                       getComments();
-                                      // If loaded page is page.PrivateEdit == 1, use contentService to check if you can edit it, if so, show edit button, else don't
-                                      // If page.PrivateEdit == 0, show edit button
-                                      // This button should take to createPage with params with the pageID
+                                      if ($scope.pageInfo.page.PrivateEdit == 1) {
+                                        // Checks user is logged in (verify JWT) and that they are the creator
+                                        var token = localStorage.getItem('token');
+                                        if (token && !jwtHelper.isTokenExpired(token)) {
+                                          var userID = jwtHelper.decodeToken(token).userID;
+                                          if (userID == $scope.pageInfo.page.Creator) {
+                                            $scope.showEditButton = true;
+                                          } else {
+                                            $scope.showEditButton = false;
+                                          }
+                                        }
+                                      } else {
+                                        // Public to edit so show edit button
+                                        $scope.showEditButton = true;
+                                      }
 
-                                  }
-                                  else {
+                                  } else {
                                       $state.go('homePage');
                                   }
                                 }, (err) => {
                                       // Don't have the access rights to view page or it doesn't exist, take back to home page. (POST will return 403)
                                       $state.go('homePage');
                                 });
+
+        $scope.editPage = function() {
+          $state.go('createPage', {id:$scope.pageInfo.page.Id})
+        }
+
     });
 
  // input boxes content

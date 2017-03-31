@@ -38,6 +38,7 @@ tr.padding td {
 .contentBox{
     background-color: white;
     padding:15px;
+    margin-bottom:15px;
 }
 .comment-header {
   color:white;

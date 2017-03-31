@@ -1,5 +1,6 @@
 angular.module('myApp').controller('createController', ($rootScope, $scope, contentService, $state) => {
   $scope.page = {};
+
   // https://github.com/inacho/bootstrap-markdown-editor for api
   $('#myEditor').markdownEditor({
     // Activate the preview:

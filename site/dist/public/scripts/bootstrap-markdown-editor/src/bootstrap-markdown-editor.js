@@ -188,7 +188,7 @@
         html += '</div>'; // .md-toolbar
 
         html += '<div class="md-editor">' + $('<div>').text(content).html() + '</div>';
-        html += '<div class="md-preview" style="display:none"></div>';
+        html += '<div class="md-preview" style="background-color: white; display:none"></div>'; // background colour fix for preview here -->
 
         return html;
     }

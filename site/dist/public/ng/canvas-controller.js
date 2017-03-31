@@ -1,22 +1,25 @@
 angular.module('myApp')
 .controller('canvasController',
     ( $scope ) => {
+        // Main drawing canvas
         var canvas = document.getElementById('canvas');
         var context = canvas.getContext('2d');
         canvas.onclick = newShape;
 
+        // Colour picker, implemented by drawing an image on the
         var colourCanvas = document.getElementById('grad');
         var colourContext = colourCanvas.getContext('2d');
 
 
         var colImg = new Image();
         colImg.onload = () => {
-            colourCanvas.width = colImg.width;
-            colourCanvas.height = colImg.height;
-            colourContext.drawImage(colImg, 0, 0, colImg.width, colImg.height);
+            // colourCanvas.width = colImg.width;
+            // colourCanvas.height = colImg.height;
+            colourContext.drawImage(colImg, 0, 0, colourCanvas.width, colourCanvas.height);
         }
         colImg.src = "imgs/colours.png";
 
+        // The actually selected colour that will be used when drawing the shapes
         colourCanvas.onclick = (event) => {
             $scope.$apply(() => {
                 var col = currentColour(event);
@@ -24,10 +27,12 @@ angular.module('myApp')
                 $scope.colour = rgb(col);
             })
         };
+        // Used as a label so that the user can see more easily what they are choosing
         colourCanvas.onmousemove = (event) => {
             $scope.$apply(() => $scope.selected = rgbCSS(currentColour(event)));
         };
 
+        // Keeps track of the shapes on the canvas
         var canvasState = new CanvasState();
 
         $scope.title = "Canvas controller";
@@ -35,20 +40,23 @@ angular.module('myApp')
         $scope.cssColour = "rgb(122,122,122)";
         $scope.selected = "white";
         $scope.shape = 'Circle';
-        function getMousePosition(event)
+
+        //Modified from a stackoverflow response. Adjusts the information about the clicked point into the canvas frame of reference
+        function getMousePosition(thisCanvas,event)
         {
-            var rect = canvas.getBoundingClientRect();
+            var rect = thisCanvas.getBoundingClientRect();
             return {
                 x: Math.round((event.clientX-rect.left)
-                            /(rect.right-rect.left)*canvas.width),
+                            /(rect.right-rect.left)*thisCanvas.width),
                 y: Math.round((event.clientY-rect.top)
-                            /(rect.bottom-rect.top)*canvas.height)
+                            /(rect.bottom-rect.top)*thisCanvas.height)
             }
         }
 
+        // Based on the selection of shape, and the colour, adds a new shape to the CanvasState and orders a redraw.
         function newShape(event)
         {
-            var coords = getMousePosition(event);
+            var coords = getMousePosition(canvas, event);
             var shape = { kind:angular.copy($scope.shape),
                           centre:coords,
                           colour:angular.copy($scope.colour)};
@@ -64,6 +72,7 @@ angular.module('myApp')
             redrawAll();
         }
 
+        // Draws a single chape onto the canvas
         function drawShape(shape)
         {
             context.strokeStyle=toCSSColour(shape.colour);
@@ -80,20 +89,23 @@ angular.module('myApp')
             context.closePath();
         }
 
+        // Retrieves all shapes from the canvasState and redraws them
         function redrawAll(){
             context.clearRect(0, 0, canvas.width, canvas.height);
             canvasState.getShapes().map(drawShape);
         }
 
+        // Returns the colour under the mouse when on the colour palette
         function currentColour(event){
-            var x = event.layerX;
-            var y = event.layerY;
-            return colourContext.getImageData(x, y, 1, 1).data;
+            var coords = getMousePosition(colourCanvas,event);
+            return colourContext.getImageData(coords.x, coords.y, 1, 1).data;
         }
+        // Translates the raw colour data retrieved from the mouse into a red,green,blue format
         function rgb(data)
         {
             return {red : data[0], green :data[1], blue : data[2]};
         }
+        // Translates from raw data into css
         function rgbCSS(data)
         {
             return ['rgb(',')'].join(data.slice(0,3).join(','));

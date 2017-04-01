@@ -34,6 +34,7 @@ interface Page {
     Creator: number;
     PrivateEdit: number;
     LastEdit: number;
+    Views: number;
 }
 // http app used to redirect user to https express app
 function configureHttpApplication ( httpApp : express.Application ) : void
@@ -203,6 +204,8 @@ function setupApi () : void {
                  next();
              }
              else{
+                row.Views = row.Views + 1;
+                updateViews(req.body.pageID, row.Views);
                 res.json({ success: true,
                           htmlContent:returnHTML(row.Content),
                           page:row});
@@ -403,9 +406,11 @@ function loadPrivatePage(req: express.Request & { decoded : DecodedToken, page :
   var userID : number = req.decoded['userID'];
   var pageCreator : number = req.page.Creator;
   if (pageCreator == userID) {
+    req.page.Views = req.page.Views + 1;
+    updateViews(req.body.pageID, req.page.Views);
     res.json({ success: true,
                htmlContent:returnHTML(req.page.Content),
-               page:req.page
+               page: req.page
            });
   } else {
     res.json({ success: false,
@@ -425,25 +430,26 @@ function saveContent( req: express.Request & { decoded : DecodedToken }, res : e
             res.json({ success: false });
         }
         else if (!row){
-            // Insert new row
-            db.run('INSERT INTO Pages (Title, Content, PrivateView, Creator, PrivateEdit, LastEdit) VALUES (?,?,?,?,?,?)',
+            // Insert new row with 0 views
+            db.run('INSERT INTO Pages (Title, Content, PrivateView, Creator, PrivateEdit, LastEdit, Views) VALUES (?,?,?,?,?,?,?)',
                 [ req.body.Title,
                   req.body.Content,
                   req.body.PrivateView,
                   userID,
                   req.body.PrivateEdit,
-                  req.body.LastEdit ]);
+                  req.body.LastEdit,
+                  0 ]);
 
             res.json({ success: true });
         }
         else{
            // update existing row
-           db.run("UPDATE Pages SET Title = ?, Content = ?, PrivateView = ?, PrivateEdit = ?, LastEdit = ? WHERE Id = ?",
+           db.run("UPDATE Pages SET Title = ?, Content = ?, PrivateView = ?, PrivateEdit = ?, LastEdit = ?, Views = ? WHERE Id = ?",
              req.body.Title,
              req.body.Content,
              req.body.PrivateView,
              req.body.PrivateEdit,
-             req.body.LastEdit, req.body.pageID );
+             req.body.LastEdit, req.body.Views + 1, req.body.pageID );
              res.json({ success: true });
         }
     });
@@ -497,7 +503,7 @@ function deleteComment(req : express.Request & { decoded : DecodedToken }, res :
 }
 
 function getAllPublicPages(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
-  db.all("SELECT Id, Title, Creator, LastEdit FROM Pages WHERE PrivateView = 0", function(err, rows) {
+  db.all("SELECT Id, Title, Creator, LastEdit, Views FROM Pages WHERE PrivateView = 0", function(err, rows) {
       if (err) {
         res.json({ success: false, error: "Error"});
       } else if (!rows) {
@@ -546,3 +552,17 @@ function deletePage(req : express.Request & { decoded : DecodedToken }, res : ex
     }
   });
 }
+
+function updateViews(pageID : number, views : number) {
+    db.get('SELECT Views FROM Pages WHERE Id = ?', pageID, (err,row) => {
+        if (err){
+            console.error('Error:', err);
+        }
+        else if (!row){
+            console.error('Page', pageID, 'doesn\'t exist!');
+        }
+        else{
+          db.run("UPDATE Pages SET Views = ? WHERE Id = ?", views, pageID, (err,row) => {});
+        }
+    });
+  }

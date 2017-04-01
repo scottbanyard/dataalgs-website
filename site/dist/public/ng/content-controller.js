@@ -48,7 +48,7 @@ angular.module('myApp')
                                         // Public to edit so show edit button
                                         $scope.showEditButton = true;
                                       }
-
+                                      console.log($scope.pageInfo.page.Views);
                                   } else {
                                       $state.go('homePage');
                                   }

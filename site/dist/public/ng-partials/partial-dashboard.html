@@ -176,6 +176,7 @@
                     <th class="comment-header">Private View?</th>
                     <th class="comment-header">Private Edit?</th>
                     <th class="comment-header">Last Edit</th>
+                    <th class="comment-header">Views</th>
                     <th class="comment-header">Delete?</th>
                   </tr>
                 </thead>
@@ -191,6 +192,7 @@
                     <td class="">{{ page.PrivateView == 0 ? "No" : "Yes" }}</td>
                     <td class="">{{ page.PrivateEdit == 0 ? "No" : "Yes" }}</td>
                     <td class="">{{ page.LastEdit }}</td>
+                    <td class="center">{{ page.Views }}</td>
                     <td class="center pointer">
                       <i data-ng-click="confirmDeletePage(page.Id, page.Title)" class="glyphicon glyphicon-trash text-danger"></i>
                     </td>

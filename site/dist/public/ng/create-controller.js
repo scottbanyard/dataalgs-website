@@ -1,6 +1,5 @@
 angular.module('myApp').controller('createController', ($rootScope, $scope, contentService, $state) => {
   $scope.page = {};
-
   // https://github.com/inacho/bootstrap-markdown-editor for api
   $('#myEditor').markdownEditor({
     // Activate the preview:
@@ -28,8 +27,8 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
                                   $scope.page.Title = angular.copy($scope.pageInfo.page.Title);
                                   $scope.page.PrivateView = angular.copy($scope.pageInfo.page.PrivateView);
                                   $scope.page.PrivateEdit = angular.copy($scope.pageInfo.page.PrivateEdit);
-                                  // forceCheckRadios();
                                   $scope.page.LastEdit = angular.copy($scope.pageInfo.page.LastEdit);
+                                  $scope.page.Views = angular.copy($scope.pageInfo.page.Views);
                                   $('#myEditor').markdownEditor('setContent', $scope.pageInfo.page.Content); // Sets the content of the editor
                               }
                               else {
@@ -40,17 +39,6 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
                                   $state.go('homePage');
                             });
   }
-
-  // function forceCheckRadios() {
-  //   if ($scope.page.PrivateView == 0) {
-  //     $("#privateview").prop("checked", false);
-  //     $("#publicview").prop("checked", true);
-  //   }
-  //   if ($scope.page.PrivateEdit == 0) {
-  //     $("#privateedit").prop("checked", false);
-  //     $("#publicedit").prop("checked", true);
-  //   }
-  // }
 
   // Use page ID 0 for new page - if it's not 0, then load markdown of page to edit
   if ($state.params.id != "new-page") {
@@ -94,6 +82,7 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
                                   PrivateView: $scope.page.PrivateView,
                                   PrivateEdit: $scope.page.PrivateEdit,
                                   LastEdit: new Date().getTime(),
+                                  Views: $scope.page.Views,
                                   pageID: $state.params.id
                                   }).then((res) => {
                                     swal({

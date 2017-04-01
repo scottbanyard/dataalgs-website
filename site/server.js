@@ -162,6 +162,8 @@ function setupApi() {
                     next();
                 }
                 else {
+                    row.Views = row.Views + 1;
+                    updateViews(req.body.pageID, row.Views);
                     res.json({ success: true,
                         htmlContent: markdown_1.returnHTML(row.Content),
                         page: row });
@@ -331,6 +333,8 @@ function loadPrivatePage(req, res) {
     var userID = req.decoded['userID'];
     var pageCreator = req.page.Creator;
     if (pageCreator == userID) {
+        req.page.Views = req.page.Views + 1;
+        updateViews(req.body.pageID, req.page.Views);
         res.json({ success: true,
             htmlContent: markdown_1.returnHTML(req.page.Content),
             page: req.page
@@ -351,18 +355,19 @@ function saveContent(req, res) {
             res.json({ success: false });
         }
         else if (!row) {
-            // Insert new row
-            db.run('INSERT INTO Pages (Title, Content, PrivateView, Creator, PrivateEdit, LastEdit) VALUES (?,?,?,?,?,?)', [req.body.Title,
+            // Insert new row with 0 views
+            db.run('INSERT INTO Pages (Title, Content, PrivateView, Creator, PrivateEdit, LastEdit, Views) VALUES (?,?,?,?,?,?,?)', [req.body.Title,
                 req.body.Content,
                 req.body.PrivateView,
                 userID,
                 req.body.PrivateEdit,
-                req.body.LastEdit]);
+                req.body.LastEdit,
+                0]);
             res.json({ success: true });
         }
         else {
             // update existing row
-            db.run("UPDATE Pages SET Title = ?, Content = ?, PrivateView = ?, PrivateEdit = ?, LastEdit = ? WHERE Id = ?", req.body.Title, req.body.Content, req.body.PrivateView, req.body.PrivateEdit, req.body.LastEdit, req.body.pageID);
+            db.run("UPDATE Pages SET Title = ?, Content = ?, PrivateView = ?, PrivateEdit = ?, LastEdit = ?, Views = ? WHERE Id = ?", req.body.Title, req.body.Content, req.body.PrivateView, req.body.PrivateEdit, req.body.LastEdit, req.body.Views + 1, req.body.pageID);
             res.json({ success: true });
         }
     });
@@ -414,7 +419,7 @@ function deleteComment(req, res) {
     });
 }
 function getAllPublicPages(req, res) {
-    db.all("SELECT Id, Title, Creator, LastEdit FROM Pages WHERE PrivateView = 0", function (err, rows) {
+    db.all("SELECT Id, Title, Creator, LastEdit, Views FROM Pages WHERE PrivateView = 0", function (err, rows) {
         if (err) {
             res.json({ success: false, error: "Error" });
         }
@@ -463,6 +468,19 @@ function deletePage(req, res) {
         }
         else {
             res.json({ success: true });
+        }
+    });
+}
+function updateViews(pageID, views) {
+    db.get('SELECT Views FROM Pages WHERE Id = ?', pageID, function (err, row) {
+        if (err) {
+            console.error('Error:', err);
+        }
+        else if (!row) {
+            console.error('Page', pageID, 'doesn\'t exist!');
+        }
+        else {
+            db.run("UPDATE Pages SET Views = ? WHERE Id = ?", views, pageID, function (err, row) { });
         }
     });
 }

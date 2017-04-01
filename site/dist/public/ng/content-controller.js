@@ -34,7 +34,7 @@ angular.module('myApp')
                                       var content = $scope.pageInfo.htmlContent;
                                       getComments();
                                       if ($scope.pageInfo.page.PrivateEdit == 1) {
-                                        // Checks user is logged in (verify JWT) and that they are the creator
+                                        // Checks user is logged in and that they are the creator
                                         var token = localStorage.getItem('token');
                                         if (token && !jwtHelper.isTokenExpired(token)) {
                                           var userID = jwtHelper.decodeToken(token).userID;

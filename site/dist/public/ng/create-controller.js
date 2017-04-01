@@ -28,6 +28,7 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
                                   $scope.page.Title = angular.copy($scope.pageInfo.page.Title);
                                   $scope.page.PrivateView = angular.copy($scope.pageInfo.page.PrivateView);
                                   $scope.page.PrivateEdit = angular.copy($scope.pageInfo.page.PrivateEdit);
+                                  // forceCheckRadios();
                                   $scope.page.LastEdit = angular.copy($scope.pageInfo.page.LastEdit);
                                   $('#myEditor').markdownEditor('setContent', $scope.pageInfo.page.Content); // Sets the content of the editor
                               }
@@ -40,6 +41,17 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
                             });
   }
 
+  // function forceCheckRadios() {
+  //   if ($scope.page.PrivateView == 0) {
+  //     $("#privateview").prop("checked", false);
+  //     $("#publicview").prop("checked", true);
+  //   }
+  //   if ($scope.page.PrivateEdit == 0) {
+  //     $("#privateedit").prop("checked", false);
+  //     $("#publicedit").prop("checked", true);
+  //   }
+  // }
+
   // Use page ID 0 for new page - if it's not 0, then load markdown of page to edit
   if ($state.params.id != "new-page") {
     loadMarkdown();
@@ -48,11 +60,11 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
   function getError() {
     var error = "";
     // Undefined when new page, blank if deleted from a loaded page
-    if ($scope.page.Title == undefined || $scope.page.Title == "") {
+    if (typeof $scope.page.Title == "undefined" || $scope.page.Title == "") {
       error = "Please fill in the title of the page!";
-    } else if ($scope.page.PrivateView == undefined || $scope.page.PrivateView == "") {
+    } else if (typeof $scope.page.PrivateView == "undefined") {
       error = "Please fill in whether you would like to make the page viewable to the public or private.";
-    } else if ($scope.page.PrivateEdit == undefined || $scope.page.PrivateEdit == "") {
+    } else if (typeof $scope.page.PrivateEdit == "undefined") {
       error = "Please fill in whether you would like to make the page editable to the public or private.";
     } else if ($("#myEditor").val() == "") {
       error = "Please add some content to your page!";

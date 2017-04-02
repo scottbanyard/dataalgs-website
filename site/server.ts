@@ -554,15 +554,5 @@ function deletePage(req : express.Request & { decoded : DecodedToken }, res : ex
 }
 
 function updateViews(pageID : number, views : number) {
-    db.get('SELECT Views FROM Pages WHERE Id = ?', pageID, (err,row) => {
-        if (err){
-            console.error('Error:', err);
-        }
-        else if (!row){
-            console.error('Page', pageID, 'doesn\'t exist!');
-        }
-        else{
-          db.run("UPDATE Pages SET Views = ? WHERE Id = ?", views, pageID, (err,row) => {});
-        }
-    });
+    db.run("UPDATE Pages SET Views = ? WHERE Id = ?", views, pageID, (err,row) => {});
   }

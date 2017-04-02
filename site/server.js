@@ -472,15 +472,5 @@ function deletePage(req, res) {
     });
 }
 function updateViews(pageID, views) {
-    db.get('SELECT Views FROM Pages WHERE Id = ?', pageID, function (err, row) {
-        if (err) {
-            console.error('Error:', err);
-        }
-        else if (!row) {
-            console.error('Page', pageID, 'doesn\'t exist!');
-        }
-        else {
-            db.run("UPDATE Pages SET Views = ? WHERE Id = ?", views, pageID, function (err, row) { });
-        }
-    });
+    db.run("UPDATE Pages SET Views = ? WHERE Id = ?", views, pageID, function (err, row) { });
 }

@@ -45,3 +45,11 @@
 
 ## JSON Web Tokens (JWT)
 - They can be cryptographically signed and encrypted to prevent tampering on the client side.
+
+## GIMP Notes (PNG)
+- Used different layers to be able to control overlay
+- Used text tool
+- Imported a splatter brush tool to make background of icon
+- Imported a png image into the icon and used the magic brush tool to discard white around the image (make transparent)
+- Used textures for background
+- Make image using opacity and some cool other tools?

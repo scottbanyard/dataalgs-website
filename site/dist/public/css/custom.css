@@ -1,10 +1,10 @@
 .home-title {
-  color:white;
+  color:black;
   font-size: 3em;
   padding-bottom: 1em;
 }
 .content-title {
-  color:white;
+  color:black;
   font-size: 3em;
 }
 #rounded {
@@ -41,7 +41,7 @@ tr.padding td {
     margin-bottom:15px;
 }
 .comment-header {
-  color:white;
+  color:black;
   text-align: center;
 }
 tbody {
@@ -52,6 +52,9 @@ tbody {
 }
 .white {
   color:white;
+}
+.black {
+  color:black;
 }
 .fillspace{
     width:100%;
@@ -65,9 +68,12 @@ tbody {
 .pages-box {
   padding-top: 1em;
   padding-bottom: 1em;
-  background-color: grey;
+  background-color: black;
   border-radius: 0.5em;
 }
 .privacy-checkboxes {
   padding-top:1em;
+}
+.header-offset {
+  margin-bottom:40px;
 }

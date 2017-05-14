@@ -7,21 +7,22 @@
     <div class="btn-group">
         <button class="btn" type="button" data-toggle="collapse" data-target="#shapePicker">Shapes
         </button>
+        <button class="btn" type="button" data-toggle="collapse" data-ng-click="shape='Text'">Text
+        </button>
         <button class="btn" data-ng-style="{'background-color' : cssColour }" type="button" data-toggle="collapse" data-target="#colourPicker" aria-expanded="false" aria-controls="colourPicker">
           Colour Picker
         </button>
-
     </div>
     <div class="collapse" id="shapePicker">
-        <div class="container-fluid"> 
+        <div class="container-fluid">
                 <div class="row">
                     <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
                         <svg class="img-fluid" xmlns="http://www.w3.org/2000/svg"
                              viewBox="0 0 138 68">
-                             <rect x="68" y="2" height="64" width="64" data-ng-style="{'stroke': cssColour }" data-ng-click="shape='Rectangle'">
+                             <rect x="68" y="2" height="64" width="64" data-ng-style="{'stroke': cssColour,'fill': 'white' }" data-ng-click="shape='Rectangle'">
                                  <title>Rectangle</title>
                              </rect>
-                            <circle cx="34" cy="34" r="32" data-ng-style="{'stroke': cssColour }" data-ng-click="shape='Circle'">
+                            <circle cx="34" cy="34" r="32" data-ng-style="{'stroke': cssColour,'fill': 'white' }" data-ng-click="shape='Circle'">
                                 <title>Circle</title>
                             </circle >
                         </svg>
@@ -40,9 +41,14 @@
             </canvas>
         </div>
     </div>
-
+    <div class="collapse fillspace" id="textSettings">
+        <div class="row">
+            Text Input Settings
+        </div>
+    </div>
     <div class="row" >
-        <canvas id="canvas" class="canvas fillspace"> Your browser doesn't support canvas! </canvas>
+        <canvas id="canvas" width="1000"
+        height="500" class="canvas fillspace"> Your browser doesn't support canvas! </canvas>
     </div>
 
 </div>

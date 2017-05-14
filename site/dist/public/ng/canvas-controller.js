@@ -10,6 +10,8 @@ angular.module('myApp')
         var colourCanvas = document.getElementById('grad');
         var colourContext = colourCanvas.getContext('2d');
 
+        // Filled whenever there is text input
+        var openInput;
 
         var colImg = new Image();
         colImg.onload = () => {
@@ -31,7 +33,6 @@ angular.module('myApp')
         colourCanvas.onmousemove = (event) => {
             $scope.$apply(() => $scope.selected = rgbCSS(currentColour(event)));
         };
-
         // Keeps track of the shapes on the canvas
         var canvasState = new CanvasState();
 
@@ -40,19 +41,30 @@ angular.module('myApp')
         $scope.cssColour = "rgb(122,122,122)";
         $scope.selected = "white";
         $scope.shape = 'Circle';
-
+        
         //Modified from a stackoverflow response. Adjusts the information about the clicked point into the canvas frame of reference
         function getMousePosition(thisCanvas,event)
         {
             var rect = thisCanvas.getBoundingClientRect();
             return {
-                x: Math.round((event.clientX-rect.left)
+                x: 0.5+Math.round((event.clientX-rect.left)
                             /(rect.right-rect.left)*thisCanvas.width),
-                y: Math.round((event.clientY-rect.top)
+                y: 0.5+Math.round((event.clientY-rect.top)
                             /(rect.bottom-rect.top)*thisCanvas.height)
             }
         }
-
+        function dealWithText(shape,x){
+            openInput.destroy();
+            /* Shifts the rendered text in line with the textbox. Constants
+               need to change if the number of pixels in the image or the font
+               size changes*/
+            shape.centre.y+=22;
+            shape.centre.x+=7;
+            shape.contents = x.target.value;
+            shape.font = "20px Arial"
+            canvasState.addShape(shape);
+            redrawAll();
+        }
         // Based on the selection of shape, and the colour, adds a new shape to the CanvasState and orders a redraw.
         function newShape(event)
         {
@@ -61,13 +73,24 @@ angular.module('myApp')
                           centre:coords,
                           colour:angular.copy($scope.colour)};
             if($scope.shape == 'Circle'){
-                shape.radius = Math.round(7);
+                shape.radius = 25;
                 canvasState.addShape(shape);
             }
             else if($scope.shape == 'Rectangle'){
-                shape.width = 15;
-                shape.height = 15;
+                shape.width = 50;
+                shape.height = 50;
                 canvasState.addShape(shape);
+            }
+            else if($scope.shape == 'Text'){
+                openInput = new CanvasInput({
+                    canvas : canvas,
+                    x : coords.x,
+                    y : coords.y,
+                    fontSize : 20,
+                    onsubmit : dealWithText.bind(null, shape)
+                });
+                openInput.focus();
+                return;
             }
             redrawAll();
         }
@@ -82,7 +105,14 @@ angular.module('myApp')
                 context.arc(coords.x, coords.y, shape.radius, 0, 2*Math.PI);
             }
             else if(shape.kind == 'Rectangle'){
-                context.rect(coords.x-7, coords.y-7, shape.width, shape.height);
+                context.rect(coords.x-Math.round(shape.width/2),
+                             coords.y-Math.round(shape.height/2),
+                             shape.width, shape.height);
+            }
+            else if(shape.kind == 'Text'){
+                context.font = shape.font;
+                context.textAlign='left';
+                context.fillText(shape.contents,coords.x,coords.y);
             }
 
             context.stroke();

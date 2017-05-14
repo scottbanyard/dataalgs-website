@@ -3,7 +3,7 @@ function toCSSColour(col) {
 }
 function intersects(point, shape) {
     if (shape.kind == 'Circle') {
-        var dx = point.x - shape.centre.y;
+        var dx = point.x - shape.centre.x;
         var dy = point.y - shape.centre.y;
         return (dx ^ 2 + dy ^ 2) <= (shape.radius ^ 2);
     }
@@ -12,6 +12,9 @@ function intersects(point, shape) {
             point.x <= shape.centre.x + shape.width &&
             point.y >= shape.centre.y - shape.height &&
             point.y <= shape.centre.y + shape.height;
+    }
+    else if (shape.kind == 'Text') {
+        console.error('Text doesn\'t have intersect code yet');
     }
 }
 class CanvasState {
@@ -27,7 +30,7 @@ class CanvasState {
         }
     }
     selectedShape(click) {
-        var index = this.shapes.findIndex(intersects.bind(click));
+        var index = this.shapes.findIndex(intersects.bind(null, click));
         this.selected = index;
         if (index == -1)
             return nil;

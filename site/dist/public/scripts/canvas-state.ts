@@ -20,8 +20,13 @@ interface Rectangle extends ShapeFeatures {
     width : number;
     height : number;
 }
+interface Text extends ShapeFeatures {
+    kind : 'Text';
+    contents: string;
+    font : string;
+}
 
-type Shape = Circle | Rectangle
+type Shape = Circle | Rectangle | Text
 
 function toCSSColour( col : Colour ) : string
 {
@@ -31,7 +36,7 @@ function intersects( point : Point, shape : Shape ) : boolean
 {
     if( shape.kind == 'Circle')
     {
-        var dx : number = point.x - shape.centre.y;
+        var dx : number = point.x - shape.centre.x;
         var dy : number = point.y - shape.centre.y;
         return (dx^2 + dy^2) <= (shape.radius^2);
     }
@@ -40,6 +45,9 @@ function intersects( point : Point, shape : Shape ) : boolean
                point.x <= shape.centre.x + shape.width  &&
                point.y >= shape.centre.y - shape.height &&
                point.y <= shape.centre.y + shape.height;
+    }
+    else if (shape.kind == 'Text'){
+        console.error('Text doesn\'t have intersect code yet');
     }
 }
 class CanvasState{
@@ -50,19 +58,19 @@ class CanvasState{
     constructor(){
         this.shapes = [];
     }
-    addShape(shape:Shape)
+    addShape(shape:Shape) : void
     {
         this.shapes.push(shape);
     }
-    replaceShape( index : number, shape:Shape )
+    replaceShape( index : number, shape:Shape ) : void
     {
         if( index >= 0 && index < this.shapes.length ){
             this.shapes[index] = shape;
         }
     }
-    selectedShape( click : Point) : Optional<[number,Shape]>
+    selectedShape( click : Point ) : Optional<[number,Shape]>
     {
-        var index : number = this.shapes.findIndex(intersects.bind(click));
+        var index : number = this.shapes.findIndex(intersects.bind(null,click));
         this.selected = index;
         if( index == -1)
             return nil;

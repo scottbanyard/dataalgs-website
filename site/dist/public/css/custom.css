@@ -85,3 +85,12 @@ tbody {
   -webkit-border-radius: 500px;
   -moz-border-radius: 500px;
 }
+.selected-icon {
+  border-color: green !important;
+}
+.profile-icon-choice {
+  width: 100%;
+}
+.thumbnail-border {
+  border: 2px solid;
+}

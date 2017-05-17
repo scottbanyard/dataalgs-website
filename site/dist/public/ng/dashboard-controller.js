@@ -4,6 +4,8 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
     $scope.showMyComments = false;
     $scope.showMyPages = false;
     $scope.showChangeIcon = false;
+    $scope.selectedIcons = new Array(6);
+    setupSelectedIcons();
 
     var token = localStorage.getItem('token');
     if (token && !jwtHelper.isTokenExpired(token)) {
@@ -233,6 +235,21 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
       });
     }
 
+    function setupSelectedIcons() {
+      for (var i = 0; i < $scope.selectedIcons.length; i++) {
+        $scope.selectedIcons[i] = false;
+      }
+    }
+
+    $scope.changeIcon = function(index) {
+      $scope.selectedIcons[index] = true;
+      for (var i = 0; i < $scope.selectedIcons.length; i++) {
+        if (i != index) {
+          $scope.selectedIcons[i] = false;
+        }
+      }
+    }
+
     $scope.getMyPages = function () {
       contentService.getMyPages({token : localStorage.getItem('token')}).then(function (res) {
         var response = angular.fromJson(res).data;
@@ -241,7 +258,7 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
           $scope.noPages = false;
           $scope.numberOfPages = response.pages.length;
         } else {
-          console.log(response.error);
+          // console.log(response.error);
           $scope.noPages = true;
           $scope.noPagesError = response.error;
         }

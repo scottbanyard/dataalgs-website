@@ -25,7 +25,6 @@ interface Text extends ShapeFeatures {
     contents: string;
     font : string;
 }
-
 type Shape = Circle | Rectangle | Text
 
 function toCSSColour( col : Colour ) : string
@@ -38,7 +37,7 @@ function intersects( point : Point, shape : Shape ) : boolean
     {
         var dx : number = point.x - shape.centre.x;
         var dy : number = point.y - shape.centre.y;
-        return (dx^2 + dy^2) <= (shape.radius^2);
+        return Math.pow(dx,2) + Math.pow(dy,2) <= Math.pow(shape.radius,2);
     }
     else if (shape.kind == 'Rectangle'){
         return point.x >= shape.centre.x - shape.width  &&
@@ -52,11 +51,12 @@ function intersects( point : Point, shape : Shape ) : boolean
 }
 class CanvasState{
     private shapes : Shape[];
-    // This index of the currently selected shape, -1 if no shape is selected
-    selected : number;
+    private shapeSelected : boolean;
+    selected : [number,Shape];
 
     constructor(){
         this.shapes = [];
+        this.shapeSelected = false;
     }
     addShape(shape:Shape) : void
     {
@@ -68,14 +68,27 @@ class CanvasState{
             this.shapes[index] = shape;
         }
     }
-    selectedShape( click : Point ) : Optional<[number,Shape]>
+    setSelectedShape( click : Point ) : void
     {
         var index : number = this.shapes.findIndex(intersects.bind(null,click));
-        this.selected = index;
         if( index == -1)
-            return nil;
-        else
-            return [index, this.shapes[index]];
+            this.shapeSelected = false;
+        else{
+            this.shapeSelected = true;
+            this.selected = [index, this.shapes[index]];
+        }
+    }
+    deselectShape() : void
+    {
+        this.shapeSelected = false;
+        this.selected = null;
+    }
+    moveShape( coord : Point ): void
+    {
+        if(this.shapeSelected){
+            this.selected[1].centre = coord;
+            this.replaceShape(this.selected[0],this.selected[1]);
+        }
     }
     getShapes() : Shape[]
     {

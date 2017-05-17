@@ -155,7 +155,7 @@ function setupApi () : void {
   router.post('/register', function(req : express.Request, res : express.Response) : void {
     var firstName : string = req.body.firstName;
     var lastName : string = req.body.lastName;
-    createNewUser( firstName + lastName,
+    createNewUser( firstName + " " + lastName,
                    req.body.email,
                    req.body.password,
                    res );

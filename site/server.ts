@@ -236,6 +236,10 @@ function setupApi () : void {
 
   router.post('/deletepage', deletePage);
 
+  router.post('/geticon', getProfileIcon);
+
+  router.post('/changeicon', changeProfileIcon);
+
   // API always begins with localhost8080/api
   app.use('/api', router);
 }
@@ -312,7 +316,7 @@ function createNewUser( name : string,
         }
         else{
             const salt = csprng();
-            db.run('INSERT INTO UserAccounts (Name, Email, PassSalt, PassHash) VALUES (?,?,?,?)', [name, email, salt, hashPW(password,salt)]);
+            db.run('INSERT INTO UserAccounts (Name, Email, PassSalt, PassHash, Icon) VALUES (?,?,?,?,?)', [name, email, salt, hashPW(password,salt), "man.svg"]);
             console.log('Account for',email,'successfully created');
             res.json({ success: true });
 
@@ -418,7 +422,6 @@ function loadPrivatePage(req: express.Request & { decoded : DecodedToken, page :
            });
   }
 }
-
 
 function saveContent( req: express.Request & { decoded : DecodedToken }, res : express.Response):void
 {
@@ -554,5 +557,30 @@ function deletePage(req : express.Request & { decoded : DecodedToken }, res : ex
 }
 
 function updateViews(pageID : number, views : number) {
-    db.run("UPDATE Pages SET Views = ? WHERE Id = ?", views, pageID, (err,row) => {});
-  }
+  db.run("UPDATE Pages SET Views = ? WHERE Id = ?", views, pageID, (err,row) => {});
+}
+
+function getProfileIcon( req: express.Request & { decoded : DecodedToken }, res : express.Response):void
+{
+  var userID : number = req.decoded['userID'];
+  db.get('SELECT Icon FROM UserAccounts WHERE Id = ?', userID, (err,row) => {
+    if (err){
+        console.error('Error:', err);
+        res.json({ success: false, error: "Error"});
+    }
+    else if (!row){
+        console.error('User does not exist');
+        res.json({ success: false, error: "User does not exist"});
+    }
+    else {
+        res.json({ success: true, icon: row.Icon});
+    }
+  });
+}
+
+function changeProfileIcon( req: express.Request & { decoded : DecodedToken }, res : express.Response):void
+{
+  var userID : number = req.decoded['userID'];
+  db.run("UPDATE UserAccounts SET Icon = ? WHERE Id = ?", req.body.icon, userID, (err,row) => {});
+  res.json({success: true });
+}

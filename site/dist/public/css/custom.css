@@ -94,3 +94,9 @@ tbody {
 .thumbnail-border {
   border: 2px solid;
 }
+.save-button-div {
+  margin-bottom:10%;
+}
+.save-button-icon {
+  font-size: 150%;
+}

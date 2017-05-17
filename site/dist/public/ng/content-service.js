@@ -135,6 +135,32 @@ angular.module('myApp').factory('contentService', function ($http, $q) {
             console.log("Error getting page POST: " + err);
           })
           return deferred.promise;
+        },
+
+        changeProfileIcon: function (request) {
+          var deferred = $q.defer();
+
+          $http.post(apiURL + "changeicon", request)
+          .then(function (res) {
+            deferred.resolve(res);
+          })
+          .catch(function( err) {
+            console.log("Error getting my pages POST: " + err);
+          })
+          return deferred.promise;
+        },
+
+        getProfileIcon: function (request) {
+          var deferred = $q.defer();
+
+          $http.post(apiURL + "geticon", request)
+          .then(function (res) {
+            deferred.resolve(res);
+          })
+          .catch(function( err) {
+            console.log("Error getting my pages POST: " + err);
+          })
+          return deferred.promise;
         }
     }
 });

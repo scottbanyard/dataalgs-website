@@ -6,6 +6,8 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
     $scope.showChangeIcon = false;
     $scope.selectedIcons = new Array(6);
     setupSelectedIcons();
+    $scope.iconFilenames = ["bear.svg", "bear.svg", "balloon.svg", "face.svg", "bear.svg", "bear.svg"];
+    getProfileIcon();
 
     var token = localStorage.getItem('token');
     if (token && !jwtHelper.isTokenExpired(token)) {
@@ -250,6 +252,21 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
       }
     }
 
+    $scope.saveChangeIcon = function() {
+      var index = -1;
+      for (var i = 0; i < $scope.selectedIcons.length; i++) {
+        if ($scope.selectedIcons[i]) {
+          index = i;
+        }
+      }
+      contentService.changeProfileIcon({token : localStorage.getItem('token'), icon: $scope.iconFilenames[index]}).then(function (res) {
+        var response = angular.fromJson(res).data;
+        if (response.success) {
+          getProfileIcon();
+        }
+      })
+    }
+
     $scope.getMyPages = function () {
       contentService.getMyPages({token : localStorage.getItem('token')}).then(function (res) {
         var response = angular.fromJson(res).data;
@@ -263,6 +280,18 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
           $scope.noPagesError = response.error;
         }
       });
+    }
+
+    function getProfileIcon() {
+      contentService.getProfileIcon({token: localStorage.getItem('token')}).then(function (res) {
+        var response = angular.fromJson(res).data;
+        if (response.success) {
+          $scope.myIcon = response.icon;
+        } else {
+          $scope.myIcon = "man.svg"; // default icon
+        }
+      });
+
     }
 
     $scope.takeToPage = function (pageID) {

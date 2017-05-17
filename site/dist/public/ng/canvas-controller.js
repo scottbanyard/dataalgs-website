@@ -34,7 +34,7 @@ angular.module('myApp')
         // Keeps track of the shapes on the canvas
         var canvasState = new CanvasState();
 
-        $scope.title = "Canvas controller";
+        $scope.title = "Canvas Controller";
         $scope.colour = {red : 122, green:122, blue:122};
         $scope.cssColour = "rgb(122,122,122)";
         $scope.selected = "white";
@@ -171,4 +171,13 @@ angular.module('myApp')
                 redrawAll();
             hasHappened = false;
         };
+
+        $scope.downloadCanvasImage = function () {
+          var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"); //Convert image to 'octet-stream' (Just a download, really)
+          window.location.href = image;
+        }
+
+        $scope.saveCanvasImage = function () {
+
+        }
 });

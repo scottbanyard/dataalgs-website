@@ -264,6 +264,15 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
           var response = angular.fromJson(res).data;
           if (response.success) {
             getProfileIcon();
+            swal({
+              html: true,
+              title: "<b>Success!</b>",
+              text: "You have successfully changed your profile icon.",
+              type: "success"
+              },
+              function(){
+                swal.close();
+            });
           }
         })
       }

@@ -1,8 +1,17 @@
-angular.module('myApp').controller('dashboardController', function($rootScope, $scope, authService, $state, contentService) {
+angular.module('myApp').controller('dashboardController', function($rootScope, $scope, authService, $state, contentService, jwtHelper) {
     $scope.showChangePWForm = false;
     $scope.showDeleteAccForm = false;
     $scope.showMyComments = false;
     $scope.showMyPages = false;
+    $scope.showChangeIcon = false;
+
+    var token = localStorage.getItem('token');
+    if (token && !jwtHelper.isTokenExpired(token)) {
+       var tokenPayload = jwtHelper.decodeToken(token);
+       $scope.name = tokenPayload.name + "!";
+     } else {
+       $scope.name = "";
+     }
 
     $scope.showOrHidePWForm = function () {
       if ($scope.showChangePWForm) {
@@ -12,6 +21,7 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
         $scope.showMyPages = false;
         $scope.showDeleteAccForm = false;
         $scope.showMyComments = false;
+        $scope.showChangeIcon = false;
       }
     }
 
@@ -23,6 +33,7 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
         $scope.showMyPages = false;
         $scope.showChangePWForm = false;
         $scope.showMyComments = false;
+        $scope.showChangeIcon = false;
       }
     }
 
@@ -35,6 +46,7 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
         $scope.showMyPages = false;
         $scope.showDeleteAccForm = false;
         $scope.showChangePWForm = false;
+        $scope.showChangeIcon = false;
       }
     }
 
@@ -44,6 +56,20 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
       } else {
         $scope.getMyPages();
         $scope.showMyPages = true;
+        $scope.showMyComments = false;
+        $scope.showDeleteAccForm = false;
+        $scope.showChangeIcon = false;
+        $scope.showChangePWForm = false;
+      }
+    }
+
+    $scope.showOrHideChangeIcon = function () {
+      if ($scope.showChangeIcon) {
+        $scope.showChangeIcon = false;
+      } else {
+        $scope.getMyPages();
+        $scope.showChangeIcon = true;
+        $scope.showMyPages = false;
         $scope.showMyComments = false;
         $scope.showDeleteAccForm = false;
         $scope.showChangePWForm = false;

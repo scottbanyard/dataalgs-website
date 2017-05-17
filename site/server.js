@@ -122,7 +122,7 @@ function setupApi() {
     router.post('/register', function (req, res) {
         var firstName = req.body.firstName;
         var lastName = req.body.lastName;
-        createNewUser(firstName + lastName, req.body.email, req.body.password, res);
+        createNewUser(firstName + " " + lastName, req.body.email, req.body.password, res);
     });
     router.get('/getAllPublicPages', getAllPublicPages);
     router.post('/previewHTML', parseMarkdown);

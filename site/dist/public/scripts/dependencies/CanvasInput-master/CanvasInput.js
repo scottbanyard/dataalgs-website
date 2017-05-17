@@ -1290,11 +1290,12 @@
     _textWidth: function(text) {
       var self = this,
         ctx = self._renderCtx;
-
+      if(!ctx || !self)
+        return 0;
       ctx.font = self._fontStyle + ' ' + self._fontWeight + ' ' + self._fontSize + 'px ' + self._fontFamily;
       ctx.textAlign = 'left';
 
-      return ctx.measureText(text).width;
+        return ctx.measureText(text).width;
     },
 
     /**

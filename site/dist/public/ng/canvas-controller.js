@@ -4,8 +4,6 @@ angular.module('myApp')
         // Main drawing canvas
         var canvas = document.getElementById('canvas');
         var context = canvas.getContext('2d');
-        canvas.onclick = newShape;
-
         // Colour picker, implemented by drawing an image on the
         var colourCanvas = document.getElementById('grad');
         var colourContext = colourCanvas.getContext('2d');
@@ -41,7 +39,7 @@ angular.module('myApp')
         $scope.cssColour = "rgb(122,122,122)";
         $scope.selected = "white";
         $scope.shape = 'Circle';
-        
+
         //Modified from a stackoverflow response. Adjusts the information about the clicked point into the canvas frame of reference
         function getMousePosition(thisCanvas,event)
         {
@@ -55,6 +53,7 @@ angular.module('myApp')
         }
         function dealWithText(shape,x){
             openInput.destroy();
+            openInput = undefined;
             /* Shifts the rendered text in line with the textbox. Constants
                need to change if the number of pixels in the image or the font
                size changes*/
@@ -82,6 +81,10 @@ angular.module('myApp')
                 canvasState.addShape(shape);
             }
             else if($scope.shape == 'Text'){
+                if("undefined" != typeof openInput){
+                    openInput.destroy();
+                    redrawAll();
+                }
                 openInput = new CanvasInput({
                     canvas : canvas,
                     x : coords.x,
@@ -140,4 +143,32 @@ angular.module('myApp')
         {
             return ['rgb(',')'].join(data.slice(0,3).join(','));
         }
+
+        /* Functions dealing with dragging shapes or drawing arrows */
+        var hasHappened = false;
+        var clk;
+        canvas.onmousedown = (event) => {
+            var startEvent = event;
+            clk = setTimeout(() => {
+                hasHappened = true;
+                canvasState.setSelectedShape(getMousePosition(canvas, startEvent));
+            },200);
+        };
+        canvas.onmousemove = (event) => {
+            if( hasHappened ){
+                canvasState.moveShape(getMousePosition(canvas, event));
+                redrawAll();
+            }
+        }
+        canvas.onmouseup = (event) =>{
+            clearTimeout(clk);
+            canvasState.deselectShape()
+            if( !hasHappened ){
+                isClick = true;
+                newShape(event);
+            }
+            else
+                redrawAll();
+            hasHappened = false;
+        };
 });

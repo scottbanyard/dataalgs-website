@@ -259,12 +259,14 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
           index = i;
         }
       }
-      contentService.changeProfileIcon({token : localStorage.getItem('token'), icon: $scope.iconFilenames[index]}).then(function (res) {
-        var response = angular.fromJson(res).data;
-        if (response.success) {
-          getProfileIcon();
-        }
-      })
+      if (index != -1) {
+        contentService.changeProfileIcon({token : localStorage.getItem('token'), icon: $scope.iconFilenames[index]}).then(function (res) {
+          var response = angular.fromJson(res).data;
+          if (response.success) {
+            getProfileIcon();
+          }
+        })
+      }
     }
 
     $scope.getMyPages = function () {

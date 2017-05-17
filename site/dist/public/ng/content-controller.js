@@ -32,6 +32,7 @@ angular.module('myApp')
                                   if (response.success){
                                       $scope.pageInfo = response;
                                       var content = $scope.pageInfo.htmlContent;
+                                      $scope.pageTitle = $scope.pageInfo.page.Title;
                                       getComments();
                                       if ($scope.pageInfo.page.PrivateEdit == 1) {
                                         // Checks user is logged in and that they are the creator

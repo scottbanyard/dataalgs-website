@@ -52,16 +52,18 @@ angular.module('myApp')
             }
         }
         function dealWithText(shape,x){
-            openInput.destroy();
-            openInput = undefined;
             /* Shifts the rendered text in line with the textbox. Constants
                need to change if the number of pixels in the image or the font
                size changes*/
             shape.centre.y+=22;
             shape.centre.x+=7;
             shape.contents = x.target.value;
-            shape.font = "20px Arial"
+            shape.font   = "16pt Arial"
+            shape.offset = parseInt(shape.font);
+            shape.width  = context.measureText(x.target.value).width;
             canvasState.addShape(shape);
+            openInput.destroy();
+            openInput = undefined;
             redrawAll();
         }
         // Based on the selection of shape, and the colour, adds a new shape to the CanvasState and orders a redraw.
@@ -82,7 +84,6 @@ angular.module('myApp')
             }
             else if($scope.shape == 'Text'){
                 if("undefined" != typeof openInput){
-                    openInput.destroy();
                     redrawAll();
                 }
                 openInput = new CanvasInput({
@@ -116,6 +117,10 @@ angular.module('myApp')
                 context.font = shape.font;
                 context.textAlign='left';
                 context.fillText(shape.contents,coords.x,coords.y);
+                context.rect(coords.x,
+                             coords.y - shape.offset,
+                             shape.width,
+                             parseInt(context.font));
             }
 
             context.stroke();
@@ -143,7 +148,6 @@ angular.module('myApp')
         {
             return ['rgb(',')'].join(data.slice(0,3).join(','));
         }
-
         /* Functions dealing with dragging shapes or drawing arrows */
         var hasHappened = false;
         var clk;

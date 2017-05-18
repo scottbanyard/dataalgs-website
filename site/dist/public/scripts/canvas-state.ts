@@ -54,7 +54,7 @@ class CanvasState{
     private shapeSelected : boolean;
     selected : [number,Shape];
 
-    constructor(){
+    constructor(public width : number, public height : number){
         this.shapes = [];
         this.shapeSelected = false;
     }
@@ -93,5 +93,32 @@ class CanvasState{
     getShapes() : Shape[]
     {
         return this.shapes;
+    }
+    redrawAll( ctx : CanvasRenderingContext2D ): void
+    {
+        ctx.clearRect(0, 0, this.width, this.height);
+        this.shapes.map(this.drawShape.bind(this,ctx));
+    }
+    drawShape(context, shape)
+    {
+        context.strokeStyle=toCSSColour(shape.colour);
+        context.beginPath();
+        var coords = shape.centre;
+        if(shape.kind == 'Circle'){
+            context.arc(coords.x, coords.y, shape.radius, 0, 2*Math.PI);
+        }
+        else if(shape.kind == 'Rectangle'){
+            context.rect(coords.x-Math.round(shape.width/2),
+                         coords.y-Math.round(shape.height/2),
+                         shape.width, shape.height);
+        }
+        else if(shape.kind == 'Text'){
+            context.font = shape.font;
+            context.textAlign='left';
+            context.fillText(shape.contents,coords.x,coords.y);
+        }
+
+        context.stroke();
+        context.closePath();
     }
 }

@@ -53,3 +53,9 @@
 - Imported a png image into the icon and used the magic brush tool to discard white around the image (make transparent)
 - Used textures for background
 - Make image using opacity and some cool other tools?
+
+## INKSCAPE Notes (SVG)
+- Used image as a trace sheet - lowered opacity so could see my pen marks
+- Used bezier curve tool to create accurate curved brush marks
+- Used object stroke and fill option to colour the bezier curve tool, and fill in shapes I created
+- This allowed me to create ellipse-like shapes, and straight lines

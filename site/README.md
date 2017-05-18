@@ -56,6 +56,7 @@
 
 ## INKSCAPE Notes (SVG)
 - Used image as a trace sheet - lowered opacity so could see my pen marks
-- Used bezier curve tool to create accurate curved brush marks
+- Used bezier curve tool to create curved brush marks
 - Used object stroke and fill option to colour the bezier curve tool, and fill in shapes I created
 - This allowed me to create ellipse-like shapes, and straight lines
+- Used the circular tool to create accurate, symmetrical circles

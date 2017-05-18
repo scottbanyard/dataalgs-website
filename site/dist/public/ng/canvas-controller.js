@@ -190,4 +190,23 @@ angular.module('myApp')
             });
         }
 
+        $scope.getCanvasImage = function () {
+          $scope.canvasID = 4;
+          contentService.getCanvasImage({ token: localStorage.getItem('token'), canvasID: $scope.canvasID }).then((res) => {
+            var response = angular.fromJson(res).data;
+            if (response.success) {
+              console.log(response.canvas.Shapes);
+            }
+          });
+        }
+
+        $scope.getAllMyCanvases = function () {
+          contentService.getAllMyCanvases({token: localStorage.getItem('token')}).then((res) => {
+            var response = angular.fromJson(res).data;
+            if (response.success) {
+              console.log(response.canvases);
+            }
+          });
+        }
+
 });

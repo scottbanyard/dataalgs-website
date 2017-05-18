@@ -186,6 +186,8 @@ function setupApi() {
     router.post('/geticon', getProfileIcon);
     router.post('/changeicon', changeProfileIcon);
     router.post('/saveimage', saveCanvasImage);
+    router.post('/getimage', getCanvasImage);
+    router.post('/getallimages', getMyCanvasImages);
     // API always begins with localhost8080/api
     app.use('/api', router);
 }
@@ -511,6 +513,48 @@ function saveCanvasImage(req, res) {
         }
         else {
             res.json({ success: true });
+        }
+    });
+}
+function getCanvasImage(req, res) {
+    var userID = req.decoded['userID'];
+    db.get('SELECT * FROM Canvases WHERE Id = ?', req.body.canvasID, function (err, row) {
+        if (err) {
+            console.error('Error:', err);
+            res.json({ success: false, error: "Error" });
+        }
+        else if (!row) {
+            console.error('Image does not exist');
+            res.json({ success: false, error: "Image does not exist" });
+        }
+        else {
+            res.json({ success: true, canvas: row });
+        }
+    });
+}
+function getMyCanvasImages(req, res) {
+    var userID = req.decoded['userID'];
+    var canvases = [];
+    var canvasNumber = 0;
+    db.each('SELECT * FROM Canvases WHERE Creator = ?', userID, function (err, row) {
+        if (err) {
+            console.error('Error:', err);
+            res.json({ success: false, error: "Error - please check your connection." });
+        }
+        else if (!row) {
+            res.json({ success: false, error: "You have not made any images." });
+        }
+        else {
+            canvases[canvasNumber] = row;
+            canvasNumber++;
+        }
+    }, function (err, row) {
+        if (canvasNumber > 0) {
+            console.log(canvasNumber);
+            res.json({ success: true, canvases: canvases });
+        }
+        else {
+            res.json({ success: false, error: "You have not made any images." });
         }
     });
 }

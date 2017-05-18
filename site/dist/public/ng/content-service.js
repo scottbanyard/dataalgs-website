@@ -162,11 +162,37 @@ angular.module('myApp').factory('contentService', function ($http, $q) {
           })
           return deferred.promise;
         },
-        
+
         saveCanvasImage: function (request) {
           var deferred = $q.defer();
 
           $http.post(apiURL + "saveimage", request)
+          .then(function (res) {
+            deferred.resolve(res);
+          })
+          .catch(function( err) {
+            console.log("Error getting my pages POST: " + err);
+          })
+          return deferred.promise;
+        },
+
+        getCanvasImage: function (request) {
+          var deferred = $q.defer();
+
+          $http.post(apiURL + "getimage", request)
+          .then(function (res) {
+            deferred.resolve(res);
+          })
+          .catch(function( err) {
+            console.log("Error getting my pages POST: " + err);
+          })
+          return deferred.promise;
+        },
+
+        getAllMyCanvases: function (request) {
+          var deferred = $q.defer();
+
+          $http.post(apiURL + "getallimages", request)
           .then(function (res) {
             deferred.resolve(res);
           })

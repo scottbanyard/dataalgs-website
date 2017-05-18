@@ -1,6 +1,6 @@
 angular.module('myApp')
 .controller('canvasController',
-    ( $scope ) => {
+    ( $scope, contentService ) => {
         // Main drawing canvas
         var canvas = document.getElementById('canvas');
         var context = canvas.getContext('2d');
@@ -174,7 +174,20 @@ angular.module('myApp')
         }
 
         $scope.saveCanvasImage = function () {
-            console.log(JSON.stringify(canvasState));
+            // console.log(JSON.stringify(canvasState));
+            $scope.name = "new canvas";
+            var width = canvas.width;
+            var height = canvas.height;
+            var dimensions = {width, height};
+            contentService.saveCanvasImage({ token: localStorage.getItem('token'),
+                                             name: $scope.name,
+                                             shapes: JSON.stringify(canvasState),
+                                             dimensions: JSON.stringify(dimensions)}).then((res) => {
+              var response = angular.fromJson(res).data;
+              if (response.success) {
+                console.log("successfully saved canvas");
+              }
+            });
         }
 
 });

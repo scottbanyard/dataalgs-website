@@ -240,6 +240,9 @@ function setupApi () : void {
 
   router.post('/changeicon', changeProfileIcon);
 
+  router.post('/saveimage', saveCanvasImage);
+
+
   // API always begins with localhost8080/api
   app.use('/api', router);
 }
@@ -583,4 +586,22 @@ function changeProfileIcon( req: express.Request & { decoded : DecodedToken }, r
   var userID : number = req.decoded['userID'];
   db.run("UPDATE UserAccounts SET Icon = ? WHERE Id = ?", req.body.icon, userID, (err,row) => {});
   res.json({success: true });
+}
+
+function saveCanvasImage(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
+  var userID : number = req.decoded['userID'];
+
+  db.run('INSERT INTO Canvases (Name, Dimensions, Shapes, Creator) VALUES (?,?,?,?)',
+      [ req.body.name,
+        req.body.dimensions,
+        req.body.shapes,
+        userID,
+      ], (err) => {
+        if (err) {
+          console.error("Error: " + err);
+          res.json({ success: false, error: "Error"});
+        } else {
+          res.json({ success: true });
+        }
+      });
 }

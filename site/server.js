@@ -185,6 +185,7 @@ function setupApi() {
     router.post('/deletepage', deletePage);
     router.post('/geticon', getProfileIcon);
     router.post('/changeicon', changeProfileIcon);
+    router.post('/saveimage', saveCanvasImage);
     // API always begins with localhost8080/api
     app.use('/api', router);
 }
@@ -496,4 +497,20 @@ function changeProfileIcon(req, res) {
     var userID = req.decoded['userID'];
     db.run("UPDATE UserAccounts SET Icon = ? WHERE Id = ?", req.body.icon, userID, function (err, row) { });
     res.json({ success: true });
+}
+function saveCanvasImage(req, res) {
+    var userID = req.decoded['userID'];
+    db.run('INSERT INTO Canvases (Name, Dimensions, Shapes, Creator) VALUES (?,?,?,?)', [req.body.name,
+        req.body.dimensions,
+        req.body.shapes,
+        userID,
+    ], function (err) {
+        if (err) {
+            console.error("Error: " + err);
+            res.json({ success: false, error: "Error" });
+        }
+        else {
+            res.json({ success: true });
+        }
+    });
 }

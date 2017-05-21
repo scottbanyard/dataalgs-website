@@ -33,7 +33,7 @@ angular.module('myApp')
     };
     // Keeps track of the shapes on the canvas
     var canvasState = new CanvasState(canvas.width,canvas.height);
-    
+
     $scope.colour = {red : 122, green:122, blue:122};
     $scope.cssColour = "rgb(122,122,122)";
     $scope.selected = "white";

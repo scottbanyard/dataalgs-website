@@ -212,10 +212,12 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
       });
     }
 
-    $scope.viewImage = function (canvasID) {
-      // take to image editor? or show in a pop up?
+    $scope.viewImage = function (index) {
+      var current = $scope.myImages[index];
+      var {width,height,shapes,_} = JSON.parse(current.Shapes);
+      $scope.modalImg = new CanvasState(width,height,shapes).imageURL();
+      $scope.currentImage = current.Name;
     }
-
     $scope.editImage = function(canvasID) {
       // take to image editor with canvasID and load up canvas
     }

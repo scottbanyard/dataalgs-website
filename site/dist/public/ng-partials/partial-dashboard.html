@@ -238,7 +238,6 @@
               <table data-ng-show="!noImages" class="table table-hover table-bordered">
                 <thead>
                   <tr>
-                    <th width="10%" class="comment-header">Image ID</th>
                     <th class="comment-header">Name</th>
                     <th width="10%" class="comment-header">View</th>
                     <th width="10%" class="comment-header">Edit</th>
@@ -247,10 +246,9 @@
                 </thead>
                 <tbody>
                   <tr data-ng-repeat="image in myImages">
-                    <td class="text-center">{{ image.Id }}</td>
                     <td class="">{{ image.Name }}</td>
                     <td class="center pointer">
-                      <i data-ng-click="viewImage(image.Id)" class="glyphicon glyphicon-picture text-primary"></i>
+                      <i data-ng-click="viewImage($index)" class="glyphicon glyphicon-picture text-primary" data-toggle="modal" data-target="#imgModal"></i>
                     </td>
                     <td class="center pointer">
                       <i data-ng-click="editImage(image.Id)" class="glyphicon glyphicon-edit text-primary"></i>
@@ -301,5 +299,23 @@
               </table>
             </div>
         </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="imgModal" tabindex="-1" role="dialog" aria-labelledby="imageModal">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"></span></button>
+            <h4 class="modal-title" id="imageModal">{{ currentImage }}</h4>
+          </div>
+          <div class="modal-body">
+              <img ng-src="{{ modalImg }}" ></img>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
     </div>
 </div>

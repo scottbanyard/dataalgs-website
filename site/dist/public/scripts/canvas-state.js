@@ -22,10 +22,10 @@ function intersects(point, shape) {
     }
 }
 class CanvasState {
-    constructor(width, height) {
+    constructor(width, height, shapes) {
         this.width = width;
         this.height = height;
-        this.shapes = [];
+        this.shapes = shapes || [];
         this.shapeSelected = false;
     }
     addShape(shape) {
@@ -115,5 +115,14 @@ class CanvasState {
         console.log(line);
         this.selected = [this.shapes.length - 1, line];
         this.shapeSelected = true;
+    }
+    imageURL(can) {
+        if (can === undefined) {
+            can = document.createElement('canvas');
+            can.width = this.width;
+            can.height = this.height;
+        }
+        this.redrawAll(can.getContext('2d'));
+        return can.toDataURL();
     }
 }

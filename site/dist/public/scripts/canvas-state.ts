@@ -65,8 +65,10 @@ class CanvasState{
     private shapeSelected : boolean;
     selected : [number,Shape];
 
-    constructor(public width : number, public height : number){
-        this.shapes = [];
+    constructor( public width : number,
+                 public height : number,
+                 shapes ?: Shape[]){
+        this.shapes = shapes || [];
         this.shapeSelected = false;
     }
     addShape(shape:Shape) : void
@@ -171,5 +173,15 @@ class CanvasState{
         console.log(line);
         this.selected = [this.shapes.length-1, line];
         this.shapeSelected = true;
+    }
+    imageURL(can ?: HTMLCanvasElement) : string
+    {
+        if(can === undefined){
+            can = document.createElement('canvas');
+            can.width = this.width;
+            can.height = this.height;
+        }
+        this.redrawAll(can.getContext('2d'));
+        return can.toDataURL();
     }
 }

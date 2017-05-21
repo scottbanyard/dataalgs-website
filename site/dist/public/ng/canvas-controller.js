@@ -32,14 +32,13 @@ angular.module('myApp')
             $scope.$apply(() => $scope.selected = rgbCSS(currentColour(event)));
         };
         // Keeps track of the shapes on the canvas
-        var canvasState = new CanvasState();
+        var canvasState = new CanvasState(canvas.width,canvas.height);
 
-        $scope.title = "Canvas controller";
+        $scope.title = "Canvas Controller";
         $scope.colour = {red : 122, green:122, blue:122};
         $scope.cssColour = "rgb(122,122,122)";
         $scope.selected = "white";
         $scope.shape = 'Circle';
-
         //Modified from a stackoverflow response. Adjusts the information about the clicked point into the canvas frame of reference
         function getMousePosition(thisCanvas,event)
         {
@@ -64,7 +63,7 @@ angular.module('myApp')
             canvasState.addShape(shape);
             openInput.destroy();
             openInput = undefined;
-            redrawAll();
+            canvasState.redrawAll(context);
         }
         // Based on the selection of shape, and the colour, adds a new shape to the CanvasState and orders a redraw.
         function newShape(event)
@@ -84,7 +83,8 @@ angular.module('myApp')
             }
             else if($scope.shape == 'Text'){
                 if("undefined" != typeof openInput){
-                    redrawAll();
+                    openInput.destroy();
+                    canvasState.redrawAll(context);
                 }
                 openInput = new CanvasInput({
                     canvas : canvas,
@@ -96,7 +96,7 @@ angular.module('myApp')
                 openInput.focus();
                 return;
             }
-            redrawAll();
+            canvasState.redrawAll(context);
         }
 
         // Draws a single chape onto the canvas
@@ -127,12 +127,6 @@ angular.module('myApp')
             context.closePath();
         }
 
-        // Retrieves all shapes from the canvasState and redraws them
-        function redrawAll(){
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            canvasState.getShapes().map(drawShape);
-        }
-
         // Returns the colour under the mouse when on the colour palette
         function currentColour(event){
             var coords = getMousePosition(colourCanvas,event);
@@ -161,7 +155,7 @@ angular.module('myApp')
         canvas.onmousemove = (event) => {
             if( hasHappened ){
                 canvasState.moveShape(getMousePosition(canvas, event));
-                redrawAll();
+                canvasState.redrawAll(context);
             }
         }
         canvas.onmouseup = (event) =>{
@@ -171,8 +165,21 @@ angular.module('myApp')
                 isClick = true;
                 newShape(event);
             }
-            else
-                redrawAll();
+            else{
+                  canvasState.redrawAll(context);
+            }
             hasHappened = false;
         };
+
+        $scope.downloadCanvasImage = function () {
+              var hiddenLink = document.createElement('a');
+              hiddenLink.download = "Image.png"
+              hiddenLink.href = canvas.toDataURL();
+              hiddenLink.click();
+        }
+
+        $scope.saveCanvasImage = function () {
+            console.log(JSON.stringify(canvasState));
+        }
+
 });

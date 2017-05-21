@@ -135,11 +135,8 @@ function setupApi() {
                 else {
                     row.Views = row.Views + 1;
                     updateViews(req.body.pageID, row.Views);
-                    var [html, ids] = markdown_1.returnHTML(row.Content);
-                    res.json({ success: true,
-                        htmlContent: html,
-                        ids: ids,
-                        page: row });
+                    var [html, ids] = markdown_1.returnHTML(row.Content, true);
+                    getImagesFromIDs(res, html, ids, row);
                 }
             }
         });
@@ -175,8 +172,8 @@ function createToken(id, name, res) {
     });
 }
 function parseMarkdown(req, res) {
-    var [thisHTML, ids] = markdown_1.returnHTML(req.body.content);
-    getImagesFromIDs(req, res, thisHTML, ids);
+    var [thisHTML, ids] = markdown_1.returnHTML(req.body.content, false);
+    getImagesFromIDs(res, thisHTML, ids, undefined, req.decoded['userID']);
 }
 function convertDate(date) {
     return new Date(date).toLocaleDateString();
@@ -309,12 +306,8 @@ function loadPrivatePage(req, res) {
     if (pageCreator == userID) {
         req.page.Views = req.page.Views + 1;
         updateViews(req.body.pageID, req.page.Views);
-        var [thisHTML, ids] = markdown_1.returnHTML(req.page.Content);
-        res.json({ success: true,
-            htmlContent: thisHTML,
-            ids: ids,
-            page: req.page
-        });
+        var [thisHTML, ids] = markdown_1.returnHTML(req.page.Content, true);
+        getImagesFromIDs(res, thisHTML, ids, req.page, userID);
     }
     else {
         res.json({ success: false,
@@ -557,18 +550,25 @@ function deleteCanvasImage(req, res) {
         }
     });
 }
-function getImagesFromIDs(req, res, html, ids) {
-    var userID = req.decoded['userID'];
-    console.log('print', ids, req.decoded['userID']);
+function getImagesFromIDs(res, html, ids, page, userID) {
+    var query = userID ? 'Creator = ? AND ' : '';
+    var args = userID ? [userID.toString()].concat(ids) : ids;
     db.all('SELECT * ' +
-        'FROM Canvases WHERE Creator = ? AND Id IN ('
-        + ids.map(() => '?').join(',') + ')', [req.decoded['userID']].concat(ids), (err, rows) => {
+        'FROM Canvases WHERE ' +
+        query +
+        'Id IN (' +
+        ids.map(() => '?').join(',') + ')', args, (err, rows) => {
         if (err) {
             console.error("Error: " + err);
             res.json({ success: false, error: "Error" });
         }
         else {
-            res.json({ success: true, htmlContent: html, imageRows: rows });
+            if (page)
+                res.json({ success: true,
+                    htmlContent: html,
+                    imageRows: rows, page: page });
+            else
+                res.json({ success: true, htmlContent: html, imageRows: rows });
         }
     });
 }

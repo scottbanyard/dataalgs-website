@@ -81,10 +81,19 @@ function tokenise(text, tokens) {
     }
     return text;
 }
-function collectAndRemoveReferences(text) {
+function collectAndRemoveReferences(text, withScope) {
     var ids = [];
     text = text.replace(imageRef, (text, alt, imageID) => {
-        var tag = '<img ng-src="{{ image' + imageID + ' }}" alt-text="' + alt + '" />';
+        var scopeVar = 'image' + imageID;
+        if (withScope) {
+            var tag = '<img data-ng-src="{{ ' + scopeVar + ' }}"' +
+                ' alt-text="' + alt + '"' +
+                ' data-ng-show="' + scopeVar + '" />';
+        }
+        else {
+            var tag = '<img src="{{ ' + scopeVar + ' }}"' +
+                ' alt-text="' + alt + '" />';
+        }
         ids.push(imageID);
         return tag;
     });
@@ -103,8 +112,8 @@ function collectAndRemoveReferences(text) {
 }
 var tokens = headerTokens.concat(emphTokens);
 tokens.push(inlinelink);
-function returnHTML(page) {
-    var newPage = collectAndRemoveReferences(page);
+function returnHTML(page, withScope) {
+    var newPage = collectAndRemoveReferences(page, withScope);
     newPage[0] = tokenise(newPage[0], tokens).trim();
     return newPage;
 }

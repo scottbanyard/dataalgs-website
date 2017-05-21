@@ -118,11 +118,22 @@ function tokenise(text:string, tokens:Token[]){
     return text;
 }
 
-function collectAndRemoveReferences(text:string): [string,string[]]
+function collectAndRemoveReferences(text:string,withScope : boolean): [string,string[]]
 {
     var ids = [];
     text = text.replace(imageRef,(text,alt,imageID) => {
-        var tag = '<img ng-src="{{ image' + imageID +' }}" alt-text="' + alt+'" />';
+        var scopeVar = 'image' + imageID;
+        if (withScope)
+        {
+            var tag = '<img data-ng-src="{{ '+ scopeVar +' }}"'+
+                            ' alt-text="' + alt +'"' +
+                            ' data-ng-show="'+scopeVar+'" />';
+        }
+        else
+        {
+            var tag = '<img src="{{ '+ scopeVar +' }}"'+
+                            ' alt-text="' + alt +'" />';
+        }
         ids.push(imageID)
         return tag;
     });
@@ -144,9 +155,9 @@ function collectAndRemoveReferences(text:string): [string,string[]]
 var tokens = headerTokens.concat(emphTokens);
 tokens.push(inlinelink);
 
-export function returnHTML(page:string) : [string, string[]]
+export function returnHTML(page:string, withScope : boolean) : [string, string[]]
 {
-    var newPage = collectAndRemoveReferences(page);
+    var newPage = collectAndRemoveReferences(page, withScope);
     newPage[0] = tokenise(newPage[0],tokens).trim();
     return newPage;
 }

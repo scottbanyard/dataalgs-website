@@ -13,7 +13,6 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
         var response = angular.fromJson(res).data;
         if (response.success) {
             var scopedImageTag = new RegExp("{{ image(\\d+) }}");
-            response.htmlContent = response.htmlContent.replace('ng-src','src');
             response.htmlContent = response.htmlContent.replace(scopedImageTag, (_,id) =>{
                 var imageData =response.imageRows.find((x)=>x.Id==id);
                 var {width,height,shapes,_} = JSON.parse(imageData.Shapes);

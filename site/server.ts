@@ -206,11 +206,8 @@ function setupApi () : void {
              else{
                 row.Views = row.Views + 1;
                 updateViews(req.body.pageID, row.Views);
-                var [html,ids] = returnHTML(row.Content);
-                res.json({ success: true,
-                          htmlContent: html,
-                          ids : ids,
-                          page:row});
+                var [html,ids] = returnHTML(row.Content,true);
+                getImagesFromIDs(res,html,ids,row);
              }
           }
       });
@@ -273,8 +270,8 @@ function createToken( id : number, name : string, res : express.Response )
 }
 
 function parseMarkdown(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
-    var [thisHTML,ids] = returnHTML(req.body.content) ;
-    getImagesFromIDs(req,res,thisHTML,ids);
+    var [thisHTML,ids] = returnHTML(req.body.content, false) ;
+    getImagesFromIDs(res,thisHTML,ids, undefined, req.decoded['userID']);
 }
 
 // Converts date from number stored in database to local date
@@ -427,12 +424,8 @@ function loadPrivatePage(req: express.Request & { decoded : DecodedToken, page :
   if (pageCreator == userID) {
     req.page.Views = req.page.Views + 1;
     updateViews(req.body.pageID, req.page.Views);
-    var [thisHTML,ids] = returnHTML(req.page.Content)
-    res.json({ success: true,
-               htmlContent: thisHTML,
-               ids : ids,
-               page: req.page
-           });
+    var [thisHTML,ids] = returnHTML(req.page.Content, true)
+    getImagesFromIDs(res,thisHTML,ids,req.page,userID);
   } else {
     res.json({ success: false,
                error: "Not authorised - don't own the private page."
@@ -696,21 +689,29 @@ function deleteCanvasImage(req : express.Request & { decoded : DecodedToken }, r
     }
   });
 }
+
 function getImagesFromIDs(
-    req : express.Request & { decoded : DecodedToken },
-    res : express.Response, html:string, ids:string[]) : void
+    res : express.Response, html:string, ids:string[], page?:Page, userID ?: number) : void
 {
-    var userID : number = req.decoded['userID'];
-    console.log('print',ids, req.decoded['userID']);
+    var query = userID ?  'Creator = ? AND ' : '';
+    var args  = userID ? [userID.toString()].concat(ids) : ids;
     db.all('SELECT * '+
-           'FROM Canvases WHERE Creator = ? AND Id IN ('
-            + ids.map(() => '?').join(',') + ')',
-            [req.decoded['userID']].concat(ids), (err,rows) => {
-      if (err) {
-        console.error("Error: " + err);
-        res.json({ success: false, error: "Error"});
-      } else {
-        res.json({ success: true, htmlContent : html, imageRows:rows });
-      }
-    });
+            'FROM Canvases WHERE '+
+            query +
+            'Id IN (' +
+            ids.map(() => '?').join(',') + ')',
+            args, (err,rows) =>
+            {
+                if (err) {
+                    console.error("Error: " + err);
+                    res.json({ success: false, error: "Error"});
+                } else {
+                    if(page)
+                        res.json({ success: true,
+                                    htmlContent : html,
+                                    imageRows:rows, page:page });
+                    else
+                        res.json({ success: true, htmlContent : html, imageRows:rows });
+                }
+            });
 }

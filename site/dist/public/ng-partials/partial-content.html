@@ -4,7 +4,7 @@
 <div class="container">
 
     <!-- HTML Section (not editing) -->
-    <div class="contentBox" id="rounded" data-ng-bind-html="pageInfo.htmlContent"></div>
+    <div class="contentBox" id="rounded"  data-compile="pageInfo.htmlContent"></div>
     <div class="form-group">
       <button data-ng-if="showEditButton" data-ng-click="editPage()" class="btn btn-primary"><span class="glyphicon glyphicon-edit"></span>Edit Page</button>
     </div>

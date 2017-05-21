@@ -332,9 +332,9 @@
 
                 } else if (btnType === 'image') {
                     if (selectedText === '') {
-                        snippetManager.insertSnippet(editor, '![${1:text}](http://$2)');
+                        snippetManager.insertSnippet(editor, '![${1:alt-text}](image-id)');
                     } else {
-                        snippetManager.insertSnippet(editor, '![' + selectedText + '](http://$1)');
+                        snippetManager.insertSnippet(editor, '![' + selectedText + '](image-id)');
                     }
 
                 } else if (btnType === 'edit') {

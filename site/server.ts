@@ -167,7 +167,7 @@ function setupApi () : void {
 
   router.post('/allComments', function(req, res) : void {
     var pageID : number = req.body.pageID;
-    db.all( 'SELECT * FROM Comments WHERE PageID = ?', pageID,
+     db.all( 'SELECT * FROM Comments WHERE PageID = ?', pageID,
             (err,rows) => {
                  if (err){
                      console.error('Error:', err);
@@ -178,7 +178,7 @@ function setupApi () : void {
                  }
                  else{
                      // Convert each date to local readable date
-                     for (var i = 0; i < rows.length; i++) {
+                     for (var i : number = 0; i < rows.length; i++) {
                        rows[i].Date = convertDate(rows[i].Date);
                      }
                      res.json({ success: true, rows: rows });

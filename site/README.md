@@ -49,10 +49,10 @@
 ## GIMP Notes (PNG)
 - Used different layers to be able to control overlay
 - Used text tool
-- Imported a splatter brush tool to make background of icon
+- Imported a splatter brush shapes to make background of icon using airbrush tool
 - Imported a png image into the icon and used the magic brush tool to discard white around the image (make transparent)
 - Used textures for background
-- Make image using opacity and some cool other tools?
+- Used airbrush to make names.png border on the perimeter and the border inside around the text. Used the Dissolve filter on the airbrushed layer for the border inside around the text. I then used the airbrush tool to create patterns either side of the text, and the light blue (60% opacity) background of the text.
 
 ## INKSCAPE Notes (SVG)
 - Used image as a trace sheet - lowered opacity so could see my pen marks

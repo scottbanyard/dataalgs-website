@@ -1,24 +1,26 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const express = require("express");
-const morgan = require("morgan");
-const bodyParser = require("body-parser");
-const methodOverride = require("method-override");
-const fs = require("fs");
-const https = require("https");
-const http = require("http");
-const helmet = require("helmet");
-const sqlite3 = require("sqlite3");
-const csprng = require("csprng");
-const crypto_1 = require("crypto");
-const jwt = require("jsonwebtoken");
-const markdown_1 = require("./scripts/markdown");
+exports.__esModule = true;
+// set up ========================
+var express = require("express");
+var morgan = require("morgan");
+var bodyParser = require("body-parser");
+var methodOverride = require("method-override");
+var fs = require("fs");
+var https = require("https");
+var http = require("http");
+var helmet = require("helmet");
+var sqlite3 = require("sqlite3");
+var csprng = require("csprng");
+var crypto_1 = require("crypto");
+var jwt = require("jsonwebtoken");
+var markdown_1 = require("./scripts/markdown");
 var db = new sqlite3.Database('database.sqlite');
 var app = express();
 var httpApp = express();
 configureHttpApplication(httpApp);
 configureApplication(app);
 var sslOptions;
+// http app used to redirect user to https express app
 function configureHttpApplication(httpApp) {
     httpApp.set('port', process.env.PORT || 8070);
     httpApp.use(helmet());
@@ -37,10 +39,12 @@ function configureApplication(app) {
     app.use(helmet());
     app.use(lower);
     app.use(ban);
+    // Make the URL lower case.
     function lower(req, res, next) {
         req.url = req.url.toLowerCase();
         next();
     }
+    // Forbid access to the URLs in the banned list.
     function ban(req, res, next) {
         for (var i = 0; i < banned.length; i++) {
             var b = banned[i];
@@ -51,10 +55,18 @@ function configureApplication(app) {
         }
         next();
     }
+    // Read in SSL certificates to provide secure data transmission using HTTPS
     sslOptions = {
         key: fs.readFileSync('ssl/server.key'),
-        cert: fs.readFileSync('ssl/server.crt'),
+        cert: fs.readFileSync('ssl/server.crt')
     };
+    // Check a folder for files/subfolders with non-lowercase names.  Add them to
+    // the banned list so they don't get delivered, making the site case sensitive,
+    // so that it can be moved from Windows to Linux, for example. Synchronous I/O
+    // is used because this function is only called during startup.  This avoids
+    // expensive file system operations during normal execution.  A file with a
+    // non-lowercase name added while the server is running will get delivered, but
+    // it will be detected and banned when the server is next restarted.
     function banUpperCase(root, folder) {
         var folderBit = 1 << 14;
         var names = fs.readdirSync(root + folder);
@@ -69,6 +81,7 @@ function configureApplication(app) {
             banUpperCase(root, file);
         }
     }
+    // Called by express.static.  Deliver response as XHTML.
     function deliverXHTML(res, path, stat) {
         if (path.endsWith(".html")) {
             res.header("Content-Type", "application/xhtml+xml");
@@ -76,23 +89,36 @@ function configureApplication(app) {
     }
     var options = { setHeaders: deliverXHTML };
     app.use(express.static(__dirname + '/dist/public', options));
+    // NB Only dev - logs to console
     app.use(morgan('dev'));
+    // Allows API calls to parse JSON
     app.use(bodyParser.urlencoded({ 'extended': false }));
     app.use(bodyParser.json({ type: 'application/json' }));
+    // Overrides DELETE and PUT
     app.use(methodOverride());
+    // Need to setup API before we listen
     setupApi();
-    var server = https.createServer(sslOptions, app).listen(app.get('port'), () => console.log("Express HTTPS server listening on port " + app.get('port')));
+    // Start up secure HTTPS server
+    var server = https.createServer(sslOptions, app).listen(app.get('port'), function () {
+        return console.log("Express HTTPS server listening on port " + app.get('port'));
+    });
 }
 function setupApi() {
     var router = express.Router();
+    // Make sure we don't stop at 1 route
     router.use(function (req, res, next) {
         next();
     });
+    // -------------------- API --------------------
+    // UNPROTECTED ROUTES (NO TOKEN NEEDED)
+    // LOGIN
     router.post('/login', function (req, res) {
         var email = req.body.email;
         var password = req.body.password;
+        // CHECK WITH DATABASE HERE USING LOGIN.TS
         attemptLogin(email, password, res);
     });
+    // REGISTER
     router.post('/register', function (req, res) {
         var firstName = req.body.firstName;
         var lastName = req.body.lastName;
@@ -101,7 +127,7 @@ function setupApi() {
     router.get('/getAllPublicPages', getAllPublicPages);
     router.post('/allComments', function (req, res) {
         var pageID = req.body.pageID;
-        db.all('SELECT * FROM Comments WHERE PageID = ?', pageID, (err, rows) => {
+        db.all('SELECT * FROM Comments WHERE PageID = ?', pageID, function (err, rows) {
             if (err) {
                 console.error('Error:', err);
                 res.json({ success: false });
@@ -110,6 +136,7 @@ function setupApi() {
                 res.json({ success: false });
             }
             else {
+                // Convert each date to local readable date
                 for (var i = 0; i < rows.length; i++) {
                     rows[i].Date = convertDate(rows[i].Date);
                 }
@@ -117,8 +144,8 @@ function setupApi() {
             }
         });
     });
-    router.post('/loadPage', (req, res, next) => {
-        db.get('SELECT * FROM Pages WHERE Id = ?', req.body.pageID, (err, row) => {
+    router.post('/loadPage', function (req, res, next) {
+        db.get('SELECT * FROM Pages WHERE Id = ?', req.body.pageID, function (err, row) {
             if (err) {
                 console.error('Error:', err);
                 res.json({ success: false });
@@ -128,6 +155,7 @@ function setupApi() {
                 console.error('Page', req.body.pageID, 'doesn\'t exist!');
             }
             else {
+                // Need to be logged in to view
                 if (row.PrivateView == 1) {
                     req.page = row;
                     next();
@@ -135,7 +163,7 @@ function setupApi() {
                 else {
                     row.Views = row.Views + 1;
                     updateViews(req.body.pageID, row.Views);
-                    var [html, ids] = markdown_1.returnHTML(row.Content);
+                    var _a = markdown_1.returnHTML(row.Content), html = _a[0], ids = _a[1];
                     res.json({ success: true,
                         htmlContent: html,
                         ids: ids,
@@ -144,7 +172,9 @@ function setupApi() {
             }
         });
     });
+    // TOKENS NEEDED TO ACCESS REST OF API
     router.use(checkLoggedIn);
+    // PROTECTED ROUTES (TOKEN NEEDED)
     router.post('/loadPage', loadPrivatePage);
     router.post('/makeComment', makeComment);
     router.post('/savePage', saveContent);
@@ -162,10 +192,11 @@ function setupApi() {
     router.post('/updateimage', updateCanvasImage);
     router.post('/deleteimage', deleteCanvasImage);
     router.post('/previewHTML', parseMarkdown);
+    // API always begins with localhost8080/api
     app.use('/api', router);
 }
 function createToken(id, name, res) {
-    jwt.sign({ userID: id, name: name }, sslOptions.key, { algorithm: 'RS256', expiresIn: "10h" }, (err, token) => {
+    jwt.sign({ userID: id, name: name }, sslOptions.key, { algorithm: 'RS256', expiresIn: "10h" }, function (err, token) {
         if (err) {
             console.error("Error creating token: " + err);
         }
@@ -175,19 +206,22 @@ function createToken(id, name, res) {
     });
 }
 function parseMarkdown(req, res) {
-    var [thisHTML, ids] = markdown_1.returnHTML(req.body.content);
+    var _a = markdown_1.returnHTML(req.body.content), thisHTML = _a[0], ids = _a[1];
     getImagesFromIDs(req, res, thisHTML, ids);
 }
+// Converts date from number stored in database to local date
 function convertDate(date) {
     return new Date(date).toLocaleDateString();
 }
+// Database specifics
+// Hashes a password
 function hashPW(password, salt) {
     return crypto_1.createHash('sha256')
         .update(salt + password)
         .digest('hex');
 }
 function attemptLogin(email, password, res) {
-    db.get('SELECT PassSalt, PassHash, Id, Name FROM UserAccounts WHERE Email = ?', email, (err, row) => {
+    db.get('SELECT PassSalt, PassHash, Id, Name FROM UserAccounts WHERE Email = ?', email, function (err, row) {
         if (err) {
             console.error('Error:', err);
             res.json({ success: false, error: "Error" });
@@ -206,7 +240,7 @@ function attemptLogin(email, password, res) {
     });
 }
 function createNewUser(name, email, password, res) {
-    db.get('SELECT * FROM UserAccounts WHERE Email = ?', email, (err, row) => {
+    db.get('SELECT * FROM UserAccounts WHERE Email = ?', email, function (err, row) {
         if (err) {
             console.error('Error:', err);
             res.json({ success: false, error: "Error" });
@@ -217,7 +251,7 @@ function createNewUser(name, email, password, res) {
                 error: "Email already exists in our system" });
         }
         else {
-            const salt = csprng();
+            var salt = csprng();
             db.run('INSERT INTO UserAccounts (Name, Email, PassSalt, PassHash, Icon) VALUES (?,?,?,?,?)', [name, email, salt, hashPW(password, salt), "man.svg"]);
             console.log('Account for', email, 'successfully created');
             res.json({ success: true });
@@ -226,7 +260,7 @@ function createNewUser(name, email, password, res) {
 }
 function attemptChangePassword(req, res) {
     var userID = req.decoded['userID'];
-    db.get('SELECT PassSalt, PassHash, Email FROM UserAccounts WHERE Id = ?', userID, (err, row) => {
+    db.get('SELECT PassSalt, PassHash, Email FROM UserAccounts WHERE Id = ?', userID, function (err, row) {
         if (err) {
             console.error('Error:', err);
             res.json({ success: false, error: "Error" });
@@ -244,8 +278,8 @@ function attemptChangePassword(req, res) {
     });
 }
 function changePassword(userID, password, res) {
-    const salt = csprng();
-    db.run("UPDATE UserAccounts SET PassSalt = ?, PassHash = ? WHERE Id = ?", salt, hashPW(password, salt), userID, (err, row) => {
+    var salt = csprng();
+    db.run("UPDATE UserAccounts SET PassSalt = ?, PassHash = ? WHERE Id = ?", salt, hashPW(password, salt), userID, function (err, row) {
         if (err) {
             console.log(err);
             res.json({ success: false, error: "Error in database." });
@@ -257,7 +291,7 @@ function changePassword(userID, password, res) {
 }
 function attemptDeleteAccount(req, res) {
     var userID = req.decoded['userID'];
-    db.get('SELECT PassSalt, PassHash, Email FROM UserAccounts WHERE Id = ?', userID, (err, row) => {
+    db.get('SELECT PassSalt, PassHash, Email FROM UserAccounts WHERE Id = ?', userID, function (err, row) {
         if (err) {
             console.error('Error:', err);
             res.json({ success: false, error: "Error" });
@@ -275,7 +309,7 @@ function attemptDeleteAccount(req, res) {
     });
 }
 function deleteAccount(userID, res) {
-    db.run("DELETE FROM UserAccounts WHERE Id = ?", userID, (err) => {
+    db.run("DELETE FROM UserAccounts WHERE Id = ?", userID, function (err) {
         if (err) {
             console.error("Error: " + err);
             res.json({ success: false, error: "Error" });
@@ -287,8 +321,9 @@ function deleteAccount(userID, res) {
 }
 function checkLoggedIn(req, res, next) {
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
+    // decode token
     if (token) {
-        jwt.verify(token, sslOptions.cert, { algorithms: ['RS256'] }, (err, decoded) => {
+        jwt.verify(token, sslOptions.cert, { algorithms: ['RS256'] }, function (err, decoded) {
             if (err) {
                 return res.json({ success: false,
                     message: "Failed to authenticate token." });
@@ -300,6 +335,7 @@ function checkLoggedIn(req, res, next) {
         });
     }
     else {
+        // no token provided
         return res.status(403).send({ success: false, message: "No token provided." });
     }
 }
@@ -309,7 +345,7 @@ function loadPrivatePage(req, res) {
     if (pageCreator == userID) {
         req.page.Views = req.page.Views + 1;
         updateViews(req.body.pageID, req.page.Views);
-        var [thisHTML, ids] = markdown_1.returnHTML(req.page.Content);
+        var _a = markdown_1.returnHTML(req.page.Content), thisHTML = _a[0], ids = _a[1];
         res.json({ success: true,
             htmlContent: thisHTML,
             ids: ids,
@@ -325,12 +361,13 @@ function loadPrivatePage(req, res) {
 function saveContent(req, res) {
     var userID = req.decoded['userID'];
     console.log(userID);
-    db.get('SELECT * FROM Pages WHERE Id = ?', req.body.pageID, (err, row) => {
+    db.get('SELECT * FROM Pages WHERE Id = ?', req.body.pageID, function (err, row) {
         if (err) {
             console.error('Error:', err);
             res.json({ success: false });
         }
         else if (!row) {
+            // Insert new row with 0 views
             db.run('INSERT INTO Pages (Title, Content, PrivateView, Creator, PrivateEdit, LastEdit, Views) VALUES (?,?,?,?,?,?,?)', [req.body.Title,
                 req.body.Content,
                 req.body.PrivateView,
@@ -341,6 +378,7 @@ function saveContent(req, res) {
             res.json({ success: true });
         }
         else {
+            // update existing row
             db.run("UPDATE Pages SET Title = ?, Content = ?, PrivateView = ?, PrivateEdit = ?, LastEdit = ?, Views = ? WHERE Id = ?", req.body.Title, req.body.Content, req.body.PrivateView, req.body.PrivateEdit, req.body.LastEdit, req.body.Views + 1, req.body.pageID);
             res.json({ success: true });
         }
@@ -358,7 +396,7 @@ function getMyComments(req, res) {
     var userID = req.decoded['userID'];
     var comments = [];
     var commentNumber = 0;
-    db.each('SELECT * FROM Comments WHERE UserId = ?', userID, (err, row) => {
+    db.each('SELECT * FROM Comments WHERE UserId = ?', userID, function (err, row) {
         if (err) {
             console.error('Error:', err);
             res.json({ success: false, error: "Error - please check your connection." });
@@ -372,7 +410,7 @@ function getMyComments(req, res) {
             comments[commentNumber] = row;
             commentNumber++;
         }
-    }, (err, row) => {
+    }, function (err, row) {
         if (commentNumber > 0) {
             res.json({ success: true, comments: comments });
         }
@@ -382,7 +420,7 @@ function getMyComments(req, res) {
     });
 }
 function deleteComment(req, res) {
-    db.run("DELETE FROM Comments WHERE CommentID = ?", req.body.commentID, (err) => {
+    db.run("DELETE FROM Comments WHERE CommentID = ?", req.body.commentID, function (err) {
         if (err) {
             console.error("Error: " + err);
             res.json({ success: false, error: "Error" });
@@ -412,7 +450,7 @@ function getMyPages(req, res) {
     var userID = req.decoded['userID'];
     var pages = [];
     var pageNumber = 0;
-    db.each('SELECT * FROM Pages WHERE Creator = ?', userID, (err, row) => {
+    db.each('SELECT * FROM Pages WHERE Creator = ?', userID, function (err, row) {
         if (err) {
             console.error('Error:', err);
             res.json({ success: false, error: "Error - please check your connection." });
@@ -425,7 +463,7 @@ function getMyPages(req, res) {
             pages[pageNumber] = row;
             pageNumber++;
         }
-    }, (err, row) => {
+    }, function (err, row) {
         if (pageNumber > 0) {
             res.json({ success: true, pages: pages });
         }
@@ -435,7 +473,7 @@ function getMyPages(req, res) {
     });
 }
 function deletePage(req, res) {
-    db.run("DELETE FROM Pages WHERE Id = ?", req.body.pageID, (err) => {
+    db.run("DELETE FROM Pages WHERE Id = ?", req.body.pageID, function (err) {
         if (err) {
             console.error("Error: " + err);
             res.json({ success: false, error: "Error" });
@@ -446,11 +484,11 @@ function deletePage(req, res) {
     });
 }
 function updateViews(pageID, views) {
-    db.run("UPDATE Pages SET Views = ? WHERE Id = ?", views, pageID, (err, row) => { });
+    db.run("UPDATE Pages SET Views = ? WHERE Id = ?", views, pageID, function (err, row) { });
 }
 function getProfileIcon(req, res) {
     var userID = req.decoded['userID'];
-    db.get('SELECT Icon FROM UserAccounts WHERE Id = ?', userID, (err, row) => {
+    db.get('SELECT Icon FROM UserAccounts WHERE Id = ?', userID, function (err, row) {
         if (err) {
             console.error('Error:', err);
             res.json({ success: false, error: "Error" });
@@ -466,18 +504,20 @@ function getProfileIcon(req, res) {
 }
 function changeProfileIcon(req, res) {
     var userID = req.decoded['userID'];
-    db.run("UPDATE UserAccounts SET Icon = ? WHERE Id = ?", req.body.icon, userID, (err, row) => { });
+    db.run("UPDATE UserAccounts SET Icon = ? WHERE Id = ?", req.body.icon, userID, function (err, row) { });
     res.json({ success: true });
 }
 function saveCanvasImage(req, res) {
     var userID = req.decoded['userID'];
-    db.get('SELECT * FROM Canvases WHERE Name = ? AND Creator = ?', req.body.name, userID, (err, row) => {
+    // Check if there exists a canvas made by that user ID with a name given
+    db.get('SELECT * FROM Canvases WHERE Name = ? AND Creator = ?', req.body.name, userID, function (err, row) {
+        // If no row, then there doesn't exist a canvas with that name, so insert a new one
         if (!row) {
             db.run('INSERT INTO Canvases (Name, Dimensions, Shapes, Creator) VALUES (?,?,?,?)', [req.body.name,
                 req.body.dimensions,
                 req.body.shapes,
                 userID,
-            ], (err) => {
+            ], function (err) {
                 if (err) {
                     console.error("Error: " + err);
                     res.json({ success: false, error: "Error" });
@@ -488,13 +528,14 @@ function saveCanvasImage(req, res) {
             });
         }
         else {
+            // There already exists a canvas with this name, check with user they want to overwrite it
             res.json({ success: false, canvas_exists: true, error: "There already exists an image with that name. Overwrite?" });
         }
     });
 }
 function updateCanvasImage(req, res) {
     var userID = req.decoded['userID'];
-    db.run('UPDATE Canvases SET Dimensions = ?, Shapes = ? WHERE Name = ? AND Creator = ?', req.body.dimensions, req.body.shapes, req.body.name, userID, (err) => {
+    db.run('UPDATE Canvases SET Dimensions = ?, Shapes = ? WHERE Name = ? AND Creator = ?', req.body.dimensions, req.body.shapes, req.body.name, userID, function (err) {
         if (err) {
             console.error("Error: " + err);
             res.json({ success: false, error: "Error" });
@@ -506,7 +547,7 @@ function updateCanvasImage(req, res) {
 }
 function getCanvasImage(req, res) {
     var userID = req.decoded['userID'];
-    db.get('SELECT * FROM Canvases WHERE Id = ? AND Creator = ?', req.body.canvasID, userID, (err, row) => {
+    db.get('SELECT * FROM Canvases WHERE Id = ? AND Creator = ?', req.body.canvasID, userID, function (err, row) {
         if (err) {
             console.error('Error:', err);
             res.json({ success: false, error: "Error" });
@@ -524,7 +565,7 @@ function getMyCanvasImages(req, res) {
     var userID = req.decoded['userID'];
     var canvases = [];
     var canvasNumber = 0;
-    db.each('SELECT * FROM Canvases WHERE Creator = ?', userID, (err, row) => {
+    db.each('SELECT * FROM Canvases WHERE Creator = ?', userID, function (err, row) {
         if (err) {
             console.error('Error:', err);
             res.json({ success: false, error: "Error - please check your connection." });
@@ -536,7 +577,7 @@ function getMyCanvasImages(req, res) {
             canvases[canvasNumber] = row;
             canvasNumber++;
         }
-    }, (err, row) => {
+    }, function (err, row) {
         if (canvasNumber > 0) {
             console.log(canvasNumber);
             res.json({ success: true, canvases: canvases });
@@ -547,7 +588,7 @@ function getMyCanvasImages(req, res) {
     });
 }
 function deleteCanvasImage(req, res) {
-    db.run("DELETE FROM Canvases WHERE Id = ?", req.body.canvasID, (err) => {
+    db.run("DELETE FROM Canvases WHERE Id = ?", req.body.canvasID, function (err) {
         if (err) {
             console.error("Error: " + err);
             res.json({ success: false, error: "Error" });
@@ -562,7 +603,7 @@ function getImagesFromIDs(req, res, html, ids) {
     console.log('print', ids, req.decoded['userID']);
     db.all('SELECT * ' +
         'FROM Canvases WHERE Creator = ? AND Id IN ('
-        + ids.map(() => '?').join(',') + ')', [req.decoded['userID']].concat(ids), (err, rows) => {
+        + ids.map(function () { return '?'; }).join(',') + ')', [req.decoded['userID']].concat(ids), function (err, rows) {
         if (err) {
             console.error("Error: " + err);
             res.json({ success: false, error: "Error" });

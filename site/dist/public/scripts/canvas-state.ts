@@ -24,6 +24,7 @@ interface Text extends ShapeFeatures {
     kind : 'Text';
     contents: string;
     font : string;
+    width : number;
 }
 type Shape = Circle | Rectangle | Text
 
@@ -46,7 +47,10 @@ function intersects( point : Point, shape : Shape ) : boolean
                point.y <= shape.centre.y + shape.height;
     }
     else if (shape.kind == 'Text'){
-        console.error('Text doesn\'t have intersect code yet');
+        return point.x >= shape.centre.x &&
+               point.x <= shape.centre.x + shape.width  &&
+               point.y >= shape.centre.y - parseInt(shape.font) &&
+               point.y <= shape.centre.y;
     }
 }
 class CanvasState{

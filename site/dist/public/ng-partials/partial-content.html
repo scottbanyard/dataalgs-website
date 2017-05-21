@@ -13,13 +13,11 @@
     <div class="commentBox" >
         <ul class="media-list list-group">
             <li class="media list-group-item" ng-repeat="x in comments">
-                <div class="media-left media-middle">
-              <a href="#">
-                <img class="media-object" src="https://lorempixel.com/64/64" alt="profile picture" />
-              </a>
+            <div class="media-left media-middle">
+              <!-- <img class="media-object" data-ng-src="/imgs/{{x.Icon}}.svg" alt="Profile Icon" /> -->
             </div>
             <div class="media-body">
-              <p class="media-heading">{{ x.Date }}</p>
+              <p class="media-heading">{{ x.Name + " - " +  x.Date }}</p>
               <h4 class="media-heading">{{ x.Title }} </h4>
               <p>{{ x.Content }}</p>
             </div>

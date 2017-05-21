@@ -8,6 +8,7 @@ angular.module('myApp')
                               var response = angular.fromJson(res).data;
                               if (response.success){
                                   $scope.comments = response.rows;
+                                  console.log($scope.comments);
                               }
                               else
                                   $scope.comments = [];
@@ -20,7 +21,28 @@ angular.module('myApp')
                 contentService.addComment({ token:localStorage.getItem('token'),
                                             comment: $scope.newComment,
                                             time: new Date().getTime(),
-                                            pageID: $state.params.id});
+                                            pageID: $state.params.id}).then((res) => {
+                                              if (response.success) {
+                                                swal({
+                                                  html: true,
+                                                  title: "<b>Success!</b>",
+                                                  text: "You have successfully made a comment.",
+                                                  type: "success"
+                                                  },
+                                                  function(){
+                                                    swal.close();
+                                                });
+                                              }
+                                            }, (err) => {
+                                                  swal({
+                                                    title: "Error!",
+                                                    text: "Please make sure you login to make a comment.",
+                                                    type: "error"
+                                                    },
+                                                    function(){
+                                                      swal.close();
+                                                  });
+                                            });
                 getComments();
             }
         }

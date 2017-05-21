@@ -640,14 +640,14 @@ function updateCanvasImage(req : express.Request & { decoded : DecodedToken }, r
 
 function getCanvasImage(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
   var userID : number = req.decoded['userID'];
-  db.get('SELECT * FROM Canvases WHERE Id = ?', req.body.canvasID, (err,row) => {
+  db.get('SELECT * FROM Canvases WHERE Id = ? AND Creator = ?', req.body.canvasID, userID, (err,row) => {
     if (err){
         console.error('Error:', err);
         res.json({ success: false, error: "Error"});
     }
     else if (!row){
         console.error('Image does not exist');
-        res.json({ success: false, error: "Image does not exist"});
+        res.json({ success: false, error: "Image does not exist."});
     }
     else {
         res.json({ success: true, canvas: row});

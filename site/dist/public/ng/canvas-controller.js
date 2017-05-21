@@ -175,19 +175,78 @@ angular.module('myApp')
 
         $scope.saveCanvasImage = function () {
             // console.log(JSON.stringify(canvasState));
-            $scope.name = "new canvas";
-            var width = canvas.width;
-            var height = canvas.height;
-            var dimensions = {width, height};
-            contentService.saveCanvasImage({ token: localStorage.getItem('token'),
-                                             name: $scope.name,
-                                             shapes: JSON.stringify(canvasState),
-                                             dimensions: JSON.stringify(dimensions)}).then((res) => {
-              var response = angular.fromJson(res).data;
-              if (response.success) {
-                console.log("successfully saved canvas");
-              }
-            });
+            // $scope.name = "new canvas";
+            if ($scope.name == "" || $scope.name == undefined) {
+              swal({
+                html: true,
+                title: "<b>Oops!</b>",
+                text: "Please make sure you give your image a name in the text box above.",
+                type: "warning"
+                },
+                function(){
+                  swal.close();
+              });
+            } else {
+              var width = canvas.width;
+              var height = canvas.height;
+              var dimensions = {width, height};
+              contentService.saveCanvasImage({ token: localStorage.getItem('token'),
+                                               name: $scope.name,
+                                               shapes: JSON.stringify(canvasState),
+                                               dimensions: JSON.stringify(dimensions)}).then((res) => {
+                var response = angular.fromJson(res).data;
+                if (response.success) {
+                  swal({
+                    html: true,
+                    title: "<b>Success!</b>",
+                    text: "You have successfully saved your image as <b> " + $scope.name + "</b>.",
+                    type: "success"
+                    },
+                    function(){
+                      swal.close();
+                  });
+                } else {
+                  if (response.canvas_exists) {
+                    swal({
+                      title: "Overwrite?",
+                      text: "There already exists an image you have created with this name!",
+                      type: "warning",
+                      showCancelButton: true,
+                      confirmButtonColor: "#DD6B55",
+                      confirmButtonText: "Yes, overwrite it!",
+                      closeOnConfirm: false
+                    },
+                    // Callback for confirming delete account
+                      function(){
+                        contentService.updateCanvasImage({token: localStorage.getItem('token'), name: $scope.name, shapes: JSON.stringify(canvasState), dimensions: JSON.stringify(dimensions)}).then((res) => {
+                          var response = angular.fromJson(res).data;
+                          if (response.success) {
+                            swal({
+                              html: true,
+                              title: "<b>Success!</b>",
+                              text: "You have successfully overwrited your image as <b> " + $scope.name + "</b>.",
+                              type: "success"
+                              },
+                              function(){
+                                swal.close();
+                            });
+                          }
+                        });
+                    });
+                  } else {
+                    swal({
+                      title: "Error!",
+                      text: response.error,
+                      type: "error"
+                      },
+                      function(){
+                        swal.close();
+                    });
+                    console.log(response.error);
+                  }
+                }
+              });
+            }
         }
 
         $scope.getCanvasImage = function () {

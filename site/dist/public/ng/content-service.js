@@ -176,6 +176,19 @@ angular.module('myApp').factory('contentService', function ($http, $q) {
           return deferred.promise;
         },
 
+        updateCanvasImage: function (request) {
+          var deferred = $q.defer();
+
+          $http.post(apiURL + "updateimage", request)
+          .then(function (res) {
+            deferred.resolve(res);
+          })
+          .catch(function( err) {
+            console.log("Error getting my pages POST: " + err);
+          })
+          return deferred.promise;
+        },
+
         getCanvasImage: function (request) {
           var deferred = $q.defer();
 

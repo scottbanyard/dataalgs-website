@@ -188,6 +188,7 @@ function setupApi() {
     router.post('/saveimage', saveCanvasImage);
     router.post('/getimage', getCanvasImage);
     router.post('/getallimages', getMyCanvasImages);
+    router.post('/updateimage', updateCanvasImage);
     // API always begins with localhost8080/api
     app.use('/api', router);
 }
@@ -502,11 +503,33 @@ function changeProfileIcon(req, res) {
 }
 function saveCanvasImage(req, res) {
     var userID = req.decoded['userID'];
-    db.run('INSERT INTO Canvases (Name, Dimensions, Shapes, Creator) VALUES (?,?,?,?)', [req.body.name,
-        req.body.dimensions,
-        req.body.shapes,
-        userID,
-    ], function (err) {
+    // Check if there exists a canvas made by that user ID with a name given
+    db.get('SELECT * FROM Canvases WHERE Name = ? AND Creator = ?', req.body.name, userID, function (err, row) {
+        // If no row, then there doesn't exist a canvas with that name, so insert a new one
+        if (!row) {
+            db.run('INSERT INTO Canvases (Name, Dimensions, Shapes, Creator) VALUES (?,?,?,?)', [req.body.name,
+                req.body.dimensions,
+                req.body.shapes,
+                userID,
+            ], function (err) {
+                if (err) {
+                    console.error("Error: " + err);
+                    res.json({ success: false, error: "Error" });
+                }
+                else {
+                    res.json({ success: true });
+                }
+            });
+        }
+        else {
+            // There already exists a canvas with this name, check with user they want to overwrite it
+            res.json({ success: false, canvas_exists: true, error: "There already exists an image with that name. Overwrite?" });
+        }
+    });
+}
+function updateCanvasImage(req, res) {
+    var userID = req.decoded['userID'];
+    db.run('UPDATE Canvases SET Dimensions = ?, Shapes = ? WHERE Name = ? AND Creator = ?', req.body.dimensions, req.body.shapes, req.body.name, userID, function (err) {
         if (err) {
             console.error("Error: " + err);
             res.json({ success: false, error: "Error" });

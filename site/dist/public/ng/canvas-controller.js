@@ -156,7 +156,11 @@ angular.module('myApp')
 
     $scope.downloadCanvasImage = () => {
           var hiddenLink = document.createElement('a');
-          hiddenLink.download = "Image.png"
+          if ($scope.name != "" || $scope.name != undefined) {
+            hiddenLink.download = $scope.name + ".png";
+          } else {
+            hiddenLink.download = "Image.png";
+          }
           hiddenLink.href = canvas.toDataURL();
           hiddenLink.click();
     }

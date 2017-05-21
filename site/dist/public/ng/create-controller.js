@@ -8,36 +8,45 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
     // This callback is called when the user click on the preview button:
     onPreview: function (content, callback) {
 
-      contentService.previewHTML({content: content}).then((res) => {
+      contentService.previewHTML({token:localStorage.getItem('token'),
+                                  content: content}).then((res) => {
         var response = angular.fromJson(res).data;
         if (response.success) {
-          callback(response.html);
+            var scopedImageTag = new RegExp("{{ image(\\d+) }}");
+            response.htmlContent = response.htmlContent.replace('ng-src','src');
+            response.htmlContent = response.htmlContent.replace(scopedImageTag, (_,id) =>{
+                var imageData =response.imageRows.find((x)=>x.Id==id);
+                var {width,height,shapes,_} = JSON.parse(imageData.Shapes);
+                var sta = new CanvasState(width,height,shapes);
+                return sta.imageURL();
+            });
+          callback(response.htmlContent);
         }
       });
     }
   });
 
   function loadMarkdown() {
-    contentService.getPage({token:localStorage.getItem('token'),
+      contentService.getPage({token:localStorage.getItem('token'),
                               pageID: $state.params.id}
-                          ).then((res) => {
-                              var response = angular.fromJson(res).data;
-                              if (response.success){
-                                  $scope.pageInfo = response;
-                                  $scope.page.Title = angular.copy($scope.pageInfo.page.Title);
-                                  $scope.page.PrivateView = angular.copy($scope.pageInfo.page.PrivateView);
-                                  $scope.page.PrivateEdit = angular.copy($scope.pageInfo.page.PrivateEdit);
-                                  $scope.page.LastEdit = angular.copy($scope.pageInfo.page.LastEdit);
-                                  $scope.page.Views = angular.copy($scope.pageInfo.page.Views);
-                                  $('#myEditor').markdownEditor('setContent', $scope.pageInfo.page.Content); // Sets the content of the editor
-                              }
-                              else {
-                                  $state.go('homePage');
-                              }
-                            }, (err) => {
-                                  // Don't have the access rights to view page or it doesn't exist, take back to home page. (POST will return 403)
-                                  $state.go('homePage');
-                            });
+      ).then((res) => {
+          var response = angular.fromJson(res).data;
+          if (response.success){
+          $scope.pageInfo = response;
+          $scope.page.Title = angular.copy($scope.pageInfo.page.Title);
+          $scope.page.PrivateView = angular.copy($scope.pageInfo.page.PrivateView);
+          $scope.page.PrivateEdit = angular.copy($scope.pageInfo.page.PrivateEdit);
+          $scope.page.LastEdit = angular.copy($scope.pageInfo.page.LastEdit);
+          $scope.page.Views = angular.copy($scope.pageInfo.page.Views);
+          $('#myEditor').markdownEditor('setContent', $scope.pageInfo.page.Content); // Sets the content of the editor
+      }
+      else {
+          $state.go('homePage');
+      }
+    }, (err) => {
+          // Don't have the access rights to view page or it doesn't exist, take back to home page. (POST will return 403)
+          $state.go('homePage');
+    });
   }
 
   // Use page ID 0 for new page - if it's not 0, then load markdown of page to edit

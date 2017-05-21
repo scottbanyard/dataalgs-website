@@ -15,6 +15,7 @@ import * as jwt            from "jsonwebtoken";
 import { returnHTML }      from "./scripts/markdown";
 
 var db = new sqlite3.Database('database.sqlite');
+
 var app : express.Application = express();
 var httpApp : express.Application = express();
 configureHttpApplication( httpApp );
@@ -163,7 +164,6 @@ function setupApi () : void {
 
   router.get('/getAllPublicPages', getAllPublicPages);
 
-  router.post('/previewHTML', parseMarkdown);
 
   router.post('/allComments', function(req, res) : void {
     var pageID : number = req.body.pageID;
@@ -206,8 +206,10 @@ function setupApi () : void {
              else{
                 row.Views = row.Views + 1;
                 updateViews(req.body.pageID, row.Views);
+                var [html,ids] = returnHTML(row.Content);
                 res.json({ success: true,
-                          htmlContent:returnHTML(row.Content),
+                          htmlContent: html,
+                          ids : ids,
                           page:row});
              }
           }
@@ -250,6 +252,7 @@ function setupApi () : void {
 
   router.post('/deleteimage', deleteCanvasImage);
 
+  router.post('/previewHTML', parseMarkdown);
 
   // API always begins with localhost8080/api
   app.use('/api', router);
@@ -270,7 +273,8 @@ function createToken( id : number, name : string, res : express.Response )
 }
 
 function parseMarkdown(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
-  res.json({ success: true, html: returnHTML(req.body.content) });
+    var [thisHTML,ids] = returnHTML(req.body.content) ;
+    getImagesFromIDs(req,res,thisHTML,ids);
 }
 
 // Converts date from number stored in database to local date
@@ -423,8 +427,10 @@ function loadPrivatePage(req: express.Request & { decoded : DecodedToken, page :
   if (pageCreator == userID) {
     req.page.Views = req.page.Views + 1;
     updateViews(req.body.pageID, req.page.Views);
+    var [thisHTML,ids] = returnHTML(req.page.Content)
     res.json({ success: true,
-               htmlContent:returnHTML(req.page.Content),
+               htmlContent: thisHTML,
+               ids : ids,
                page: req.page
            });
   } else {
@@ -689,4 +695,22 @@ function deleteCanvasImage(req : express.Request & { decoded : DecodedToken }, r
       res.json({ success: true });
     }
   });
+}
+function getImagesFromIDs(
+    req : express.Request & { decoded : DecodedToken },
+    res : express.Response, html:string, ids:string[]) : void
+{
+    var userID : number = req.decoded['userID'];
+    console.log('print',ids, req.decoded['userID']);
+    db.all('SELECT * '+
+           'FROM Canvases WHERE Creator = ? AND Id IN ('
+            + ids.map(() => '?').join(',') + ')',
+            [req.decoded['userID']].concat(ids), (err,rows) => {
+      if (err) {
+        console.error("Error: " + err);
+        res.json({ success: false, error: "Error"});
+      } else {
+        res.json({ success: true, htmlContent : html, imageRows:rows });
+      }
+    });
 }

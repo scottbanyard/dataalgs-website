@@ -238,6 +238,7 @@
               <table data-ng-show="!noImages" class="table table-hover table-bordered">
                 <thead>
                   <tr>
+                    <th width="10%" class="comment-header">Image ID</th>
                     <th class="comment-header">Name</th>
                     <th width="10%" class="comment-header">View</th>
                     <th width="10%" class="comment-header">Edit</th>
@@ -246,6 +247,7 @@
                 </thead>
                 <tbody>
                   <tr data-ng-repeat="image in myImages">
+                    <td class="text-center">{{ image.Id }}</td>
                     <td class="">{{ image.Name }}</td>
                     <td class="center pointer">
                       <i data-ng-click="viewImage($index)" class="glyphicon glyphicon-picture text-primary" data-toggle="modal" data-target="#imgModal"></i>

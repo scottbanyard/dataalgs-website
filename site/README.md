@@ -60,9 +60,14 @@
 - Used object stroke and fill option to colour the bezier curve tool, and fill in shapes I created
 - This allowed me to create ellipse-like shapes, and straight lines
 - Used the circular tool to create accurate, symmetrical circles
-- Used spiral tool to create spiral shapes, used star tool to create star shapes
+- Used spiral tool to create spiral shapes, used star tool to create star shapes, used polygon tool to create polygon shapes
 - Used the transformations tool box to scale and rotate objects
-- Grouped objects that all have the same relationship - e.g. grouped all spirals in one of my SVG images so that I can edit them all together
+- Grouped objects that all have the same relationship - e.g. grouped all spirals in one of my SVG images so that I can edit them all together. Grouped all bezier curves so, for example, I could transform the whole bear with one click, and not have to select each separate bezier curve that makes up the bear before transforming.
 - When importing images to trace, use transformations tool box to scale images down to fix tracing box
 - Used the Object to Pattern tool to create a patterned background
 - Used the gradient fill tool to create a radial gradient colouring
+- Create own gradient
+- Used the brush tool
+- Used blur percentage tool
+- Used text tool
+- Used layers to allow objects to overlay each other. For example, I wanted text to rest on top of a polygon shape, and so created a new layer that was above the other layer, and added the text to this new layer.

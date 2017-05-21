@@ -6,7 +6,7 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
     $scope.showChangeIcon = false;
     $scope.selectedIcons = new Array(6);
     setupSelectedIcons();
-    $scope.iconFilenames = ["cat.svg", "bear.svg", "dog.svg", "pattern.svg", "bear.svg", "bear.svg"];
+    $scope.iconFilenames = ["cat.svg", "bear.svg", "dog.svg", "pattern.svg", "brush.svg", "algorithms.svg"];
     getProfileIcon();
 
     var token = localStorage.getItem('token');

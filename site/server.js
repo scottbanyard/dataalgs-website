@@ -189,6 +189,7 @@ function setupApi() {
     router.post('/getimage', getCanvasImage);
     router.post('/getallimages', getMyCanvasImages);
     router.post('/updateimage', updateCanvasImage);
+    router.post('/deleteimage', deleteCanvasImage);
     // API always begins with localhost8080/api
     app.use('/api', router);
 }
@@ -578,6 +579,17 @@ function getMyCanvasImages(req, res) {
         }
         else {
             res.json({ success: false, error: "You have not made any images." });
+        }
+    });
+}
+function deleteCanvasImage(req, res) {
+    db.run("DELETE FROM Canvases WHERE Id = ?", req.body.canvasID, function (err) {
+        if (err) {
+            console.error("Error: " + err);
+            res.json({ success: false, error: "Error" });
+        }
+        else {
+            res.json({ success: true });
         }
     });
 }

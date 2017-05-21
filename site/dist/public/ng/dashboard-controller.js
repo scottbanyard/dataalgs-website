@@ -4,6 +4,7 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
     $scope.showMyComments = false;
     $scope.showMyPages = false;
     $scope.showChangeIcon = false;
+    $scope.showMyImages = false;
     $scope.selectedIcons = new Array(6);
     setupSelectedIcons();
     $scope.iconFilenames = ["cat.svg", "bear.svg", "dog.svg", "pattern.svg", "brush.svg", "algorithms.svg"];
@@ -17,6 +18,20 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
        $scope.name = "";
      }
 
+     $scope.showOrHideMyImages = function () {
+       if ($scope.showMyImages) {
+         $scope.showMyImages = false;
+       } else {
+         $scope.getMyImages();
+         $scope.showMyImages = true;
+         $scope.showChangePWForm = false;
+         $scope.showMyPages = false;
+         $scope.showDeleteAccForm = false;
+         $scope.showMyComments = false;
+         $scope.showChangeIcon = false;
+       }
+     }
+
     $scope.showOrHidePWForm = function () {
       if ($scope.showChangePWForm) {
         $scope.showChangePWForm = false;
@@ -26,6 +41,7 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
         $scope.showDeleteAccForm = false;
         $scope.showMyComments = false;
         $scope.showChangeIcon = false;
+        $scope.showMyImages = false;
       }
     }
 
@@ -37,6 +53,7 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
         $scope.showMyPages = false;
         $scope.showChangePWForm = false;
         $scope.showMyComments = false;
+        $scope.showMyImages = false;
         $scope.showChangeIcon = false;
       }
     }
@@ -50,6 +67,7 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
         $scope.showMyPages = false;
         $scope.showDeleteAccForm = false;
         $scope.showChangePWForm = false;
+        $scope.showMyImages = false;
         $scope.showChangeIcon = false;
       }
     }
@@ -63,6 +81,7 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
         $scope.showMyComments = false;
         $scope.showDeleteAccForm = false;
         $scope.showChangeIcon = false;
+        $scope.showMyImages = false;
         $scope.showChangePWForm = false;
       }
     }
@@ -71,11 +90,11 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
       if ($scope.showChangeIcon) {
         $scope.showChangeIcon = false;
       } else {
-        $scope.getMyPages();
         $scope.showChangeIcon = true;
         $scope.showMyPages = false;
         $scope.showMyComments = false;
         $scope.showDeleteAccForm = false;
+        $scope.showMyImages = false;
         $scope.showChangePWForm = false;
       }
     }
@@ -176,6 +195,73 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
             swal.close();
         });
       }
+    }
+
+    $scope.getMyImages = function () {
+      contentService.getAllMyCanvases({token : localStorage.getItem('token')}).then(function (res) {
+        var response = angular.fromJson(res).data;
+        if (response.success) {
+          $scope.myImages = response.canvases;
+          $scope.noImages = false;
+          $scope.numberOfImages = response.canvases.length;
+        } else {
+          console.log(response.error);
+          $scope.noImages = true;
+          $scope.noImagesError = response.error;
+        }
+      });
+    }
+
+    $scope.viewImage = function (canvasID) {
+      // take to image editor? or show in a pop up?
+    }
+
+    $scope.editImage = function(canvasID) {
+      // take to image editor with canvasID and load up canvas
+    }
+
+    $scope.confirmDeleteImage = function (canvasID) {
+      swal({
+        title: "Are you sure you want to delete this image?",
+        text: "You will not be able to recover this!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes, delete it!",
+        closeOnConfirm: false
+      },
+      // Callback for confirming delete comment
+        function(){
+          contentService.deleteCanvasImage({canvasID: canvasID, token: localStorage.getItem('token')}).then(function (res) {
+            var response = angular.fromJson(res).data;
+            if (response.success) {
+              // Successfully deleted comment so refresh comments
+              $scope.getMyImages();
+              swal({
+                html: true,
+                title: "<b>Success!</b>",
+                text: "You have successfully deleted that image.",
+                type: "success"
+                },
+                function(){
+                  swal.close();
+              });
+            } else {
+              swal({
+                title: "Error!",
+                text: response.error,
+                type: "error"
+                },
+                function(){
+                  swal.close();
+              });
+              console.log(response.error);
+            }
+          },
+          function(err) {
+            console.log("Delete Account Error :" + err);
+          });
+      });
     }
 
     $scope.getMyComments = function () {

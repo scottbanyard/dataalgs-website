@@ -19,7 +19,7 @@
                                 </tr>
                                 <tr class="border_bottom padding">
                                     <td>
-                                        <span class="glyphicon glyphicon-flash text-success"></span><a href="">My Favourites</a>
+                                        <span class="glyphicon glyphicon-flash text-success"></span><a data-ng-click="showOrHideMyImages()" href="">My Images</a>
                                     </td>
                                 </tr>
                                 <tr class="padding">
@@ -225,6 +225,38 @@
                     </td>
                     <td class="center pointer">
                       <i data-ng-click="confirmDeleteComment(comment.CommentID)" class="glyphicon glyphicon-trash text-danger"></i>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- My Images -->
+            <div class="col-md-12" data-ng-show="showMyImages" data-ng-cloak="">
+              <h2 class="center black">My Images</h2>
+              <h3 data-ng-show="noImages" class="center black">{{ noImagesError }}</h3>
+              <table data-ng-show="!noImages" class="table table-hover table-bordered">
+                <thead>
+                  <tr>
+                    <th width="10%" class="comment-header">Image ID</th>
+                    <th class="comment-header">Name</th>
+                    <th width="10%" class="comment-header">View</th>
+                    <th width="10%" class="comment-header">Edit</th>
+                    <th width="10%" class="comment-header">Delete?</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr data-ng-repeat="image in myImages">
+                    <td class="text-center">{{ image.Id }}</td>
+                    <td class="">{{ image.Name }}</td>
+                    <td class="center pointer">
+                      <i data-ng-click="viewImage(image.Id)" class="glyphicon glyphicon-picture text-primary"></i>
+                    </td>
+                    <td class="center pointer">
+                      <i data-ng-click="editImage(image.Id)" class="glyphicon glyphicon-edit text-primary"></i>
+                    </td>
+                    <td class="center pointer">
+                      <i data-ng-click="confirmDeleteImage(image.Id)" class="glyphicon glyphicon-trash text-danger"></i>
                     </td>
                   </tr>
                 </tbody>

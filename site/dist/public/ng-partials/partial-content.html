@@ -23,7 +23,7 @@
             </div>
             </li>
         </ul>
-        <form name="commentForm" data-ng-submit="makeComment()">
+        <form name="commentForm" data-ng-submit="makeComment(commentForm)">
              <div class="form-group">
                  <input name="title" required="required" type="text" class="form-control" placeholder="Title" data-ng-model="newComment.title"/>
              </div>

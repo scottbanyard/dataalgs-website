@@ -11,6 +11,10 @@ interface ShapeFeatures{
     centre : Point;
     colour : Colour;
 }
+interface Line extends ShapeFeatures {
+    kind : 'Line'
+    other : Point;
+}
 interface Circle extends ShapeFeatures {
     kind : 'Circle';
     radius : number;
@@ -26,31 +30,33 @@ interface Text extends ShapeFeatures {
     font : string;
     width : number;
 }
-type Shape = Circle | Rectangle | Text
+type Shape = Circle | Rectangle | Text | Line
 
+// Formats a Colour object into an rgb(r,g,b) string
 function toCSSColour( col : Colour ) : string
 {
     return ['rgb(',')'].join([col.red,col.green,col.blue].join(','));
 }
+// Finds if a point intersects a shape
 function intersects( point : Point, shape : Shape ) : boolean
 {
-    if( shape.kind == 'Circle')
-    {
-        var dx : number = point.x - shape.centre.x;
-        var dy : number = point.y - shape.centre.y;
-        return Math.pow(dx,2) + Math.pow(dy,2) <= Math.pow(shape.radius,2);
-    }
-    else if (shape.kind == 'Rectangle'){
-        return point.x >= shape.centre.x - shape.width  &&
-               point.x <= shape.centre.x + shape.width  &&
-               point.y >= shape.centre.y - shape.height &&
-               point.y <= shape.centre.y + shape.height;
-    }
-    else if (shape.kind == 'Text'){
-        return point.x >= shape.centre.x &&
-               point.x <= shape.centre.x + shape.width  &&
-               point.y >= shape.centre.y - parseInt(shape.font) &&
-               point.y <= shape.centre.y;
+    switch(shape.kind){
+        case 'Circle':
+            var dx : number = point.x - shape.centre.x;
+            var dy : number = point.y - shape.centre.y;
+            return Math.pow(dx,2) + Math.pow(dy,2) <= Math.pow(shape.radius,2);
+        case 'Rectangle':
+            return point.x >= shape.centre.x - shape.width  &&
+                   point.x <= shape.centre.x + shape.width  &&
+                   point.y >= shape.centre.y - shape.height &&
+                   point.y <= shape.centre.y + shape.height;
+        case 'Text':
+            return point.x >= shape.centre.x &&
+                   point.x <= shape.centre.x + shape.width  &&
+                   point.y >= shape.centre.y - parseInt(shape.font) &&
+                   point.y <= shape.centre.y;
+        default:
+            return false;
     }
 }
 class CanvasState{
@@ -90,7 +96,10 @@ class CanvasState{
     moveShape( coord : Point ): void
     {
         if(this.shapeSelected){
-            this.selected[1].centre = coord;
+            if(this.selected[1].kind=='Line')
+                (<Line> this.selected[1]).other = coord;
+            else
+                this.selected[1].centre = coord;
             this.replaceShape(this.selected[0],this.selected[1]);
         }
     }
@@ -103,9 +112,12 @@ class CanvasState{
         ctx.clearRect(0, 0, this.width, this.height);
         this.shapes.map(this.drawShape.bind(this,ctx));
     }
-    drawShape(context, shape)
+    drawShape(context, shape, i)
     {
-        context.strokeStyle=toCSSColour(shape.colour);
+        if(this.shapeSelected && i == this.selected[0])
+            context.strokeStyle = 'gold';
+        else
+            context.strokeStyle=toCSSColour(shape.colour);
         context.beginPath();
         var coords = shape.centre;
         if(shape.kind == 'Circle'){
@@ -121,8 +133,21 @@ class CanvasState{
             context.textAlign='left';
             context.fillText(shape.contents,coords.x,coords.y);
         }
-
+        else if(shape.kind == 'Line'){
+            context.moveTo(shape.centre.x,shape.centre.y);
+            context.lineTo(shape.other.x, shape.other.y);
+        }
         context.stroke();
         context.closePath();
+    }
+    createAndSelectLine(shape : ShapeFeatures) : void
+    {
+        var line = <Line> shape;
+        line.other = shape.centre;
+
+        this.addShape(line)
+
+        this.selected = [this.shapes.length-1, line];
+        this.shapeSelected = true;
     }
 }

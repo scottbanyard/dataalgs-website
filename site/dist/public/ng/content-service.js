@@ -1,4 +1,4 @@
-angular.module('myApp').factory('contentService', function (, $http, $q) {
+angular.module('myApp').factory('contentService', function ($http, $q) {
 
   var apiURL = 'api/';
   function standardPost(verb, request)
@@ -32,7 +32,7 @@ angular.module('myApp').factory('contentService', function (, $http, $q) {
               var verb = overwrite ? "update" : "save";
               return standardPost(verb + "image", request);
           }
-        , getAllPublicPages: 
+        , getAllPublicPages:
         (request) => {
           var deferred = $q.defer();
           $http.get(apiURL + "getAllPublicPages")

@@ -13,9 +13,9 @@ angular.module('myApp')
 
     var colImg = new Image();
     colImg.onload = () => {
-        // colourCanvas.width = colImg.width;
-        // colourCanvas.height = colImg.height;
-        colourContext.drawImage(colImg, 0, 0, colourCanvas.width, colourCanvas.height);
+        colourContext.drawImage(colImg,
+                                0, 0, // top left
+                                colourCanvas.width, colourCanvas.height);
     }
     colImg.src = "imgs/colours.png";
 
@@ -65,66 +65,43 @@ angular.module('myApp')
         openInput = undefined;
         canvasState.redrawAll(context);
     }
+    function getBasicShape(coords)
+    {
+        return { kind:angular.copy($scope.shape),
+                      centre:coords,
+                      colour:angular.copy($scope.colour)};
+    }
     // Based on the selection of shape, and the colour, adds a new shape to the CanvasState and orders a redraw.
     function newShape(event)
     {
         var coords = getMousePosition(canvas, event);
-        var shape = { kind:angular.copy($scope.shape),
-                      centre:coords,
-                      colour:angular.copy($scope.colour)};
-        if($scope.shape == 'Circle'){
-            shape.radius = 25;
-            canvasState.addShape(shape);
+        var shape = getBasicShape(coords)
+        switch ($scope.shape) {
+            case 'Circle':
+                shape.radius = 25;
+                break;
+            case 'Rectangle':
+                shape.width = 50;
+                shape.height = 50;
+                break;
+            case 'Text':
+                if("undefined" != typeof openInput){
+                    openInput.destroy();
+                    canvasState.redrawAll(context);
+                }
+                openInput = new CanvasInput({
+                    canvas : canvas,
+                    x : coords.x,
+                    y : coords.y,
+                    fontSize : 20,
+                    onsubmit : dealWithText.bind(null, shape)
+                });
+                openInput.focus();
+            default:
+               return;
         }
-        else if($scope.shape == 'Rectangle'){
-            shape.width = 50;
-            shape.height = 50;
-            canvasState.addShape(shape);
-        }
-        else if($scope.shape == 'Text'){
-            if("undefined" != typeof openInput){
-                openInput.destroy();
-                canvasState.redrawAll(context);
-            }
-            openInput = new CanvasInput({
-                canvas : canvas,
-                x : coords.x,
-                y : coords.y,
-                fontSize : 20,
-                onsubmit : dealWithText.bind(null, shape)
-            });
-            openInput.focus();
-            return;
-        }
+        canvasState.addShape(shape);
         canvasState.redrawAll(context);
-    }
-
-    // Draws a single chape onto the canvas
-    function drawShape(shape)
-    {
-        context.strokeStyle=toCSSColour(shape.colour);
-        context.beginPath();
-        var coords = shape.centre;
-        if(shape.kind == 'Circle'){
-            context.arc(coords.x, coords.y, shape.radius, 0, 2*Math.PI);
-        }
-        else if(shape.kind == 'Rectangle'){
-            context.rect(coords.x-Math.round(shape.width/2),
-                         coords.y-Math.round(shape.height/2),
-                         shape.width, shape.height);
-        }
-        else if(shape.kind == 'Text'){
-            context.font = shape.font;
-            context.textAlign='left';
-            context.fillText(shape.contents,coords.x,coords.y);
-            context.rect(coords.x,
-                         coords.y - shape.offset,
-                         shape.width,
-                         parseInt(context.font));
-        }
-
-        context.stroke();
-        context.closePath();
     }
 
     // Returns the colour under the mouse when on the colour palette
@@ -149,7 +126,13 @@ angular.module('myApp')
         var startEvent = event;
         clk = setTimeout(() => {
             hasHappened = true;
-            canvasState.setSelectedShape(getMousePosition(canvas, startEvent));
+            var coords = getMousePosition(canvas, startEvent);
+            if($scope.shape == 'Line'){
+                var coords = getMousePosition(canvas, event);
+                canvasState.createAndSelectLine(getBasicShape(coords));
+            }
+            else
+                canvasState.setSelectedShape(coords);
         },200);
     };
     canvas.onmousemove = (event) => {
@@ -166,7 +149,7 @@ angular.module('myApp')
             newShape(event);
         }
         else{
-              canvasState.redrawAll(context);
+            canvasState.redrawAll(context);
         }
         hasHappened = false;
     };

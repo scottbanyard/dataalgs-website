@@ -11,7 +11,7 @@ type Token = [RegExp,string];
 //     }
 // }
 
-function addTags( tagkind: string, contents : String ) : string
+function addTags( tagkind: string, contents : string ) : string
 {
     return '<'+tagkind +'>' + contents + '</'+tagkind +'>'
 }
@@ -43,7 +43,7 @@ var emphTokens : Token[] =
       simpleToken(emphasisPattern('~~'),'del')
   ];
 
-function renderLink(text : String) : String
+function renderLink(text : string) : string
 {
     var parts = text.slice(1,text.length-1).split('](');
     var opentag = '<a href="' + parts[1].trim() + '" >';
@@ -54,10 +54,8 @@ function renderLink(text : String) : String
 // NB the contents of the brackets can be aquired with $1
 var reference : RegExp = /\[([^\]]*)\]/g;
 var url : RegExp = new RegExp(String.raw`<?((?:https?|ftp):\/\/(?:[\w+?\.\w+])+(?:[a-zA-Z0-9\~\!\@\#\$\%\^\&\*\(\)_\-\=\+\\\/\?\.\:\;\'\,]*)?)>?`, 'g');
-// console.log("http://foo.co.uk/ \
-// http://regexr.com/foo.html?q=bar \
-// https://mediatemple.net".match(url));
 
+var imageRef : RegExp = new RegExp(String.raw`!\[(.*)\]\((\d+)\)`);
 var inlinelinkregex : RegExp = new RegExp( reference.source +
                                            String.raw`\(` +
                                            url.source +  String.raw`(?:\s+"([^"]*)")?\)`,
@@ -120,11 +118,14 @@ function tokenise(text:string, tokens:Token[]){
     return text;
 }
 
-function collectAndRemoveReferences(text:string): string
+function collectAndRemoveReferences(text:string): [string,string[]]
 {
-    // \[([^\]]*)\]
-    // :\s*<?((?:https?:\/\/|https?:\/\/www\.|www\.)[^\.]+(?:\.\w+)+)(?:\/\w*)*>?
-
+    var ids = [];
+    text = text.replace(imageRef,(text,alt,imageID) => {
+        var tag = '<img ng-src="{{ image' + imageID +' }}" alt-text="' + alt+'" />';
+        ids.push(imageID)
+        return tag;
+    });
     var referencePair = new RegExp(reference.source+':\\s*'+ url.source,'g');
     var references = text.match(referencePair);
     if (references){
@@ -138,14 +139,14 @@ function collectAndRemoveReferences(text:string): string
          }
     }
 
-    return text;
+    return [text,ids];
 }
 var tokens = headerTokens.concat(emphTokens);
 tokens.push(inlinelink);
 
-export function returnHTML(page:string) : string
+export function returnHTML(page:string) : [string, string[]]
 {
     var newPage = collectAndRemoveReferences(page);
-    newPage = tokenise(newPage,tokens);
-    return newPage.trim();
+    newPage[0] = tokenise(newPage[0],tokens).trim();
+    return newPage;
 }

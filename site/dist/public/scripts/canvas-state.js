@@ -45,10 +45,6 @@ class CanvasState {
             this.selected = [index, this.shapes[index]];
         }
     }
-    deselectShape() {
-        this.shapeSelected = false;
-        this.selected = null;
-    }
     moveShape(coord) {
         if (this.shapeSelected) {
             if (this.selected[1].kind == 'Line')
@@ -124,5 +120,11 @@ class CanvasState {
         }
         this.redrawAll(can.getContext('2d'));
         return can.toDataURL();
+    }
+    deleteShape() {
+        if (this.shapeSelected) {
+            this.shapes.splice(this.selected[0], 1);
+            this.shapeSelected = false;
+        }
     }
 }

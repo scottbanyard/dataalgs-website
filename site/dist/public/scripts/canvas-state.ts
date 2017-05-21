@@ -91,11 +91,6 @@ class CanvasState{
             this.selected = [index, this.shapes[index]];
         }
     }
-    deselectShape() : void
-    {
-        this.shapeSelected = false;
-        this.selected = null;
-    }
     moveShape( coord : Point ): void
     {
         if(this.shapeSelected){
@@ -183,5 +178,13 @@ class CanvasState{
         }
         this.redrawAll(can.getContext('2d'));
         return can.toDataURL();
+    }
+    deleteShape() : void
+    {
+        if(this.shapeSelected)
+        {
+            this.shapes.splice(this.selected[0],1);
+            this.shapeSelected = false;
+        }
     }
 }

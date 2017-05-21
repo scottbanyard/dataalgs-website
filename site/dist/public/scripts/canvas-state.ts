@@ -12,8 +12,9 @@ interface ShapeFeatures{
     colour : Colour;
 }
 interface Line extends ShapeFeatures {
-    kind : 'Line'
+    kind : 'Line';
     other : Point;
+    hasArrow : boolean;
 }
 interface Circle extends ShapeFeatures {
     kind : 'Circle';
@@ -136,17 +137,38 @@ class CanvasState{
         else if(shape.kind == 'Line'){
             context.moveTo(shape.centre.x,shape.centre.y);
             context.lineTo(shape.other.x, shape.other.y);
+
+            if( shape.hasArrow ){
+                // Arrowhead
+                var dy = shape.other.y - shape.centre.y;
+                var dx = shape.other.x - shape.centre.x;
+                var lineAngle = Math.atan2(dy,dx);
+                // Angle of each side of the arrowhead
+                var theta = Math.PI/8;
+                var h = Math.abs(10/Math.cos(theta));
+                var topAngle = Math.PI + lineAngle + theta;
+                var botAngle = Math.PI + lineAngle - theta;
+                var topLine = { x : shape.other.x + Math.cos(topAngle) * h
+                              , y : shape.other.y + Math.sin(topAngle) * h};
+                var botLine = { x : shape.other.x + Math.cos(botAngle) * h
+                              , y : shape.other.y + Math.sin(botAngle) * h};
+                context.lineTo(topLine.x, topLine.y);
+                context.moveTo(shape.other.x, shape.other.y);
+                context.lineTo(botLine.x, botLine.y);
+            }
+
         }
         context.stroke();
         context.closePath();
     }
-    createAndSelectLine(shape : ShapeFeatures) : void
+    createAndSelectLine(shape : ShapeFeatures, isArrow : boolean) : void
     {
         var line = <Line> shape;
+        line.kind = 'Line';
         line.other = shape.centre;
-
+        line.hasArrow = isArrow;
         this.addShape(line)
-
+        console.log(line);
         this.selected = [this.shapes.length-1, line];
         this.shapeSelected = true;
     }

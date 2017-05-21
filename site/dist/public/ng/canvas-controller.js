@@ -33,12 +33,12 @@ angular.module('myApp')
     };
     // Keeps track of the shapes on the canvas
     var canvasState = new CanvasState(canvas.width,canvas.height);
-
-    $scope.title = "Image Editor";
+    
     $scope.colour = {red : 122, green:122, blue:122};
     $scope.cssColour = "rgb(122,122,122)";
     $scope.selected = "white";
     $scope.shape = 'Circle';
+
     //Modified from a stackoverflow response. Adjusts the information about the clicked point into the canvas frame of reference
     function getMousePosition(thisCanvas,event)
     {
@@ -127,9 +127,10 @@ angular.module('myApp')
         clk = setTimeout(() => {
             hasHappened = true;
             var coords = getMousePosition(canvas, startEvent);
-            if($scope.shape == 'Line'){
+            var isArrow = $scope.shape == 'Arrow';
+            if($scope.shape == 'Line' || isArrow){
                 var coords = getMousePosition(canvas, event);
-                canvasState.createAndSelectLine(getBasicShape(coords));
+                canvasState.createAndSelectLine(getBasicShape(coords), isArrow);
             }
             else
                 canvasState.setSelectedShape(coords);

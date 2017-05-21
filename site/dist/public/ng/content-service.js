@@ -1,217 +1,51 @@
-angular.module('myApp').factory('contentService', function ($http, $q) {
+angular.module('myApp').factory('contentService', function (, $http, $q) {
 
-  var apiURL = 'https://localhost:8080/api/';
+  var apiURL = 'api/';
+  function standardPost(verb, request)
+  {
+      var deferred = $q.defer();
 
+      $http.post(apiURL + verb, request)
+      .then(deferred.resolve)
+      .catch((err)=>{
+          deferred.reject(err);
+          console.log("Error on POST: " + JSON.stringify(err));
+      })
+      return deferred.promise;
+  }
   return {
-        getComments: function (request) {
+
+        getComments: standardPost.bind(null, "allComments")
+        , getPage: standardPost.bind(null, "loadPage")
+        , savePage: standardPost.bind(null, "savePage")
+        , addComment: standardPost.bind(null,"makeComment")
+        , getMyComments: standardPost.bind(null,"mycomments")
+        , deleteComment: standardPost.bind(null,"deletecomment")
+        , getMyPages: standardPost.bind(null,"mypages")
+        , deletePage: standardPost.bind(null,"deletepage")
+        , previewHTML: standardPost.bind(null,"previewHTML")
+        , changeProfileIcon: standardPost.bind(null,"changeicon")
+        , getProfileIcon: standardPost.bind(null,"geticon")
+        , getCanvasImage: standardPost.bind(null,"getimage")
+        , getAllMyCanvases: standardPost.bind(null,"getallimages")
+        , saveCanvasImage: (overwrite, request) => {
+              var verb = overwrite ? "update" : "save";
+              return standardPost(verb + "image", request);
+          }
+        , getAllPublicPages: 
+        (request) => {
           var deferred = $q.defer();
-
-          $http.post(apiURL + "allComments", request)
-          .then(function (res) {
-            deferred.resolve(res);
-          })
-          .catch(function( err) {
-            console.log("Error getting page POST: " + err);
-          })
-          return deferred.promise;
-        },
-
-        getAllPublicPages: function (request) {
-          var pages = null;
-          var deferred = $q.defer();
-
-          $http.get(apiURL + "getAllPublicPages").then(function (result) {
-              pages = result.data;
-              deferred.resolve(pages);
+          $http.get(apiURL + "getAllPublicPages")
+            .then(function (result) {
+                console.log(result)
+                deferred.resolve(result.data);
           }, function (error) {
               pages = error;
-              deferred.reject(pages);
+              deferred.reject(error);
+              console.log(error)
           });
 
           pages = deferred.promise;
-          return deferred.promise;
-        },
-
-        getPage: function (request) {
-            var deferred = $q.defer();
-
-            $http.post(apiURL + "loadPage", request)
-            .then(function (res) {
-              deferred.resolve(res);
-            })
-            .catch(function(err) {
-              console.log("Error getting page POST: " + err);
-              deferred.reject(err);
-            })
-            return deferred.promise;
-        },
-
-        savePage: function (request) {
-            var deferred = $q.defer();
-
-            $http.post(apiURL + "savePage", request)
-            .then(function (res) {
-              deferred.resolve(res);
-            })
-            .catch(function( err) {
-              console.log("Error saving page POST: " + err);
-            })
-            return deferred.promise;
-        },
-
-        addComment: function (commentData) {
-          var deferred = $q.defer();
-
-          $http.post(apiURL + "makeComment", commentData)
-          .then(function (res) {
-            deferred.resolve(res);
-          })
-          .catch(function( err) {
-            console.log("Error making Comment POST: " + err);
-          })
-          return deferred.promise;
-        },
-
-        getMyComments: function (request) {
-          var deferred = $q.defer();
-
-          $http.post(apiURL + "mycomments", request)
-          .then(function (res) {
-            deferred.resolve(res);
-          })
-          .catch(function( err) {
-            console.log("Error getting page POST: " + err);
-          })
-          return deferred.promise;
-        },
-
-        deleteComment: function (request) {
-          var deferred = $q.defer();
-
-          $http.post(apiURL + "deletecomment", request)
-          .then(function (res) {
-            deferred.resolve(res);
-          })
-          .catch(function( err) {
-            console.log("Error deleting comment POST: " + err);
-          })
-          return deferred.promise;
-        },
-
-        getMyPages: function (request) {
-          var deferred = $q.defer();
-
-          $http.post(apiURL + "mypages", request)
-          .then(function (res) {
-            deferred.resolve(res);
-          })
-          .catch(function( err) {
-            console.log("Error getting my pages POST: " + err);
-          })
-          return deferred.promise;
-        },
-
-        deletePage: function (request) {
-          var deferred = $q.defer();
-
-          $http.post(apiURL + "deletepage", request)
-          .then(function (res) {
-            deferred.resolve(res);
-          })
-          .catch(function( err) {
-            console.log("Error getting page POST: " + err);
-          })
-          return deferred.promise;
-        },
-
-        previewHTML: function (request) {
-          var deferred = $q.defer();
-
-          $http.post(apiURL + "previewHTML", request)
-          .then(function (res) {
-            deferred.resolve(res);
-          })
-          .catch(function( err) {
-            console.log("Error getting page POST: " + err);
-          })
-          return deferred.promise;
-        },
-
-        changeProfileIcon: function (request) {
-          var deferred = $q.defer();
-
-          $http.post(apiURL + "changeicon", request)
-          .then(function (res) {
-            deferred.resolve(res);
-          })
-          .catch(function( err) {
-            console.log("Error getting my pages POST: " + err);
-          })
-          return deferred.promise;
-        },
-
-        getProfileIcon: function (request) {
-          var deferred = $q.defer();
-
-          $http.post(apiURL + "geticon", request)
-          .then(function (res) {
-            deferred.resolve(res);
-          })
-          .catch(function( err) {
-            console.log("Error getting my pages POST: " + err);
-          })
-          return deferred.promise;
-        },
-
-        saveCanvasImage: function (request) {
-          var deferred = $q.defer();
-
-          $http.post(apiURL + "saveimage", request)
-          .then(function (res) {
-            deferred.resolve(res);
-          })
-          .catch(function( err) {
-            console.log("Error getting my pages POST: " + err);
-          })
-          return deferred.promise;
-        },
-
-        updateCanvasImage: function (request) {
-          var deferred = $q.defer();
-
-          $http.post(apiURL + "updateimage", request)
-          .then(function (res) {
-            deferred.resolve(res);
-          })
-          .catch(function( err) {
-            console.log("Error getting my pages POST: " + err);
-          })
-          return deferred.promise;
-        },
-
-        getCanvasImage: function (request) {
-          var deferred = $q.defer();
-
-          $http.post(apiURL + "getimage", request)
-          .then(function (res) {
-            deferred.resolve(res);
-          })
-          .catch(function( err) {
-            console.log("Error getting my pages POST: " + err);
-          })
-          return deferred.promise;
-        },
-
-        getAllMyCanvases: function (request) {
-          var deferred = $q.defer();
-
-          $http.post(apiURL + "getallimages", request)
-          .then(function (res) {
-            deferred.resolve(res);
-          })
-          .catch(function( err) {
-            console.log("Error getting my pages POST: " + err);
-          })
           return deferred.promise;
         }
     }

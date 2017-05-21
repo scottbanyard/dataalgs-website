@@ -1,6 +1,6 @@
 angular.module('myApp')
 .controller('canvasController',
-    ( $scope, contentService ) => {
+    ( $scope, contentService, $state) => {
     // Main drawing canvas
     var canvas = document.getElementById('canvas');
     var context = canvas.getContext('2d');
@@ -33,7 +33,7 @@ angular.module('myApp')
     };
     // Keeps track of the shapes on the canvas
     var canvasState = new CanvasState(canvas.width,canvas.height);
-    
+
     $scope.colour = {red : 122, green:122, blue:122};
     $scope.cssColour = "rgb(122,122,122)";
     $scope.selected = "white";
@@ -237,12 +237,17 @@ angular.module('myApp')
         }
     }
 
-    $scope.getCanvasImage = () => {
-      $scope.canvasID = 4;
-      contentService.getCanvasImage({ token: localStorage.getItem('token'), canvasID: $scope.canvasID }).then((res) => {
+    function getCanvasImage (canvasID) {
+      contentService.getCanvasImage({ token: localStorage.getItem('token'), canvasID: canvasID }).then((res) => {
         var response = angular.fromJson(res).data;
         if (response.success) {
-          console.log(response.canvas.Shapes);
+          // Load shapes into canvasState so can edit image
+          $scope.name = response.canvas.Name;
+          canvasState = response.canvas.Shapes;
+          console.log(canvasState);
+        } else {
+          errSwal(response);
+          $state.go('homePage');
         }
       });
     }
@@ -255,6 +260,11 @@ angular.module('myApp')
         }
       });
         console.log(JSON.stringify(canvasState));
+    }
+
+    // Load canvas if not a new canvas (edit mode)
+    if ($state.params.id != "new-image") {
+      getCanvasImage($state.params.id);
     }
 
 });

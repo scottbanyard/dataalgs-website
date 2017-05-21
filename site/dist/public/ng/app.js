@@ -43,10 +43,10 @@ app.config(function ($stateProvider, $urlRouterProvider) {
           data: { pageTitle: "Dashboard", auth: true }
       })
       .state('canvasPage', {
-          url: '/canvas',
+          url: '/image/:id',
           templateUrl: 'ng-partials/partial-canvas.html',
           controller: 'canvasController',
-          data: { pageTitle: "Canvas", auth: true }
+          data: { pageTitle: "Image Editor", auth: true }
       })
       .state('createPage', {
           url: '/create/:id',

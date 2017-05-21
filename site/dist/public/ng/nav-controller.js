@@ -15,6 +15,10 @@ angular.module('myApp').controller('navController', ($rootScope, $scope, $state,
     }
   }
 
+  $scope.createNewImage = function () {
+    $state.go('canvasPage', {id: "new-image"});
+  }
+
   $scope.logOut = function () {
     $scope.loggedIn = false;
     localStorage.removeItem('token');

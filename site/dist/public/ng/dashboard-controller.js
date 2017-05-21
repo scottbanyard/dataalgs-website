@@ -217,7 +217,7 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
     }
 
     $scope.editImage = function(canvasID) {
-      // take to image editor with canvasID and load up canvas
+      $state.go('canvasPage', {id: canvasID});
     }
 
     $scope.confirmDeleteImage = function (canvasID) {

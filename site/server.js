@@ -542,14 +542,14 @@ function updateCanvasImage(req, res) {
 }
 function getCanvasImage(req, res) {
     var userID = req.decoded['userID'];
-    db.get('SELECT * FROM Canvases WHERE Id = ?', req.body.canvasID, function (err, row) {
+    db.get('SELECT * FROM Canvases WHERE Id = ? AND Creator = ?', req.body.canvasID, userID, function (err, row) {
         if (err) {
             console.error('Error:', err);
             res.json({ success: false, error: "Error" });
         }
         else if (!row) {
             console.error('Image does not exist');
-            res.json({ success: false, error: "Image does not exist" });
+            res.json({ success: false, error: "Image does not exist." });
         }
         else {
             res.json({ success: true, canvas: row });

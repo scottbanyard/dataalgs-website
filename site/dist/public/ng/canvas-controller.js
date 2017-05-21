@@ -148,7 +148,6 @@ angular.module('myApp')
     }
     canvas.onmouseup = (event) =>{
         clearTimeout(clk);
-        canvasState.deselectShape()
         if( !hasHappened ){
             isClick = true;
             newShape(event);
@@ -158,7 +157,10 @@ angular.module('myApp')
         }
         hasHappened = false;
     };
-
+    $scope.delete = () =>{
+        canvasState.deleteShape();
+        canvasState.redrawAll(context);
+    }
     $scope.downloadCanvasImage = () => {
           var hiddenLink = document.createElement('a');
           if ($scope.name != "" || $scope.name != undefined) {

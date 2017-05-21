@@ -32,7 +32,11 @@ angular.module('myApp')
         $scope.$apply(() => $scope.selected = rgbCSS(currentColour(event)));
     };
     // Keeps track of the shapes on the canvas
-    var canvasState = new CanvasState(canvas.width,canvas.height);
+    var canvasState = new CanvasState(canvas.width,canvas.height);;
+    // Load canvas if not a new canvas (edit mode)
+    if ($state.params.id != "new-image") {
+        getCanvasImage($state.params.id);
+    }
 
     $scope.colour = {red : 122, green:122, blue:122};
     $scope.cssColour = "rgb(122,122,122)";
@@ -238,13 +242,18 @@ angular.module('myApp')
     }
 
     function getCanvasImage (canvasID) {
-      contentService.getCanvasImage({ token: localStorage.getItem('token'), canvasID: canvasID }).then((res) => {
+      contentService.getCanvasImage({
+          token: localStorage.getItem('token'),
+          canvasID: canvasID }).then((res) => {
         var response = angular.fromJson(res).data;
         if (response.success) {
           // Load shapes into canvasState so can edit image
           $scope.name = response.canvas.Name;
-          canvasState = response.canvas.Shapes;
-          console.log(canvasState);
+          var oldState = JSON.parse(response.canvas.Shapes);
+          canvasState = new CanvasState(oldState.width,
+                                        oldState.height,
+                                        oldState.shapes)
+          canvasState.redrawAll(context);
         } else {
           errSwal(response);
           $state.go('homePage');
@@ -262,9 +271,6 @@ angular.module('myApp')
         console.log(JSON.stringify(canvasState));
     }
 
-    // Load canvas if not a new canvas (edit mode)
-    if ($state.params.id != "new-image") {
-      getCanvasImage($state.params.id);
-    }
 
+    canvasState.redrawAll(context);
 });

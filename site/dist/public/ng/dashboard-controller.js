@@ -218,9 +218,7 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
       $scope.modalImg = new CanvasState(width,height,shapes).imageURL();
       $scope.currentImage = current.Name;
     }
-    $scope.editImage = function(canvasID) {
-      $state.go('canvasPage', {id: canvasID});
-    }
+    $scope.editImage = (id) => $state.go('canvasPage', {id : id});
 
     $scope.confirmDeleteImage = function (canvasID) {
       swal({

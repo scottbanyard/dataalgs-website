@@ -107,21 +107,6 @@
             },
             readOnly: false
         });
-
-        editor.commands.addCommand({
-            name: 'code',
-            bindKey: {win: 'Ctrl-Y',  mac: 'Command-Y'},
-            exec: function (editor) {
-                var selectedText = editor.session.getTextRange(editor.getSelectionRange());
-
-                if (selectedText === '') {
-                    snippetManager.insertSnippet(editor, '```\n${1:text}\n```');
-                } else {
-                    snippetManager.insertSnippet(editor, '```\n' +  selectedText + '\n```');
-                }
-            },
-            readOnly: false
-        });
     }
 
     function insertBeforeText (editor, string) {
@@ -157,9 +142,9 @@
                 html += '<div class="btn-group">';
                     html += '<button type="button" data-mdtooltip="tooltip" title="' + options.label.btnList + '" class="md-btn btn btn-sm btn-default" data-btn="ul"><span class="glyphicon glyphicon glyphicon-list"></span></button>';
                     html += '<button type="button" data-mdtooltip="tooltip" title="' + options.label.btnOrderedList + '" class="md-btn btn btn-sm btn-default" data-btn="ol"><span class="glyphicon glyphicon-th-list"></span></button>';
-                    if (options.code === true) {
-                        html += '<button type="button" data-mdtooltip="tooltip" title="' + options.label.btnCode + '" class="md-btn btn btn-sm btn-default"      data-btn="code"><span class="glyphicon glyphicon-console"></span></button>';
-                    }
+                    // if (options.code === true) {
+                    //     html += '<button type="button" data-mdtooltip="tooltip" title="' + options.label.btnCode + '" class="md-btn btn btn-sm btn-default"      data-btn="code"><span class="glyphicon glyphicon-console"></span></button>';
+                    // }
                 html += '</div>'; // .btn-group
 
                 html += '<div class="btn-group">';
@@ -463,8 +448,8 @@
             btnPreview: 'Preview',
             btnFullscreen: 'Fullscreen',
             loading: 'Loading',
-            btnSave: 'Save',
-            btnCode: 'Code'
+            btnSave: 'Save'
+            // btnCode: 'Code'
         }
     };
 

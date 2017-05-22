@@ -1,14 +1,10 @@
-<div class="container">
-    <h1>{{ name || "Untitled" }}</h1>
-    <form>
-      <div class="form-group">
-          <input name="name" required="required" type="text" class="form-control" placeholder="Image Name" data-ng-model="name" id="name_form"/>
-      </div>
-      <div class="form-group">
-          <button class="btn btn-primary" data-ng-click="saveCanvasImage()">Save Image</button>
-          <button class="btn btn-primary" data-ng-click="downloadCanvasImage()">Download Image</button>
-      </div>
-    </form>
+<div class="container-fluid center">
+    <h1 class="content-title">{{ name || "New Image" }}</h1>
+    <p class="lead">
+        Welcome to the image editor!
+    </p>
+</div>
+<div class="container-fluid">
     <div class="btn-group">
         <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><span class="caret"></span> Shape</button>
             <ul class="dropdown-menu">
@@ -19,41 +15,13 @@
             </ul>
         <button class="btn btn btn-primary" type="button" data-toggle="collapse" data-ng-click="shape='Text'">Text
         </button>
-
-
             <button class="btn" data-ng-style="{'background-color' : cssColour }" type="button" data-toggle="collapse" data-target="#colourPicker" aria-expanded="false" aria-controls="colourPicker">
               Pick Colour
             </button>
             <button class="btn btn btn-primary" type="button" data-toggle="collapse" data-ng-click="delete()">Delete Shape
             </button>
     </div>
-    <div class="collapse" id="shapePicker">
-        <div class="container-fluid">
-                <div class="row">
-                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                        <svg class="img-fluid" xmlns="http://www.w3.org/2000/svg"
-                             viewBox="0 0 138 68">
-                             <!-- <g> -->
-                             <rect x="68" y="2" height="64" width="64" data-ng-style="{'stroke': cssColour,'fill': 'white' }" data-ng-click="shape='Rectangle'">
-                                 <title>Square</title>
-                             </rect>
-                             <!-- <text x="80" y="36"> Square </text> -->
-                         <!-- </g> -->
-                         <!-- <g> -->
-                            <circle cx="34" cy="34" r="32" data-ng-style="{'stroke': cssColour,'fill': 'white' }" data-ng-click="shape='Circle'">
-                                <title>Circle</title>
-                            </circle >
-                            <!-- <text x="20" y="36"> Circle </text>
-                        </g> -->
-
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-
-    </div>
-    <div class="container collapse fillspace" id="colourPicker">
+    <div class="container-fluid collapse" id="colourPicker">
         <div class="row">
             <span class="label" data-ng-style="{'background-color' : cssColour }">Current Colour</span>
             <span class="label" data-ng-style="{'background-color' : selected }">Selected Colour</span>
@@ -62,15 +30,28 @@
             </canvas>
         </div>
     </div>
-    <div class="collapse fillspace" id="textSettings">
-        <div class="row">
-            Text Input Settings
-        </div>
-    </div>
-    <div class="container">
+    <div class="container-fluid">
         <div class="row" >
             <canvas id="canvas" width="1000"
             height="500" class="canvas fillspace"> Your browser doesn't support canvas! </canvas>
         </div>
     </div>
+    <form>
+      <div class="form-group">
+          <input name="name" required="required" type="text" class="form-control" placeholder="Image Name" data-ng-model="name" id="name_form"/>
+      </div>
+      <div class="form-group">
+          <button class="btn btn-primary" data-ng-click="saveCanvasImage()">Save Image</button>
+          <button class="btn btn-primary" data-ng-click="downloadCanvasImage()">Download Image as PNG</button>
+      </div>
+    </form>
+    <h2 class="text-primary center"> Instructions </h2>
+    <ul class="list-group">
+    <li class="list-group-item">Change which shape you're adding using the Shape dropdown</li>
+    <li class="list-group-item">Click on the canvas to add a shape, or click and drag if you have Line or Arrow selected </li>
+
+    <li class="list-group-item">Change colour using the colour picker, toggled using the Pick Colour button</li>
+    <li class="list-group-item">Move shapes by dragging them</li>
+    <li class="list-group-item">Delete the selected shape using the Delete Shape button</li>
+    </ul>
 </div>

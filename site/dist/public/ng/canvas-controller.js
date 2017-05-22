@@ -35,7 +35,23 @@ angular.module('myApp')
     var canvasState = new CanvasState(canvas.width,canvas.height);;
     // Load canvas if not a new canvas (edit mode)
     if ($state.params.id != "new-image") {
-        getCanvasImage($state.params.id);
+        contentService.getCanvasImage({
+            token: localStorage.getItem('token'),
+            canvasID: $state.params.id }).then((res) => {
+          var response = angular.fromJson(res).data;
+          if (response.success) {
+            // Load shapes into canvasState so can edit image
+            $scope.name = response.canvas.Name;
+            var oldState = JSON.parse(response.canvas.Shapes);
+            canvasState = new CanvasState(oldState.width,
+                                          oldState.height,
+                                          oldState.shapes)
+            canvasState.redrawAll(context);
+          } else {
+            errSwal(response);
+            $state.go('homePage');
+          }
+        });
     }
 
     $scope.colour = {red : 122, green:122, blue:122};
@@ -242,37 +258,6 @@ angular.module('myApp')
           });
         }
     }
-
-    function getCanvasImage (canvasID) {
-      contentService.getCanvasImage({
-          token: localStorage.getItem('token'),
-          canvasID: canvasID }).then((res) => {
-        var response = angular.fromJson(res).data;
-        if (response.success) {
-          // Load shapes into canvasState so can edit image
-          $scope.name = response.canvas.Name;
-          var oldState = JSON.parse(response.canvas.Shapes);
-          canvasState = new CanvasState(oldState.width,
-                                        oldState.height,
-                                        oldState.shapes)
-          canvasState.redrawAll(context);
-        } else {
-          errSwal(response);
-          $state.go('homePage');
-        }
-      });
-    }
-
-    $scope.getAllMyCanvases = () => {
-      contentService.getAllMyCanvases({token: localStorage.getItem('token')}).then((res) => {
-        var response = angular.fromJson(res).data;
-        if (response.success) {
-          console.log(response.canvases);
-        }
-      });
-        console.log(JSON.stringify(canvasState));
-    }
-
 
     canvasState.redrawAll(context);
 });

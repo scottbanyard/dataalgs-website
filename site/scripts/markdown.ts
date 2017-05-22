@@ -1,173 +1,54 @@
-/// <reference path="../node_modules/ts-optional/index.d.ts" />
-require("ts-optional")
-"use strict";
+import { tokens, Token, imageRef, reference, url } from './tokens';
 
-type Token = [RegExp,string];
-// class Token{
-//     constructor(public name : string, public matcher:RegExp,public pattern : string ){}
-//
-//     public findAndReplace(text : string) : string {
-//         return text.replace(this.matcher,this.pattern);
-//     }
-// }
-
-function addTags( tagkind: string, contents : string ) : string
-{
-    return '<'+tagkind +'>' + contents + '</'+tagkind +'>'
-}
-
-function simpleHeaderPattern( num : number ): RegExp
-{
-    return new RegExp('^#{' + num +'} (.*)','gm');
-}
-function simpleToken(pattern : RegExp, innerTag : string ) : Token
-{
-    return [pattern, '<' + innerTag + '>$1</' +innerTag + '>' ];
-}
-
-function emphasisPattern( pattern: string) : RegExp
-{
-    return new RegExp(pattern+'([^'+pattern+']*)' + pattern,'g');
-}
-var headerTokens : Token[] =
-[1,2,3,4,5,6].map((num)=>simpleToken(simpleHeaderPattern(num),'h'+num)).concat(
-[ simpleToken(/(.*)[^]={6}/gm, 'h1'),
-  simpleToken(/(.*)[^]-{6}/gm, 'h2')]);
-
-
-var emphTokens : Token[] =
-    [ simpleToken(emphasisPattern(String.raw`\*\*`),'b'),
-      simpleToken(emphasisPattern('__'),'b'),
-      simpleToken(emphasisPattern(String.raw`\*`),'i'),
-      simpleToken(emphasisPattern('_'),'i'),
-      simpleToken(emphasisPattern('~~'),'del')
-  ];
-
-function renderLink(text : string) : string
-{
-    var parts = text.slice(1,text.length-1).split('](');
-    var opentag = '<a href="' + parts[1].trim() + '" >';
-    var closetag = '</a>';
-    return opentag + parts[0]+ closetag;
-}
-
-// NB the contents of the brackets can be aquired with $1
-var reference : RegExp = /\[([^\]]*)\]/g;
-var url : RegExp = new RegExp(String.raw`<?((?:https?|ftp):\/\/(?:[\w+?\.\w+])+(?:[a-zA-Z0-9\~\!\@\#\$\%\^\&\*\(\)_\-\=\+\\\/\?\.\:\;\'\,]*)?)>?`, 'g');
-
-var imageRef : RegExp = new RegExp(String.raw`!\[([^\]]+)\]\((\d+)\)`,'g');
-var inlinelinkregex : RegExp = new RegExp( reference.source +
-                                           String.raw`\(` +
-                                           url.source +  String.raw`(?:\s+"([^"]*)")?\)`,
-                                           'g' );
-
-var inlinelink : Token = [inlinelinkregex,'<a href="$2" name="$3">$1</a>'];
-var urlToken : Token = [new RegExp('\\s+' + url.source + '\\s+'),'<a href="$1">$1</a>'];
-
-var referenceLink : RegExp = new RegExp( reference.source + reference.source,
-                                         'g');
-var refWithURL : RegExp = new RegExp( reference.source + /:\s*/ + url.source );
-
-
-// Tests and examples
-var links = String.raw`
-[Text taken from](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
-
-# H1
-## H2
-### H3
-#### H4
-##### H5
-###### H6
-
-Alternatively, for H1 and H2, an underline-ish style:
-
-Alt-H1
-======
-
-Alt-H2
-------
-
-[I'm an inline-style link](https://www.google.com)
-
-[I'm an inline-style link with title](https://www.google.com "Google's Homepage")
-
-[I'm a reference-style link][Arbitrary case-insensitive reference text]
-
-[You can use numbers for reference-style link definitions][1]
-
-Emphasis, aka italics, with *asterisks* or _underscores_.Strong emphasis, aka bold, with **asterisks** or __underscores__. Combined emphasis with **asterisks and _underscores_**. Strikethrough uses two tildes. ~~Scratch this.~~
-
-Some text to show that the reference links can follow later.
-
-[arbitrary case-insensitive reference text]: https://www.mozilla.org
-[1]: http://slashdot.org/test
-[link text itself]: http://www.reddit.com/haskell`;
-
-var emphText = "Emphasis, aka italics, with *asterisks* or _underscores_.Strong emphasis, aka bold, with **asterisks** or __underscores__. Combined emphasis with **asterisks and _underscores_**. Strikethrough uses two tildes. ~~Scratch this.~~";
-var lists = ["* List item", "* List item", "    * List item"];
-
-
-var headers : string[] = [1,2,3,4,5,6].map((num) => "#".repeat(num) + " header"+num)
-var emphasis : string[] = ['**',"__",'*','_'].map((char) => char + 'sentence' + char);
-
-function tokenise(text:string, tokens:Token[]){
-    for(var t in tokens){
-        text = text.replace(tokens[t][0],tokens[t][1]);
-    }
-    return text;
-}
 function replaceImages(text:string, withScope:boolean) : [string,string[]]
 {
     var ids = [];
-    text = text.replace(imageRef,(text,alt,imageID) => {
+    text = text.replace(imageRef,(_,alt,imageID) => {
         var scopeVar = 'image' + imageID;
-        if (withScope)
-        {
-            var tag = '<img data-ng-src="{{ '+ scopeVar +' }}"'+
-                            ' alt-text="' + alt +'"' +
-                            ' data-ng-show="'+scopeVar+'" />';
-        }
-        else
-        {
-            var tag = '<img src="{{ '+ scopeVar +' }}"'+
-                            ' alt-text="' + alt +'" />';
-        }
+        var src = withScope?
+            'data-ng-src="{{ '+ scopeVar +' }}" data-ng-show="'+scopeVar+'"'
+            : 'src="{{ '+ scopeVar +' }}"';
         ids.push(imageID)
-        return tag;
+        return '<img ' + src + ' alt-text="' + alt +'" />';
     });
     return [text,ids];
 }
-function collectAndRemoveReferences(text:string,withScope : boolean): [string,string[]]
+
+/*
+    Takes in the raw markdown string, as well as an indicator as to whether the
+    images will be inserted with an angular $scope or not.
+
+    Replaces markdown text with valid html, and strips out <script> tags
+*/
+export function returnHTML(text:string, withScope : boolean) :[string,string[]]
 {
+    // First, images are replaced by either a $scope style reference or a
+    // src identifier
     var ids = [];
     [text,ids] = replaceImages(text, withScope);
 
+    /*
+        Since links can use references, it is necessary to collect all
+        possible references
+    */
     var referencePair = new RegExp(reference.source+':\\s*'+ url.source,'g');
-    var references = text.match(referencePair);
-    if (references){
-        var kvPairs : [string,string][] = references.map((t) : [string,string]=> [t.replace(referencePair,'$1'),
-         t.replace(referencePair,'$2')]);
-         text = text.replace(referencePair,'');
+    var kvPairs : [string,string][] = [];
+    text = text.replace(referencePair, (t,id,ref) => {
+         kvPairs.push([ id, ref ]);
+         return '';
+    });
 
-         for(var j =0; j< kvPairs.length; j++){
-             var pattern = new RegExp(reference.source+'\\['+kvPairs[j][0]+'\\]','i');
-             text = text.replace(pattern,'[$1]\('+kvPairs[j][1]+'\)');
-         }
-    }
+    /*
+        Once the references have been acquired, the raw url is inserted into
+        their reference point
+    */
+    kvPairs.forEach(([id,ref]) => {
+         var pattern = new RegExp(reference.source+'\\['+id+'\\]','i');
+         text = text.replace(pattern,'[$1]\('+ref+'\)');
+    });
 
+    // console.log(2, text)
+    // Basic tokens such as headers and emphasis are then replaced
+    text = tokens.reduce((acc,tok)=> acc.replace(tok[0],tok[1]), text).trim();
     return [text,ids];
 }
-var tokens = headerTokens.concat(emphTokens);
-tokens.push(inlinelink);
-
-export function returnHTML(page:string, withScope : boolean) : [string, string[]]
-{
-    var newPage = collectAndRemoveReferences(page, withScope);
-    newPage[0] = tokenise(newPage[0],tokens).trim();
-    return newPage;
-}
-
-
-console.log(replaceImages("![alt](14) ![alt](14)",true));
-console.log(replaceImages("![alt](14) ![alt](14)",true));

@@ -12,15 +12,15 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
                                   content: content}).then((res) => {
         var response = angular.fromJson(res).data;
         if (response.success) {
-            var scopedImageTag = new RegExp("{{ image(\\d+) }}",'g');
-            response.htmlContent = response.htmlContent.replace(scopedImageTag, (_,id) =>{
+            var imageTag = new RegExp("{{ image(\\d+) }}",'g');
+            response.htmlContent = response.htmlContent.replace(imageTag, (_,id) =>{
                 var imageData =response.imageRows.find((x)=>x.Id==id);
                 if (imageData) {
                   var {width,height,shapes,_} = JSON.parse(imageData.Shapes);
                   var sta = new CanvasState(width,height,shapes);
                   return sta.imageURL();
                 }
-                console.log("Failed to get image");
+                console.log("Failed to get image",id);
                 return "";
             });
           callback(response.htmlContent);

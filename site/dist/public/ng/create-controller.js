@@ -15,9 +15,13 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
             var scopedImageTag = new RegExp("{{ image(\\d+) }}");
             response.htmlContent = response.htmlContent.replace(scopedImageTag, (_,id) =>{
                 var imageData =response.imageRows.find((x)=>x.Id==id);
-                var {width,height,shapes,_} = JSON.parse(imageData.Shapes);
-                var sta = new CanvasState(width,height,shapes);
-                return sta.imageURL();
+                if (imageData) {
+                  var {width,height,shapes,_} = JSON.parse(imageData.Shapes);
+                  var sta = new CanvasState(width,height,shapes);
+                  return sta.imageURL();
+                }
+                console.log("Failed to get image");
+                return "";  
             });
           callback(response.htmlContent);
         }

@@ -57,8 +57,9 @@ angular.module('myApp')
           ).then((res) => {
               var response = angular.fromJson(res).data;
               if (response.success){
-                  response.imageRows.map(createImageURL);
-                  console.log(response.htmlContent, $scope.image14);
+                  if (response.imageRows) {
+                    response.imageRows.map(createImageURL);
+                  }
                   $scope.pageInfo = response;
                   $scope.pageTitle = $scope.pageInfo.page.Title;
 

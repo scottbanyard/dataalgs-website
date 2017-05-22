@@ -167,7 +167,7 @@ function setupApi () : void {
 
   router.post('/allComments', function(req, res) : void {
     var pageID : number = req.body.pageID;
-     db.all( 'SELECT * FROM Comments WHERE PageID = ?', pageID,
+     db.all('SELECT UserAccounts.Icon, Comments.* FROM Comments INNER JOIN UserAccounts ON UserAccounts.Id = Comments.UserID WHERE Comments.PageID = ?', pageID,
             (err,rows) => {
                  if (err){
                      console.error('Error:', err);

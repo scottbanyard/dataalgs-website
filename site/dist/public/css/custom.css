@@ -110,3 +110,7 @@ tbody {
   width:100%;
   height:auto;
 }
+.comment-image {
+  width: 60px !important;
+  height: auto !important;
+}

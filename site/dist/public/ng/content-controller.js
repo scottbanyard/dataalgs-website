@@ -1,24 +1,13 @@
 angular.module('myApp')
 .controller('contentController',
     ($scope, $compile, contentService, $state, $stateParams, jwtHelper) => {
-    function getComments(){
-        contentService.getComments({ pageID: $state.params.id })
-            .then((res) => {
-                var response = angular.fromJson(res).data;
-                if (response.success){
-                   $scope.comments = response.rows;
-                }
-                else
-                  $scope.comments = [];
-          });
-    }
-
     function createImageURL(imageRow)
     {
         var {width,height,shapes,_} = JSON.parse(imageRow.Shapes);
         $scope['image'+imageRow.Id] =
             new CanvasState(width,height,shapes).imageURL();
     }
+
     function getComments(){
         contentService.getComments({ pageID: $state.params.id })
                       .then((res) => {
@@ -32,6 +21,7 @@ angular.module('myApp')
                           }
                       );
     }
+
         $scope.makeComment = function() {
             if( "undefined" !== typeof $scope.newComment ){
                 contentService.addComment({ token:localStorage.getItem('token'),

@@ -8,13 +8,22 @@ angular.module('myApp')
             new CanvasState(width,height,shapes).imageURL();
     }
 
+    $scope.rateComment = function(comment, rating) {
+
+        contentService.rateComment({token: localStorage.getItem('token'), commentID: comment.CommentID, rating: rating + comment.Rating}).then((res) => {
+          var response = angular.fromJson(res).data;
+          if (response.success) {
+            getComments();
+          }
+        });
+    }
+
     function getComments(){
         contentService.getComments({ pageID: $state.params.id })
                       .then((res) => {
                           var response = angular.fromJson(res).data;
                           if (response.success){
                               $scope.comments = response.rows;
-                              console.log($scope.comments);
                           }
                           else
                               $scope.comments = [];

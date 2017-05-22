@@ -399,6 +399,10 @@ angular.module('myApp').controller('dashboardController', function($rootScope, $
       $state.go('createPage', {id: "new-page"});
     }
 
+    $scope.createNewImage = function () {
+      $state.go('canvasPage', {id: "new-image"});
+    }
+
     $scope.confirmDeletePage = function (pageID, pageTitle) {
       swal({
         title: "Are you sure you want to delete this page?",

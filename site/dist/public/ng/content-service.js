@@ -28,6 +28,7 @@ angular.module('myApp').factory('contentService', function ($http, $q) {
         , getProfileIcon: standardPost.bind(null,"geticon")
         , getCanvasImage: standardPost.bind(null,"getimage")
         , getAllMyCanvases: standardPost.bind(null,"getallimages")
+        , rateComment: standardPost.bind(null,"ratecomment")
         , deleteCanvasImage: standardPost.bind(null, "deleteimage")
         , saveCanvasImage: (overwrite, request) => {
               var verb = overwrite ? "update" : "save";

@@ -251,6 +251,8 @@ function setupApi () : void {
 
   router.post('/previewHTML', parseMarkdown);
 
+  router.post('/ratecomment', rateComment);
+
   // API always begins with localhost8080/api
   app.use('/api', router);
 }
@@ -714,4 +716,15 @@ function getImagesFromIDs(
                         res.json({ success: true, htmlContent : html, imageRows:rows });
                 }
             });
+}
+
+function rateComment(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
+  db.run("UPDATE Comments SET Rating = ? WHERE CommentID = ?", req.body.rating, req.body.commentID, (err) => {
+    if (err) {
+      console.error("Error: " + err);
+      res.json({ success: false, error: "Error"});
+    } else {
+      res.json({ success: true });
+    }
+  });
 }

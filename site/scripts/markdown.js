@@ -60,7 +60,7 @@ function tokenise(text, tokens) {
 }
 function collectAndRemoveReferences(text, withScope) {
     var ids = [];
-    text = text.replace(imageRef, (text, alt, imageID) => {
+    text = text.replace(imageRef, function (text, alt, imageID) {
         var scopeVar = 'image' + imageID;
         if (withScope) {
             var tag = '<img data-ng-src="{{ ' + scopeVar + ' }}"' +

@@ -127,7 +127,7 @@ function setupApi() {
     router.get('/getAllPublicPages', getAllPublicPages);
     router.post('/allComments', function (req, res) {
         var pageID = req.body.pageID;
-        db.all('SELECT * FROM Comments WHERE PageID = ?', pageID, function (err, rows) {
+        db.all('SELECT UserAccounts.Icon, Comments.* FROM Comments INNER JOIN UserAccounts ON UserAccounts.Id = Comments.UserID WHERE Comments.PageID = ?', pageID, function (err, rows) {
             if (err) {
                 console.error('Error:', err);
                 res.json({ success: false });
@@ -163,7 +163,7 @@ function setupApi() {
                 else {
                     row.Views = row.Views + 1;
                     updateViews(req.body.pageID, row.Views);
-                    var [html, ids] = markdown_1.returnHTML(row.Content, true);
+                    var _a = markdown_1.returnHTML(row.Content, true), html = _a[0], ids = _a[1];
                     getImagesFromIDs(res, html, ids, row);
                 }
             }
@@ -203,7 +203,7 @@ function createToken(id, name, res) {
     });
 }
 function parseMarkdown(req, res) {
-    var [thisHTML, ids] = markdown_1.returnHTML(req.body.content, false);
+    var _a = markdown_1.returnHTML(req.body.content, false), thisHTML = _a[0], ids = _a[1];
     getImagesFromIDs(res, thisHTML, ids, undefined, req.decoded['userID']);
 }
 // Converts date from number stored in database to local date
@@ -342,7 +342,7 @@ function loadPrivatePage(req, res) {
     if (pageCreator == userID) {
         req.page.Views = req.page.Views + 1;
         updateViews(req.body.pageID, req.page.Views);
-        var [thisHTML, ids] = markdown_1.returnHTML(req.page.Content, true);
+        var _a = markdown_1.returnHTML(req.page.Content, true), thisHTML = _a[0], ids = _a[1];
         getImagesFromIDs(res, thisHTML, ids, req.page, userID);
     }
     else {
@@ -598,7 +598,7 @@ function getImagesFromIDs(res, html, ids, page, userID) {
         'FROM Canvases WHERE ' +
         query +
         'Id IN (' +
-        ids.map(() => '?').join(',') + ')', args, (err, rows) => {
+        ids.map(function () { return '?'; }).join(',') + ')', args, function (err, rows) {
         if (err) {
             console.error("Error: " + err);
             res.json({ success: false, error: "Error" });

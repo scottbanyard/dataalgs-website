@@ -316,10 +316,10 @@
                     insertBeforeText(editor, '###');
 
                 } else if (btnType === 'ul') {
-                    insertBeforeText(editor, '*');
+                    snippetManager.insertSnippet(editor, '<ul>\n<li> $1 </li>\n</ul>');
 
                 } else if (btnType === 'ol') {
-                    insertBeforeText(editor, '1.');
+                    snippetManager.insertSnippet(editor, '<ol>\n<li> $1 </li>\n</ol>');
 
                 } else if (btnType === 'bold') {
                     editor.execCommand('bold');

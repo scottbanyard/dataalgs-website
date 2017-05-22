@@ -24,10 +24,6 @@
 
 - Efficient styling options using grids
 
-## D3.js
-
-- Slick graphics
-
 ## SQLITE3
 
 - Embedded database

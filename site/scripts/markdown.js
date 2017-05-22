@@ -9,7 +9,7 @@ function replaceImages(text, withScope) {
             'data-ng-src="{{ ' + scopeVar + ' }}" data-ng-show="' + scopeVar + '"'
             : 'src="{{ ' + scopeVar + ' }}"';
         ids.push(imageID);
-        return '<img ' + src + ' alt-text="' + alt + '" />';
+        return '<img class="img-center" ' + src + ' alt-text="' + alt + '" /> <br />';
     });
     return [text, ids];
 }

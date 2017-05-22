@@ -27,8 +27,6 @@ var inlinelinkregex : RegExp = new RegExp( reference.source +
                                              'g' );
 
 var link : Token = [inlinelinkregex,'<a href="$2" name="$3">$1</a>'];
-// var urlToken : Token = [new RegExp('\\s+' + url.source + '\\s+'),'<a href="$1">$1</a>'];
-// var refWithURL : RegExp = new RegExp(reference.source + /:\s*/ + url.source);
 
 function simpleHeaderPattern( num : number ): RegExp
 {

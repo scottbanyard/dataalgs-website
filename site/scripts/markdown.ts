@@ -55,7 +55,7 @@ function renderLink(text : string) : string
 var reference : RegExp = /\[([^\]]*)\]/g;
 var url : RegExp = new RegExp(String.raw`<?((?:https?|ftp):\/\/(?:[\w+?\.\w+])+(?:[a-zA-Z0-9\~\!\@\#\$\%\^\&\*\(\)_\-\=\+\\\/\?\.\:\;\'\,]*)?)>?`, 'g');
 
-var imageRef : RegExp = new RegExp(String.raw`!\[(.*)\]\((\d+)\)`);
+var imageRef : RegExp = new RegExp(String.raw`!\[([^\]]+)\]\((\d+)\)`,'g');
 var inlinelinkregex : RegExp = new RegExp( reference.source +
                                            String.raw`\(` +
                                            url.source +  String.raw`(?:\s+"([^"]*)")?\)`,
@@ -117,8 +117,7 @@ function tokenise(text:string, tokens:Token[]){
     }
     return text;
 }
-
-function collectAndRemoveReferences(text:string,withScope : boolean): [string,string[]]
+function replaceImages(text:string, withScope:boolean) : [string,string[]]
 {
     var ids = [];
     text = text.replace(imageRef,(text,alt,imageID) => {
@@ -137,6 +136,13 @@ function collectAndRemoveReferences(text:string,withScope : boolean): [string,st
         ids.push(imageID)
         return tag;
     });
+    return [text,ids];
+}
+function collectAndRemoveReferences(text:string,withScope : boolean): [string,string[]]
+{
+    var ids = [];
+    [text,ids] = replaceImages(text, withScope);
+
     var referencePair = new RegExp(reference.source+':\\s*'+ url.source,'g');
     var references = text.match(referencePair);
     if (references){
@@ -161,3 +167,7 @@ export function returnHTML(page:string, withScope : boolean) : [string, string[]
     newPage[0] = tokenise(newPage[0],tokens).trim();
     return newPage;
 }
+
+
+console.log(replaceImages("![alt](14) ![alt](14)",true));
+console.log(replaceImages("![alt](14) ![alt](14)",true));

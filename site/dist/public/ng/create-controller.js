@@ -12,7 +12,7 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
                                   content: content}).then((res) => {
         var response = angular.fromJson(res).data;
         if (response.success) {
-            var scopedImageTag = new RegExp("{{ image(\\d+) }}");
+            var scopedImageTag = new RegExp("{{ image(\\d+) }}",'g');
             response.htmlContent = response.htmlContent.replace(scopedImageTag, (_,id) =>{
                 var imageData =response.imageRows.find((x)=>x.Id==id);
                 if (imageData) {
@@ -21,7 +21,7 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
                   return sta.imageURL();
                 }
                 console.log("Failed to get image");
-                return "";  
+                return "";
             });
           callback(response.htmlContent);
         }

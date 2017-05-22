@@ -72,6 +72,10 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
     return error;
   }
 
+  $scope.goToMarkdownExample = function () {
+    $state.go('contentPage', {id: 19});
+  }
+
   $scope.savePage = function () {
     var error = getError();
 

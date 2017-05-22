@@ -24,7 +24,6 @@ angular.module('myApp')
                           var response = angular.fromJson(res).data;
                           if (response.success){
                               $scope.comments = response.rows;
-                              console.log($scope.comments);
                           }
                           else
                               $scope.comments = [];

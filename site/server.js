@@ -189,6 +189,7 @@ function setupApi() {
     router.post('/updateimage', updateCanvasImage);
     router.post('/deleteimage', deleteCanvasImage);
     router.post('/previewHTML', parseMarkdown);
+    router.post('/ratecomment', rateComment);
     // API always begins with localhost8080/api
     app.use('/api', router);
 }
@@ -610,6 +611,17 @@ function getImagesFromIDs(res, html, ids, page, userID) {
                     imageRows: rows, page: page });
             else
                 res.json({ success: true, htmlContent: html, imageRows: rows });
+        }
+    });
+}
+function rateComment(req, res) {
+    db.run("UPDATE Comments SET Rating = ? WHERE CommentID = ?", req.body.rating, req.body.commentID, function (err) {
+        if (err) {
+            console.error("Error: " + err);
+            res.json({ success: false, error: "Error" });
+        }
+        else {
+            res.json({ success: true });
         }
     });
 }

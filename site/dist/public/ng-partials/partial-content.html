@@ -18,7 +18,7 @@
               <img class="media-object comment-image" data-ng-src="/imgs/{{x.Icon}}" alt="Profile Icon" />
             </div>
             <div class="media-body">
-              <p class="media-heading">{{ x.Name + " - " +  x.Date }}</p>
+              <p class="media-heading">{{ x.Name + " - " +  x.Date + " - "}}<span data-ng-click="rateComment(x, 1)" class="glyphicon glyphicon-thumbs-up pointer"></span>{{ x.Rating }}<span data-ng-click="rateComment(x, -1)" class="glyphicon glyphicon-thumbs-down pointer thumbs-down"></span></p>
               <h4 class="media-heading">{{ x.Title }} </h4>
               <p>{{ x.Content }}</p>
             </div>

@@ -2,9 +2,10 @@ import * as express        from 'express';
 import * as sqlite3        from "sqlite3";
 import * as csprng         from "csprng";
 import { createHash }      from "crypto";
-import * as jwt            from "jsonwebtoken";
 import { returnHTML }      from "./markdown";
 import { sslOptions }      from "../server";
+import { createToken }      from "./jwt-auth";
+
 
 // Creates the embedded database using SQLite3
 export var db = new sqlite3.Database('database.sqlite');
@@ -25,19 +26,7 @@ export interface Page {
     Views: number;
 }
 
-export function createToken( id : number, name : string, res : express.Response )
-{
-  jwt.sign( { userID: id, name : name }
-            , sslOptions.key
-            , { algorithm: 'RS256', expiresIn: "10h" }
-            , (err, token) => {
-              if (err) {
-                console.error("Error creating token: " + err);
-              } else {
-                res.json({ success: true, token: token });
-              }
-            });
-}
+
 
 export function parseMarkdown(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
     var [thisHTML,ids] = returnHTML(req.body.content, false) ;
@@ -167,25 +156,6 @@ export function deleteAccount(userID : number, res : express.Response) : void {
       res.json({ success: true });
     }
   });
-}
-
-export function checkLoggedIn(req : express.Request & { decoded : DecodedToken, page? : Page }, res : express.Response, next : Function) {
-  var token = req.body.token || req.query.token || req.headers['x-access-token'];
-  // decode token
-  if (token) {
-    jwt.verify(token, sslOptions.cert, { algorithms: ['RS256'] }, (err, decoded) => {
-      if (err) {
-          return res.json({ success: false,
-                            message: "Failed to authenticate token." });
-      } else {
-          req.decoded = decoded;
-          next();
-      }
-    });
-  } else {
-    // no token provided
-    return res.status(403).send({success: false, message: "No token provided."});
-  }
 }
 
 export function loadPrivatePage(req: express.Request & { decoded : DecodedToken, page : Page }, res : express.Response ) : void {

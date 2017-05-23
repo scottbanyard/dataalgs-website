@@ -3,22 +3,10 @@ exports.__esModule = true;
 var sqlite3 = require("sqlite3");
 var csprng = require("csprng");
 var crypto_1 = require("crypto");
-var jwt = require("jsonwebtoken");
 var markdown_1 = require("./markdown");
-var server_1 = require("../server");
+var jwt_auth_1 = require("./jwt-auth");
 // Creates the embedded database using SQLite3
 exports.db = new sqlite3.Database('database.sqlite');
-function createToken(id, name, res) {
-    jwt.sign({ userID: id, name: name }, server_1.sslOptions.key, { algorithm: 'RS256', expiresIn: "10h" }, function (err, token) {
-        if (err) {
-            console.error("Error creating token: " + err);
-        }
-        else {
-            res.json({ success: true, token: token });
-        }
-    });
-}
-exports.createToken = createToken;
 function parseMarkdown(req, res) {
     var _a = markdown_1.returnHTML(req.body.content, false), thisHTML = _a[0], ids = _a[1];
     getImagesFromIDs(res, thisHTML, ids, undefined, req.decoded['userID']);
@@ -48,7 +36,7 @@ function attemptLogin(email, password, res) {
             res.json({ success: false, error: "User does not exist" });
         }
         else if (hashPW(password, row.PassSalt) == row.PassHash) {
-            createToken(row.Id, row.Name, res);
+            jwt_auth_1.createToken(row.Id, row.Name, res);
         }
         else if (hashPW(password, row.PassSalt) != row.PassHash) {
             console.log('Password incorrect');
@@ -142,27 +130,6 @@ function deleteAccount(userID, res) {
     });
 }
 exports.deleteAccount = deleteAccount;
-function checkLoggedIn(req, res, next) {
-    var token = req.body.token || req.query.token || req.headers['x-access-token'];
-    // decode token
-    if (token) {
-        jwt.verify(token, server_1.sslOptions.cert, { algorithms: ['RS256'] }, function (err, decoded) {
-            if (err) {
-                return res.json({ success: false,
-                    message: "Failed to authenticate token." });
-            }
-            else {
-                req.decoded = decoded;
-                next();
-            }
-        });
-    }
-    else {
-        // no token provided
-        return res.status(403).send({ success: false, message: "No token provided." });
-    }
-}
-exports.checkLoggedIn = checkLoggedIn;
 function loadPrivatePage(req, res) {
     var userID = req.decoded['userID'];
     var pageCreator = req.page.Creator;

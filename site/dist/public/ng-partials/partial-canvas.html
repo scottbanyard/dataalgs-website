@@ -1,27 +1,23 @@
-<div class="container-fluid center">
+<div class="container center">
     <h1 class="content-title">{{ name || "New Image" }}</h1>
-    <p class="lead">
-        Welcome to the Image Editor!
-    </p>
-</div>
-<div class="container-fluid">
+    <p class="lead"> Welcome to the Image Editor! </p>
     <div class="btn-group">
-        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><span class="caret"></span> Shape</button>
+        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><span class="caret"></span> {{ shape || "Shape"}}</button>
             <ul class="dropdown-menu">
                 <li><a data-ng-click="shape='Line'">Line</a></li>
                 <li><a data-ng-click="shape='Arrow'">Arrow</a></li>
-                <li><a data-ng-click="shape='Rectangle'">Square</a></li>
+                <li><a data-ng-click="shape='Square'">Square</a></li>
                 <li><a data-ng-click="shape='Circle'">Circle</a></li>
             </ul>
-        <button class="btn btn btn-primary" type="button" data-toggle="collapse" data-ng-click="shape='Text'">Text
-        </button>
+            <button class="btn btn-primary" type="button" data-toggle="collapse" data-ng-click="shape='Text'">Text
+            </button>
             <button class="btn" data-ng-style="{'background-color' : cssColour }" type="button" data-toggle="collapse" data-target="#colourPicker" aria-expanded="false" aria-controls="colourPicker">
               Pick Colour
             </button>
-            <button class="btn btn btn-primary" type="button" data-toggle="collapse" data-ng-click="delete()">Delete Shape
+            <button class="btn btn-primary" type="button" data-toggle="collapse" data-ng-click="delete()">Delete Shape
             </button>
     </div>
-    <div class="container-fluid collapse" id="colourPicker">
+    <div class="container collapse" id="colourPicker">
         <div class="row">
             <span class="label" data-ng-style="{'background-color' : cssColour }">Current Colour</span>
             <span class="label" data-ng-style="{'background-color' : selected }">Selected Colour</span>
@@ -30,12 +26,10 @@
             </canvas>
         </div>
     </div>
-    <div class="container-fluid">
         <div class="row" >
             <canvas id="canvas" width="1000"
             height="500" class="canvas fillspace"> Your browser doesn't support canvas! </canvas>
         </div>
-    </div>
     <form>
       <div class="form-group">
           <input name="name" required="required" type="text" class="form-control" placeholder="Image Name" data-ng-model="name" id="name_form"/>
@@ -47,7 +41,7 @@
     </form>
     <h2 class="text-primary center"> Instructions </h2>
     <ul class="list-group">
-    <li class="list-group-item">Change which shape you're adding using the Shape dropdown button</li>
+    <li class="list-group-item">Change which shape you're adding using the dropdown button</li>
     <li class="list-group-item">Click on the canvas to add a shape, or click and drag if you have Line or Arrow selected </li>
 
     <li class="list-group-item">Change colour using the colour picker, toggled using the Pick Colour button</li>

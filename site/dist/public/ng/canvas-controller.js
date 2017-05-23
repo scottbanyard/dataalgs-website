@@ -88,8 +88,8 @@ angular.module('myApp')
     function getBasicShape(coords)
     {
         return { kind:angular.copy($scope.shape),
-                      centre:coords,
-                      colour:angular.copy($scope.colour)};
+                 centre:coords,
+                 colour:angular.copy($scope.colour)};
     }
     // Based on the selection of shape, and the colour, adds a new shape to the CanvasState and orders a redraw.
     function newShape(event)
@@ -100,7 +100,7 @@ angular.module('myApp')
             case 'Circle':
                 shape.radius = 25;
                 break;
-            case 'Rectangle':
+            case 'Square':
                 shape.width = 50;
                 shape.height = 50;
                 break;
@@ -170,6 +170,7 @@ angular.module('myApp')
         }
         else{
             canvasState.redrawAll(context);
+            canvasState.endDrag();
         }
         hasHappened = false;
     };

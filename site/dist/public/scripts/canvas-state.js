@@ -104,10 +104,10 @@ function intersects(point, shape) {
             var dy = point.y - shape.centre.y;
             return Math.pow(dx, 2) + Math.pow(dy, 2) <= Math.pow(shape.radius, 2);
         case 'Square':
-            var tl = { x: shape.centre.x - shape.width,
-                y: shape.centre.y - shape.height }, br = { x: shape.centre.x + shape.width,
-                y: shape.centre.y + shape.height };
-            return inBounds(point, tl, br);
+            return point.x >= shape.centre.x - shape.width &&
+                point.x <= shape.centre.x + shape.width &&
+                point.y >= shape.centre.y - shape.height &&
+                point.y <= shape.centre.y + shape.height;
         case 'Text':
             var other = { x: shape.centre.x + shape.width,
                 y: shape.centre.y - parseInt(shape.font) };
@@ -115,6 +115,8 @@ function intersects(point, shape) {
         case 'Line':
             return inBounds(point, shape.centre, shape.other)
                 && undefined !== shape.points.find((p) => {
+                    if (!p)
+                        return false;
                     return p.y <= point.y + 5 && p.y >= point.y - 5 &&
                         p.x <= point.x + 5 && p.x >= point.x - 5;
                 });

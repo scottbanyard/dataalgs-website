@@ -3,12 +3,19 @@ import { tokens, Token, imageRef, reference, url } from './tokens';
 function replaceImages(text:string, withScope:boolean) : [string,string[]]
 {
     var ids = [];
-    text = text.replace(imageRef,(_,alt,imageID) => {
-        var scopeVar = 'image' + imageID;
-        var src = withScope?
-            'data-ng-src="{{ '+ scopeVar +' }}" data-ng-show="'+scopeVar+'"'
-            : 'src="{{ '+ scopeVar +' }}"';
-        ids.push(imageID)
+    text = text.replace(imageRef,(_, alt, imageID, imageURL) => {
+        if(imageID){
+            var scopeVar = 'image' + imageID;
+            var src = withScope?
+                'data-ng-src="{{ '+ scopeVar +' }}" data-ng-show="'+scopeVar+'"'
+                : 'src="{{ '+ scopeVar +' }}"';
+            ids.push(imageID)
+        }
+        else{
+            var src = 'src="' + imageURL + '"';
+        }
+
+
         return '<img class="img-center" ' + src + ' alt-text="' + alt +'" /> <br />';
     });
     return [text,ids];

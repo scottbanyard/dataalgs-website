@@ -31,12 +31,14 @@ export var url : RegExp = new RegExp(String.raw`<?((?:https?|ftp):\/\/(?:[\w+?\.
 /* Images are referenced by the ![alt-text](reference) syntax, where reference
    is the id attributed to an image by our database
 */
-export var imageRef : RegExp = new RegExp(String.raw`!\[([^\]]+)\]\((\d+)\)`,'g');
+export var imageRef : RegExp = new RegExp(
+    String.raw`!\[([^\]]+)\]\((?:(\d+)|` + url.source + String.raw`)\)`,'g');
 
 // Inline link regex
 var inlinelinkregex : RegExp = new RegExp( reference.source +
                                            String.raw`\(` +
-                                           url.source +  String.raw`(?:\s+"([^"]*)")?\)`,
+                                           url.source +
+                                           String.raw`(?:\s+"([^"]*)")?\)`,
                                              'g' );
 // Token corresponding to the inlinelinkregex
 var link : Token = [inlinelinkregex,'<a href="$2" name="$3">$1</a>'];

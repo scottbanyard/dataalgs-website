@@ -1,7 +1,7 @@
 <div class="container center">
     <h1 class="content-title">{{ name || "New Image" }}</h1>
     <p class="lead"> Welcome to the Image Editor! </p>
-    <div class="btn-group">
+    <div class="btn-group margin-button-grp">
         <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><span class="caret"></span> {{ shape || "Shape"}}</button>
             <ul class="dropdown-menu">
                 <li><a data-ng-click="shape='Line'">Line</a></li>
@@ -45,7 +45,8 @@
     <li class="list-group-item">Click on the canvas to add a shape, or click and drag if you have Line or Arrow selected </li>
 
     <li class="list-group-item">Change colour using the colour picker, toggled using the Pick Colour button</li>
-    <li class="list-group-item">Move shapes by dragging them</li>
+    <li class="list-group-item">Select shapes by holding down your mouse over the shape and then letting go - they will turn yellow once selected</li>
+    <li class="list-group-item">Move shapes by dragging them once selected</li>
     <li class="list-group-item">Delete the selected shape using the Delete Shape button</li>
     </ul>
 </div>

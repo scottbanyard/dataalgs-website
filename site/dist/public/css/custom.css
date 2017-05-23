@@ -105,6 +105,7 @@ tbody {
 .img-center {
   display: block;
   margin: 0 auto;
+  width: 100%;
 }
 .modal-image {
   width:100%;
@@ -124,7 +125,9 @@ tbody {
 .margin-forum {
   margin-bottom:4em;
 }
-
 .title-big {
   font-size: 30px;
+}
+.margin-button-grp {
+  margin-bottom:1.5em;
 }

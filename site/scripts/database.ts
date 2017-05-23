@@ -26,8 +26,7 @@ export interface Page {
     Views: number;
 }
 
-
-
+// Parses the given Markdown into HTML and returns this for Angular to place into a template
 export function parseMarkdown(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
     var [thisHTML,ids] = returnHTML(req.body.content, false) ;
     getImagesFromIDs(res,thisHTML,ids, undefined, req.decoded['userID']);
@@ -38,15 +37,16 @@ export function convertDate(date : number) : string {
   return new Date(date).toLocaleDateString();
 }
 
-// Database specifics
-// Hashes a password
-export function hashPW( password : string, salt : string ) : string
+// Hashes a password using the crypto node module
+function hashPW( password : string, salt : string ) : string
 {
     return createHash( 'sha256')
            .update( salt + password )
            .digest('hex');
 }
 
+// Attempts to login user by hashing entered password and checking if it matches the hashed original
+// password stored in the database
 export function attemptLogin( email : string,
                        password : string,
                        res : express.Response )
@@ -69,6 +69,8 @@ export function attemptLogin( email : string,
     });
 }
 
+// Creates new user by checking the e-mail isn't already existing in the database, and then creates the user
+// if it isn't by inserting all the details entered
 export function createNewUser( name : string,
                         email : string,
                         password : string,
@@ -95,6 +97,8 @@ export function createNewUser( name : string,
     });
 }
 
+// Checks if user can change password by ensuring the entered current password is the same as the already stored
+// hashed password by method of hashing entered password and comparing
 export function attemptChangePassword(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
   var userID : number = req.decoded['userID'];
   db.get('SELECT PassSalt, PassHash, Email FROM UserAccounts WHERE Id = ?', userID, (err,row) => {
@@ -115,7 +119,8 @@ export function attemptChangePassword(req : express.Request & { decoded : Decode
   });
 }
 
-export function changePassword( userID : number, password : string, res : express.Response) : void {
+// Updates database with new changed password for a certain user
+function changePassword( userID : number, password : string, res : express.Response) : void {
     const salt = csprng();
     db.run("UPDATE UserAccounts SET PassSalt = ?, PassHash = ? WHERE Id = ?", salt, hashPW(password,salt), userID, (err,row) => {
       if (err) {
@@ -127,6 +132,8 @@ export function changePassword( userID : number, password : string, res : expres
     });
 }
 
+// Checks if user can delete their account by comparing their entered password with the
+// stored hashed password by method of hashing the entered password and comparing
 export function attemptDeleteAccount(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
   var userID : number = req.decoded['userID'];
   db.get('SELECT PassSalt, PassHash, Email FROM UserAccounts WHERE Id = ?', userID, (err,row) => {
@@ -147,7 +154,8 @@ export function attemptDeleteAccount(req : express.Request & { decoded : Decoded
   });
 }
 
-export function deleteAccount(userID : number, res : express.Response) : void {
+// Deletes the account from the database for the certain user
+function deleteAccount(userID : number, res : express.Response) : void {
   db.run("DELETE FROM UserAccounts WHERE Id = ?", userID, (err) => {
     if (err) {
       console.error("Error: " + err);
@@ -158,6 +166,8 @@ export function deleteAccount(userID : number, res : express.Response) : void {
   });
 }
 
+// Loads private page for user by first checking whether the Creator stored in the database is equal
+// to the User ID stored in their token
 export function loadPrivatePage(req: express.Request & { decoded : DecodedToken, page : Page }, res : express.Response ) : void {
   var userID : number = req.decoded['userID'];
   var pageCreator : number = req.page.Creator;
@@ -173,6 +183,8 @@ export function loadPrivatePage(req: express.Request & { decoded : DecodedToken,
   }
 }
 
+// Saves content of entered Markdown by inserting into the database if the page ID isn't given. If the
+// page ID is given, the database is updated with the new page values
 export function saveContent( req: express.Request & { decoded : DecodedToken }, res : express.Response):void
 {
     var userID : number = req.decoded['userID'];
@@ -201,7 +213,7 @@ export function saveContent( req: express.Request & { decoded : DecodedToken }, 
             });
         }
         else{
-           // update existing row
+           // Update existing row
            db.run("UPDATE Pages SET Title = ?, Content = ?, PrivateView = ?, PrivateEdit = ?, LastEdit = ?, Views = ? WHERE Id = ?",
              req.body.Title,
              req.body.Content,
@@ -213,6 +225,7 @@ export function saveContent( req: express.Request & { decoded : DecodedToken }, 
     });
 }
 
+// Inserts the entered comment into the database
 export function makeComment(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
   db.run('INSERT INTO Comments (UserID, Date, Title, Content, PageID, Name) VALUES (?,?,?,?,?,?)',
             [ req.decoded['userID']
@@ -223,6 +236,7 @@ export function makeComment(req : express.Request & { decoded : DecodedToken }, 
             , req.decoded['name'] ]);
 }
 
+// Gets all of the User's comments corresponding to the User ID stored in the token given
 export function getMyComments(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
   var userID : number = req.decoded['userID'];
   var comments : object[] = [];
@@ -249,8 +263,10 @@ export function getMyComments(req : express.Request & { decoded : DecodedToken }
   });
 }
 
+// Deletes a certain comment from the database - you can only delete your own comments
 export function deleteComment(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
-  db.run("DELETE FROM Comments WHERE CommentID = ?", req.body.commentID, (err) => {
+  var userID : number = req.decoded['userID'];
+  db.run("DELETE FROM Comments WHERE CommentID = ? AND UserID = ?", req.body.commentID, userID, (err) => {
     if (err) {
       console.error("Error: " + err);
       res.json({ success: false, error: "Error"});
@@ -260,6 +276,7 @@ export function deleteComment(req : express.Request & { decoded : DecodedToken }
   });
 }
 
+// Gets all public pages from the database and returns them
 export function getAllPublicPages(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
   db.all("SELECT Id, Title, Creator, LastEdit, Views FROM Pages WHERE PrivateView = 0", function(err, rows) {
       if (err) {
@@ -275,6 +292,7 @@ export function getAllPublicPages(req : express.Request & { decoded : DecodedTok
   });
 }
 
+// Gets all of the User's pages using their User ID within the token given, and returns them
 export function getMyPages(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
   var userID : number = req.decoded['userID'];
   var pages : object[] = [];
@@ -300,8 +318,10 @@ export function getMyPages(req : express.Request & { decoded : DecodedToken }, r
   });
 }
 
+// Deletes a page from the database using the given page ID - you can only delete your own pages
 export function deletePage(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
-  db.run("DELETE FROM Pages WHERE Id = ?", req.body.pageID, (err) => {
+  var userID : number = req.decoded['userID'];
+  db.run("DELETE FROM Pages WHERE Id = ? AND Creator = ?", req.body.pageID, userID, (err) => {
     if (err) {
       console.error("Error: " + err);
       res.json({ success: false, error: "Error"});
@@ -311,10 +331,12 @@ export function deletePage(req : express.Request & { decoded : DecodedToken }, r
   });
 }
 
+// Updates views within the database for a certain page
 export function updateViews(pageID : number, views : number) {
   db.run("UPDATE Pages SET Views = ? WHERE Id = ?", views, pageID, (err,row) => {});
 }
 
+// Gets profile icon from database using the User ID within the token given and returns it
 export function getProfileIcon( req: express.Request & { decoded : DecodedToken }, res : express.Response):void
 {
   var userID : number = req.decoded['userID'];
@@ -333,6 +355,7 @@ export function getProfileIcon( req: express.Request & { decoded : DecodedToken 
   });
 }
 
+// Changes profile icon by updating the database with the new icon according to the User ID within the token given
 export function changeProfileIcon( req: express.Request & { decoded : DecodedToken }, res : express.Response):void
 {
   var userID : number = req.decoded['userID'];
@@ -340,6 +363,8 @@ export function changeProfileIcon( req: express.Request & { decoded : DecodedTok
   res.json({success: true });
 }
 
+// Saves image on canvas by first checking if it exists - and if it does then it updates the database with the new
+// canvas properties. If it doesn't, then it inserts the new canvas into the database
 export function saveCanvasImage(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
   var userID : number = req.decoded['userID'];
 
@@ -368,6 +393,7 @@ export function saveCanvasImage(req : express.Request & { decoded : DecodedToken
 
 }
 
+// Updates the canvas image in the database - can only update your own image
 export function updateCanvasImage(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
   var userID : number = req.decoded['userID'];
 
@@ -382,6 +408,7 @@ export function updateCanvasImage(req : express.Request & { decoded : DecodedTok
 
 }
 
+// Gets the canvas image requested from the database using canvas ID and returns it - can only get your own canvases
 export function getCanvasImage(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
   var userID : number = req.decoded['userID'];
   db.get('SELECT * FROM Canvases WHERE Id = ? AND Creator = ?', req.body.canvasID, userID, (err,row) => {
@@ -399,6 +426,7 @@ export function getCanvasImage(req : express.Request & { decoded : DecodedToken 
   });
 }
 
+// Gets all of your canvas images from the database using your User ID within the token given and returns them
 export function getMyCanvasImages(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
   var userID : number = req.decoded['userID'];
   var canvases : object[] = [];
@@ -423,8 +451,10 @@ export function getMyCanvasImages(req : express.Request & { decoded : DecodedTok
   });
 }
 
+// Deletes the canvas image from the database using the canvas ID - can only delete your own canvas image
 export function deleteCanvasImage(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
-  db.run("DELETE FROM Canvases WHERE Id = ?", req.body.canvasID, (err) => {
+  var userID : number = req.decoded['userID'];
+  db.run("DELETE FROM Canvases WHERE Id = ? AND Creator = ?", req.body.canvasID, userID, (err) => {
     if (err) {
       console.error("Error: " + err);
       res.json({ success: false, error: "Error"});
@@ -434,6 +464,7 @@ export function deleteCanvasImage(req : express.Request & { decoded : DecodedTok
   });
 }
 
+// Gets canvas images using IDs found in Markdown
 export function getImagesFromIDs(
     res : express.Response, html:string, ids:string[], page?:Page, userID ?: number) : void
 {
@@ -460,6 +491,7 @@ export function getImagesFromIDs(
             });
 }
 
+// Updates rating in the database for certain comment using comment ID
 export function rateComment(req : express.Request & { decoded : DecodedToken }, res : express.Response) : void {
   db.run("UPDATE Comments SET Rating = ? WHERE CommentID = ?", req.body.rating, req.body.commentID, (err) => {
     if (err) {

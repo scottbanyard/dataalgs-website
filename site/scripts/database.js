@@ -7,6 +7,7 @@ var markdown_1 = require("./markdown");
 var jwt_auth_1 = require("./jwt-auth");
 // Creates the embedded database using SQLite3
 exports.db = new sqlite3.Database('database.sqlite');
+// Parses the given Markdown into HTML and returns this for Angular to place into a template
 function parseMarkdown(req, res) {
     var _a = markdown_1.returnHTML(req.body.content, false), thisHTML = _a[0], ids = _a[1];
     getImagesFromIDs(res, thisHTML, ids, undefined, req.decoded['userID']);
@@ -17,14 +18,14 @@ function convertDate(date) {
     return new Date(date).toLocaleDateString();
 }
 exports.convertDate = convertDate;
-// Database specifics
-// Hashes a password
+// Hashes a password using the crypto node module
 function hashPW(password, salt) {
     return crypto_1.createHash('sha256')
         .update(salt + password)
         .digest('hex');
 }
-exports.hashPW = hashPW;
+// Attempts to login user by hashing entered password and checking if it matches the hashed original
+// password stored in the database
 function attemptLogin(email, password, res) {
     exports.db.get('SELECT PassSalt, PassHash, Id, Name FROM UserAccounts WHERE Email = ?', email, function (err, row) {
         if (err) {
@@ -45,6 +46,8 @@ function attemptLogin(email, password, res) {
     });
 }
 exports.attemptLogin = attemptLogin;
+// Creates new user by checking the e-mail isn't already existing in the database, and then creates the user
+// if it isn't by inserting all the details entered
 function createNewUser(name, email, password, res) {
     exports.db.get('SELECT * FROM UserAccounts WHERE Email = ?', email, function (err, row) {
         if (err) {
@@ -65,6 +68,8 @@ function createNewUser(name, email, password, res) {
     });
 }
 exports.createNewUser = createNewUser;
+// Checks if user can change password by ensuring the entered current password is the same as the already stored
+// hashed password by method of hashing entered password and comparing
 function attemptChangePassword(req, res) {
     var userID = req.decoded['userID'];
     exports.db.get('SELECT PassSalt, PassHash, Email FROM UserAccounts WHERE Id = ?', userID, function (err, row) {
@@ -85,6 +90,7 @@ function attemptChangePassword(req, res) {
     });
 }
 exports.attemptChangePassword = attemptChangePassword;
+// Updates database with new changed password for a certain user
 function changePassword(userID, password, res) {
     var salt = csprng();
     exports.db.run("UPDATE UserAccounts SET PassSalt = ?, PassHash = ? WHERE Id = ?", salt, hashPW(password, salt), userID, function (err, row) {
@@ -97,7 +103,8 @@ function changePassword(userID, password, res) {
         }
     });
 }
-exports.changePassword = changePassword;
+// Checks if user can delete their account by comparing their entered password with the
+// stored hashed password by method of hashing the entered password and comparing
 function attemptDeleteAccount(req, res) {
     var userID = req.decoded['userID'];
     exports.db.get('SELECT PassSalt, PassHash, Email FROM UserAccounts WHERE Id = ?', userID, function (err, row) {
@@ -118,6 +125,7 @@ function attemptDeleteAccount(req, res) {
     });
 }
 exports.attemptDeleteAccount = attemptDeleteAccount;
+// Deletes the account from the database for the certain user
 function deleteAccount(userID, res) {
     exports.db.run("DELETE FROM UserAccounts WHERE Id = ?", userID, function (err) {
         if (err) {
@@ -129,7 +137,8 @@ function deleteAccount(userID, res) {
         }
     });
 }
-exports.deleteAccount = deleteAccount;
+// Loads private page for user by first checking whether the Creator stored in the database is equal
+// to the User ID stored in their token
 function loadPrivatePage(req, res) {
     var userID = req.decoded['userID'];
     var pageCreator = req.page.Creator;
@@ -146,6 +155,8 @@ function loadPrivatePage(req, res) {
     }
 }
 exports.loadPrivatePage = loadPrivatePage;
+// Saves content of entered Markdown by inserting into the database if the page ID isn't given. If the
+// page ID is given, the database is updated with the new page values
 function saveContent(req, res) {
     var userID = req.decoded['userID'];
     exports.db.get('SELECT * FROM Pages WHERE Id = ?', req.body.pageID, function (err, row) {
@@ -171,13 +182,14 @@ function saveContent(req, res) {
             });
         }
         else {
-            // update existing row
+            // Update existing row
             exports.db.run("UPDATE Pages SET Title = ?, Content = ?, PrivateView = ?, PrivateEdit = ?, LastEdit = ?, Views = ? WHERE Id = ?", req.body.Title, req.body.Content, req.body.PrivateView, req.body.PrivateEdit, req.body.LastEdit, req.body.Views + 1, req.body.pageID);
             res.json({ success: true });
         }
     });
 }
 exports.saveContent = saveContent;
+// Inserts the entered comment into the database
 function makeComment(req, res) {
     exports.db.run('INSERT INTO Comments (UserID, Date, Title, Content, PageID, Name) VALUES (?,?,?,?,?,?)', [req.decoded['userID'],
         req.body.time,
@@ -187,6 +199,7 @@ function makeComment(req, res) {
         req.decoded['name']]);
 }
 exports.makeComment = makeComment;
+// Gets all of the User's comments corresponding to the User ID stored in the token given
 function getMyComments(req, res) {
     var userID = req.decoded['userID'];
     var comments = [];
@@ -215,8 +228,10 @@ function getMyComments(req, res) {
     });
 }
 exports.getMyComments = getMyComments;
+// Deletes a certain comment from the database - you can only delete your own comments
 function deleteComment(req, res) {
-    exports.db.run("DELETE FROM Comments WHERE CommentID = ?", req.body.commentID, function (err) {
+    var userID = req.decoded['userID'];
+    exports.db.run("DELETE FROM Comments WHERE CommentID = ? AND UserID = ?", req.body.commentID, userID, function (err) {
         if (err) {
             console.error("Error: " + err);
             res.json({ success: false, error: "Error" });
@@ -227,6 +242,7 @@ function deleteComment(req, res) {
     });
 }
 exports.deleteComment = deleteComment;
+// Gets all public pages from the database and returns them
 function getAllPublicPages(req, res) {
     exports.db.all("SELECT Id, Title, Creator, LastEdit, Views FROM Pages WHERE PrivateView = 0", function (err, rows) {
         if (err) {
@@ -244,6 +260,7 @@ function getAllPublicPages(req, res) {
     });
 }
 exports.getAllPublicPages = getAllPublicPages;
+// Gets all of the User's pages using their User ID within the token given, and returns them
 function getMyPages(req, res) {
     var userID = req.decoded['userID'];
     var pages = [];
@@ -271,8 +288,10 @@ function getMyPages(req, res) {
     });
 }
 exports.getMyPages = getMyPages;
+// Deletes a page from the database using the given page ID - you can only delete your own pages
 function deletePage(req, res) {
-    exports.db.run("DELETE FROM Pages WHERE Id = ?", req.body.pageID, function (err) {
+    var userID = req.decoded['userID'];
+    exports.db.run("DELETE FROM Pages WHERE Id = ? AND Creator = ?", req.body.pageID, userID, function (err) {
         if (err) {
             console.error("Error: " + err);
             res.json({ success: false, error: "Error" });
@@ -283,10 +302,12 @@ function deletePage(req, res) {
     });
 }
 exports.deletePage = deletePage;
+// Updates views within the database for a certain page
 function updateViews(pageID, views) {
     exports.db.run("UPDATE Pages SET Views = ? WHERE Id = ?", views, pageID, function (err, row) { });
 }
 exports.updateViews = updateViews;
+// Gets profile icon from database using the User ID within the token given and returns it
 function getProfileIcon(req, res) {
     var userID = req.decoded['userID'];
     exports.db.get('SELECT Icon FROM UserAccounts WHERE Id = ?', userID, function (err, row) {
@@ -304,12 +325,15 @@ function getProfileIcon(req, res) {
     });
 }
 exports.getProfileIcon = getProfileIcon;
+// Changes profile icon by updating the database with the new icon according to the User ID within the token given
 function changeProfileIcon(req, res) {
     var userID = req.decoded['userID'];
     exports.db.run("UPDATE UserAccounts SET Icon = ? WHERE Id = ?", req.body.icon, userID, function (err, row) { });
     res.json({ success: true });
 }
 exports.changeProfileIcon = changeProfileIcon;
+// Saves image on canvas by first checking if it exists - and if it does then it updates the database with the new
+// canvas properties. If it doesn't, then it inserts the new canvas into the database
 function saveCanvasImage(req, res) {
     var userID = req.decoded['userID'];
     // Check if there exists a canvas made by that user ID with a name given
@@ -337,6 +361,7 @@ function saveCanvasImage(req, res) {
     });
 }
 exports.saveCanvasImage = saveCanvasImage;
+// Updates the canvas image in the database - can only update your own image
 function updateCanvasImage(req, res) {
     var userID = req.decoded['userID'];
     exports.db.run('UPDATE Canvases SET Dimensions = ?, Shapes = ? WHERE Name = ? AND Creator = ?', req.body.dimensions, req.body.shapes, req.body.name, userID, function (err) {
@@ -350,6 +375,7 @@ function updateCanvasImage(req, res) {
     });
 }
 exports.updateCanvasImage = updateCanvasImage;
+// Gets the canvas image requested from the database using canvas ID and returns it - can only get your own canvases
 function getCanvasImage(req, res) {
     var userID = req.decoded['userID'];
     exports.db.get('SELECT * FROM Canvases WHERE Id = ? AND Creator = ?', req.body.canvasID, userID, function (err, row) {
@@ -367,6 +393,7 @@ function getCanvasImage(req, res) {
     });
 }
 exports.getCanvasImage = getCanvasImage;
+// Gets all of your canvas images from the database using your User ID within the token given and returns them
 function getMyCanvasImages(req, res) {
     var userID = req.decoded['userID'];
     var canvases = [];
@@ -393,8 +420,10 @@ function getMyCanvasImages(req, res) {
     });
 }
 exports.getMyCanvasImages = getMyCanvasImages;
+// Deletes the canvas image from the database using the canvas ID - can only delete your own canvas image
 function deleteCanvasImage(req, res) {
-    exports.db.run("DELETE FROM Canvases WHERE Id = ?", req.body.canvasID, function (err) {
+    var userID = req.decoded['userID'];
+    exports.db.run("DELETE FROM Canvases WHERE Id = ? AND Creator = ?", req.body.canvasID, userID, function (err) {
         if (err) {
             console.error("Error: " + err);
             res.json({ success: false, error: "Error" });
@@ -405,6 +434,7 @@ function deleteCanvasImage(req, res) {
     });
 }
 exports.deleteCanvasImage = deleteCanvasImage;
+// Gets canvas images using IDs found in Markdown
 function getImagesFromIDs(res, html, ids, page, userID) {
     var query = userID ? 'Creator = ? AND ' : '';
     var args = userID ? [userID.toString()].concat(ids) : ids;
@@ -428,6 +458,7 @@ function getImagesFromIDs(res, html, ids, page, userID) {
     });
 }
 exports.getImagesFromIDs = getImagesFromIDs;
+// Updates rating in the database for certain comment using comment ID
 function rateComment(req, res) {
     exports.db.run("UPDATE Comments SET Rating = ? WHERE CommentID = ?", req.body.rating, req.body.commentID, function (err) {
         if (err) {

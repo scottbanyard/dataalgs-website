@@ -24,6 +24,9 @@
             </div>
             </li>
         </ul>
+        <p class="lead" ng-if="comments.length == 0">
+          Currently there are no comments. Start today!
+        </p>
         <br /><hr /><br />
         <form name="commentForm" class="margin-forum" data-ng-submit="makeComment(commentForm)">
              <h3 class="lead title-big">Your Comment</h3>

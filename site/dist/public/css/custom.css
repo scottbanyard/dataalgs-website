@@ -117,3 +117,6 @@ tbody {
 .thumbs-down {
   margin-left:13px;
 }
+.dropdown-menu li:hover {
+    cursor: pointer;
+}

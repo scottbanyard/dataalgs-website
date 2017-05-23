@@ -31,38 +31,45 @@ angular.module('myApp')
                       );
     }
 
-        $scope.makeComment = function() {
-            if( "undefined" !== typeof $scope.newComment ){
-                contentService.addComment({ token:localStorage.getItem('token'),
-                                            comment: $scope.newComment,
-                                            time: new Date().getTime(),
-                                            pageID: $state.params.id}).then((res) => {
-                                              if (response.success) {
-                                                swal({
-                                                  html: true,
-                                                  title: "<b>Success!</b>",
-                                                  text: "You have successfully made a comment.",
-                                                  type: "success"
-                                                  },
-                                                  function(){
-                                                    swal.close();
-                                                });
-                                              }
-                                            }, (err) => {
-                                                  swal({
-                                                    title: "Error!",
-                                                    text: "Please make sure you login to make a comment.",
-                                                    type: "error"
-                                                    },
-                                                    function(){
-                                                      swal.close();
-                                                  });
+    $scope.makeComment = function() {
+        if( "undefined" !== typeof $scope.newComment ){
+            contentService.addComment({ token:localStorage.getItem('token'),
+                                        comment: $scope.newComment,
+                                        time: new Date().getTime(),
+                                        pageID: $state.params.id}).then((res) => {
+                                          if (response.success) {
+                                            swal({
+                                              html: true,
+                                              title: "<b>Success!</b>",
+                                              text: "You have successfully made a comment.",
+                                              type: "success"
+                                              },
+                                              function(){
+                                                swal.close();
                                             });
-                getComments();
-            }
-        }
-        contentService.getPage({token:localStorage.getItem('token'),
-                                  pageID: $state.params.id}
+                                          }
+                                        }, (err) => {
+                                              swal({
+                                                title: "Error!",
+                                                text: "Please make sure you login to make a comment.",
+                                                type: "error"
+                                                },
+                                                function(){
+                                                  swal.close();
+                                              });
+                                        });
+              // Reset the form object
+              $scope.newComment = {};
+              // Set back to pristine.
+              $scope.commentForm.$setPristine();
+              // Since Angular 1.3, set back to untouched state.
+              $scope.commentForm.$setUntouched();
+              getComments();
+          }
+      }
+
+    contentService.getPage({token:localStorage.getItem('token'),
+                            pageID: $state.params.id}
           ).then((res) => {
               var response = angular.fromJson(res).data;
               if (response.success){
@@ -96,13 +103,11 @@ angular.module('myApp')
           $state.go('homePage');
     });
 
-        $scope.editPage = function() {
-          $state.go('createPage', {id:$scope.pageInfo.page.Id})
-        }
-
+    $scope.editPage = function() {
+      $state.go('createPage', {id:$scope.pageInfo.page.Id})
     }
 
-);
+});
 
 // taken from http://stackoverflow.com/questions/17417607/angular-ng-bind-html-and-directive-within-it
   // declare a new module, and inject the $compileProvider

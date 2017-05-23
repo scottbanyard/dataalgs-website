@@ -1,18 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const Point_1 = require("./Point");
+const Breshenham_1 = require("./Breshenham");
 function toCSSColour(col) {
     return ['rgb(', ')'].join([col.red, col.green, col.blue].join(','));
 }
-function swapSmaller(p0, p1) {
-    return [{ x: Math.min(p0.x, p1.x), y: Math.min(p0.y, p1.y) },
-        { x: Math.max(p0.x, p1.x), y: Math.max(p0.y, p1.y) }];
-}
-function difference(p, p1) {
-    return { x: p1.x - p.x, y: p1.y - p.y };
-}
-function add(p, p1) {
-    return { x: p.x + p1.x, y: p.y + p1.y };
-}
 function inBounds(point, p0, p1) {
-    var [smaller, bigger] = swapSmaller(p0, p1);
+    var [smaller, bigger] = Point_1.swapSmaller(p0, p1);
     return point.x >= smaller.x && point.x <= bigger.x &&
         point.y >= smaller.y && point.y <= bigger.y;
 }
@@ -69,11 +63,9 @@ function drawShape(context, shape, i) {
                 var lineAngle = Math.atan2(dy, dx);
                 var theta = Math.PI / 8;
                 var h = Math.abs(10 / Math.cos(theta));
-                var topAngle = Math.PI + lineAngle + theta;
-                var botAngle = Math.PI + lineAngle - theta;
+                var topAngle = Math.PI + lineAngle + theta, botAngle = Math.PI + lineAngle - theta;
                 var topLine = { x: shape.other.x + Math.cos(topAngle) * h,
-                    y: shape.other.y + Math.sin(topAngle) * h };
-                var botLine = { x: shape.other.x + Math.cos(botAngle) * h,
+                    y: shape.other.y + Math.sin(topAngle) * h }, botLine = { x: shape.other.x + Math.cos(botAngle) * h,
                     y: shape.other.y + Math.sin(botAngle) * h };
                 context.lineTo(topLine.x, topLine.y);
                 context.moveTo(shape.other.x, shape.other.y);
@@ -83,87 +75,6 @@ function drawShape(context, shape, i) {
     }
     context.stroke();
     context.closePath();
-}
-function octant(p0, p1) {
-    var dy = p1.y - p0.y;
-    var dx = p1.x - p0.x;
-    var theta = Math.atan2(dy, dx);
-    theta = theta < 0 ? 2 * Math.PI + theta : theta;
-    return Math.round(theta / (Math.PI / 4));
-}
-function negX(p) {
-    return { x: -p.x, y: p.y };
-}
-function negY(p) {
-    return { x: p.x, y: -p.y };
-}
-function negBoth(p) {
-    return { x: -p.x, y: -p.y };
-}
-function swap(p) {
-    return { x: p.y, y: p.x };
-}
-function pointsToOctZero(oct, p0, p1) {
-    switch (oct) {
-        case 1:
-            return [p0, p1].map(swap);
-        case 2:
-            return [p0, p1].map((p) => negY(swap(p)));
-        case 3:
-            return [p0, p1].map(negX);
-        case 4:
-            return [p0, p1].map(negBoth);
-        case 5:
-            return [p0, p1].map((p) => negBoth(swap(p)));
-        case 6:
-            return [p0, p1].map((p) => negX(swap(p)));
-        case 7:
-            return [p0, p1].map(negY);
-        default:
-            return [p0, p1];
-    }
-}
-function pointFromOctZero(oct, p) {
-    switch (oct) {
-        case 0:
-            return p;
-        case 1:
-            return swap(p);
-        case 2:
-            return negX(swap(p));
-        case 3:
-            return negX(p);
-        case 4:
-            return negBoth(p);
-        case 5:
-            return negBoth(swap(p));
-        case 6:
-            return negY(swap(p));
-        case 7:
-            return negY(p);
-    }
-}
-function breshenham(p0, p1) {
-    var oct = octant(p0, p1);
-    var [p0, p1] = pointsToOctZero(oct, p0, p1);
-    var dx = p1.x - p0.x;
-    var dy = p1.y - p0.y;
-    if (dx == 0) {
-        var yMin = Math.round(Math.min(p0.y, p1.y));
-        return Array.from({ length: Math.round(dy) }, (_, i) => ({ x: p1.x, y: yMin + i }));
-    }
-    var grad = Math.abs(dy / dx), error = grad - 0.5;
-    var point = { x: p0.x, y: p0.y };
-    return Array.from({ length: Math.round(Math.abs(dx)) }, (_, i) => {
-        var currPoint = point;
-        point.x += 1;
-        error = error + grad;
-        if (error >= 0.5) {
-            point.y += 1;
-            error -= 1;
-        }
-        return pointFromOctZero(oct, { x: currPoint.x, y: currPoint.y });
-    });
 }
 class CanvasState {
     constructor(width, height, shapes) {
@@ -179,6 +90,12 @@ class CanvasState {
     replaceShape(index, shape) {
         if (index >= 0 && index < this.shapes.length) {
             this.shapes[index] = shape;
+        }
+    }
+    deleteShape() {
+        if (this.shapeSelected) {
+            this.shapes.splice(this.selected[0], 1);
+            this.shapeSelected = false;
         }
     }
     setSelectedShape(click) {
@@ -197,10 +114,10 @@ class CanvasState {
                 this.selected[1].other = coord;
             }
             else if (this.selected[1].kind == 'Line' && this.startPoint) {
-                var diff = difference(this.startPoint, coord);
+                var diff = Point_1.difference(this.startPoint, coord);
                 var line = this.selected[1];
-                line.centre = add(line.centre, diff);
-                line.other = add(line.other, diff);
+                line.centre = Point_1.add(line.centre, diff);
+                line.other = Point_1.add(line.other, diff);
                 this.selected[1] = line;
                 this.startPoint = coord;
             }
@@ -219,7 +136,7 @@ class CanvasState {
     endDrag() {
         if (this.selected && this.selected[1].kind == 'Line') {
             var line = this.selected[1];
-            line.points = breshenham(line.centre, line.other);
+            line.points = Breshenham_1.breshenham(line.centre, line.other);
             this.replaceShape(this.selected[0], line);
         }
         this.creatingLine = false;
@@ -242,11 +159,5 @@ class CanvasState {
         }
         this.redrawAll(can.getContext('2d'));
         return can.toDataURL();
-    }
-    deleteShape() {
-        if (this.shapeSelected) {
-            this.shapes.splice(this.selected[0], 1);
-            this.shapeSelected = false;
-        }
     }
 }

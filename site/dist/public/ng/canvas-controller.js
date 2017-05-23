@@ -4,13 +4,14 @@ angular.module('myApp')
     // Main drawing canvas
     var canvas = document.getElementById('canvas');
     var context = canvas.getContext('2d');
-    // Colour picker, implemented by drawing an image on the
+    // Colour picker, implemented by drawing a background image
     var colourCanvas = document.getElementById('grad');
     var colourContext = colourCanvas.getContext('2d');
 
-    // Filled whenever there is text input
-    var openInput;
-
+    /*
+    There is some complicated timing as regards drawing the image, so the
+    onload function needs to be defined before the image src itself.
+    */
     var colImg = new Image();
     colImg.onload = () => {
         colourContext.drawImage(colImg,
@@ -31,8 +32,15 @@ angular.module('myApp')
     colourCanvas.onmousemove = (event) => {
         $scope.$apply(() => $scope.selected = rgbCSS(currentColour(event)));
     };
-    // Keeps track of the shapes on the canvas
-    var canvasState = new CanvasState(canvas.width,canvas.height);;
+
+    // Filled whenever there is text input
+    var openInput;
+
+    /*
+        Keeps track of the shapes on the canvas, as well as taking charge of selection and rendering..
+    */
+    var canvasState = new CanvasState(canvas.width,canvas.height);
+
     // Load canvas if not a new canvas (edit mode)
     if ($state.params.id != "new-image") {
         contentService.getCanvasImage({
@@ -40,12 +48,12 @@ angular.module('myApp')
             canvasID: $state.params.id }).then((res) => {
           var response = angular.fromJson(res).data;
           if (response.success) {
-            // Load shapes into canvasState so can edit image
+            // Load shapes into canvasState
             $scope.name = response.canvas.Name;
-            var oldState = JSON.parse(response.canvas.Shapes);
-            canvasState = new CanvasState(oldState.width,
-                                          oldState.height,
-                                          oldState.shapes)
+            var loadedState = JSON.parse(response.canvas.Shapes);
+            canvasState = new CanvasState(loadedState.width,
+                                          loadedState.height,
+                                          loadedState.shapes)
             canvasState.redrawAll(context);
           } else {
             errSwal(response);
@@ -54,12 +62,20 @@ angular.module('myApp')
         });
     }
 
+    // Basic values for the view
     $scope.colour = {red : 122, green:122, blue:122};
     $scope.cssColour = "rgb(122,122,122)";
     $scope.selected = "white";
     $scope.shape = 'Circle';
 
-    //Modified from a stackoverflow response. Adjusts the information about the clicked point into the canvas frame of reference
+    /*
+        Modified from http://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/.
+
+        Adjusts the information about the clicked point into the frame of
+        reference of the canvas. The addition of the 0.5 value means that
+        straight lines are rendered on only one pixel, instead of being blurred
+        across two.
+    */
     function getMousePosition(thisCanvas,event)
     {
         var rect = thisCanvas.getBoundingClientRect();
@@ -70,28 +86,41 @@ angular.module('myApp')
                         /(rect.bottom-rect.top)*thisCanvas.height)
         }
     }
+    /*
+        Deals with text input from the canvas text box
+    */
     function dealWithText(shape,x){
-        /* Shifts the rendered text in line with the textbox. Constants
+        /*
+           Shifts the rendered text in line with the textbox. Constants
            need to change if the number of pixels in the image or the font
-           size changes*/
+           size changes
+         */
         shape.centre.y+=22;
         shape.centre.x+=7;
         shape.contents = x.target.value;
         shape.font   = "16pt Arial"
         shape.offset = parseInt(shape.font);
         shape.width  = context.measureText(x.target.value).width;
+
         canvasState.addShape(shape);
+
         openInput.destroy();
         openInput = undefined;
         canvasState.redrawAll(context);
     }
+    /*
+        Shape objects all share a basic set of features
+    */
     function getBasicShape(coords)
     {
         return { kind:angular.copy($scope.shape),
                  centre:coords,
                  colour:angular.copy($scope.colour)};
     }
-    // Based on the selection of shape, and the colour, adds a new shape to the CanvasState and orders a redraw.
+    /*
+        Based on the current state of the canvas, such as object selections,
+        adds a new shape to the CanvasState and orders a redraw.
+    */
     function newShape(event)
     {
         var coords = getMousePosition(canvas, event);
@@ -101,14 +130,18 @@ angular.module('myApp')
                 shape.radius = 25;
                 break;
             case 'Square':
-                shape.width = 50;
+                shape.width  = 50;
                 shape.height = 50;
                 break;
             case 'Text':
-                if("undefined" != typeof openInput){
+                if("undefined" !== typeof openInput){
                     openInput.destroy();
                     canvasState.redrawAll(context);
                 }
+                /*
+                 CanvasInput object imported from the library downloaded from
+                 http://goldfirestudios.com/blog/108/CanvasInput-HTML5-Canvas-Text-Input
+                */
                 openInput = new CanvasInput({
                     canvas : canvas,
                     x : coords.x,
@@ -140,7 +173,16 @@ angular.module('myApp')
         return ['rgb(',')'].join(data.slice(0,3).join(','));
     }
     /* Functions dealing with dragging shapes or drawing arrows */
+
+    /*
+        General functionality is that there are two possible outcomes of a
+        mouseclick. The first is that a new object is being created, which is a simple click, and the second is that either a line is being drawn or an existing shape is being dragged.
+
+        Differentiating between these two approaches is done using a time lock
+        and a semaphore. If the mouseup event doesn't happen quickly enough, the second eventually has occured and is dealt with, and moving the mouse has an impact on the canvas state.
+    */
     var hasHappened = false;
+    // Time lock variable
     var clk;
     canvas.onmousedown = (event) => {
         var startEvent = event;
@@ -154,7 +196,7 @@ angular.module('myApp')
             }
             else
                 canvasState.setSelectedShape(coords);
-        },200);
+        },200 /* ms before timelock opens*/);
     };
     canvas.onmousemove = (event) => {
         if( hasHappened ){
@@ -162,6 +204,9 @@ angular.module('myApp')
             canvasState.redrawAll(context);
         }
     }
+    /*
+        Clears necessary state caused by the dragging event, or creates a normal shape, if only a click occured
+    */
     canvas.onmouseup = (event) =>{
         clearTimeout(clk);
         if( !hasHappened ){
@@ -174,10 +219,15 @@ angular.module('myApp')
         }
         hasHappened = false;
     };
+    // Deletes last selected shape
     $scope.delete = () =>{
         canvasState.deleteShape();
         canvasState.redrawAll(context);
     }
+    /*
+        Downloads the image currently on the canvas as a png by converting the
+        image to a URI, and clicking a new hidden link
+    */
     $scope.downloadCanvasImage = () => {
           var hiddenLink = document.createElement('a');
           if ($scope.name != "" || $scope.name != undefined) {
@@ -197,7 +247,8 @@ angular.module('myApp')
           text: "You have successfully " + verb + " your image as <b> " + $scope.name + "</b>.",
           type: "success" }, () => swal.close());
     }
-    // Generic error Swallow
+
+    // Generic error swal
     function errSwal(response)
     {
         swal({ title: "Error!",
@@ -205,6 +256,7 @@ angular.module('myApp')
                type: "error" }, () =>swal.close());
         console.log(response.error);
     }
+
     // Crucial information to save a canvas
     function getSaveState()
     {
@@ -237,7 +289,12 @@ angular.module('myApp')
                       errSwal(response);
         }));
     }
+    /*
+        Gathers required information about the canvas, and saves the state
 
+        This is dependent on sufficient information being provided (the name),
+        as well as overwrite checks
+    */
     $scope.saveCanvasImage = () => {
         if ($scope.name == "" || $scope.name == undefined) {
           swal({
@@ -260,5 +317,9 @@ angular.module('myApp')
         }
     }
 
+    /*
+       At the end of loading, draws all images present onto the canvas, to
+       ensure no awkward race conditions re loading a previous state
+    */
     canvasState.redrawAll(context);
 });

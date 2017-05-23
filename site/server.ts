@@ -438,24 +438,29 @@ function loadPrivatePage(req: express.Request & { decoded : DecodedToken, page :
 function saveContent( req: express.Request & { decoded : DecodedToken }, res : express.Response):void
 {
     var userID : number = req.decoded['userID'];
-    console.log(userID);
     db.get('SELECT * FROM Pages WHERE Id = ?', req.body.pageID, (err,row) => {
         if (err){
             console.error('Error:', err);
             res.json({ success: false });
         }
         else if (!row){
-            // Insert new row with 0 views
-            db.run('INSERT INTO Pages (Title, Content, PrivateView, Creator, PrivateEdit, LastEdit, Views) VALUES (?,?,?,?,?,?,?)',
-                [ req.body.Title,
-                  req.body.Content,
-                  req.body.PrivateView,
-                  userID,
-                  req.body.PrivateEdit,
-                  req.body.LastEdit,
-                  0 ]);
+            // Serially execute two queries
+            db.serialize( function() {
+              // Insert new row with 0 views
+              db.run('INSERT INTO Pages (Title, Content, PrivateView, Creator, PrivateEdit, LastEdit, Views) VALUES (?,?,?,?,?,?,?)',
+                  [ req.body.Title,
+                    req.body.Content,
+                    req.body.PrivateView,
+                    userID,
+                    req.body.PrivateEdit,
+                    req.body.LastEdit,
+                    0 ]);
+              // Get auto incremented value generated in table for that inserted page, and return it
+              db.get('SELECT Id FROM Pages WHERE LastEdit = ? AND Creator = ?', req.body.LastEdit, userID, (err, row) => {
+                res.json({ success: true, id: row.Id });
+              });
 
-            res.json({ success: true });
+            });
         }
         else{
            // update existing row
@@ -673,7 +678,6 @@ function getMyCanvasImages(req : express.Request & { decoded : DecodedToken }, r
     }
   }, (err, row) => {
     if (canvasNumber > 0) {
-      console.log(canvasNumber);
       res.json({ success: true, canvases: canvases });
     } else {
       res.json({ success: false, error: "You have not made any images."});

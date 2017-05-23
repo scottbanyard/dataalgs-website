@@ -67,10 +67,13 @@ tbody {
 }
 .pages-box {
   margin-top: 1em;
-  padding-top: 1em;
   padding-bottom: 1em;
-  background-color: black;
+  background-color: #101010;
   border-radius: 0.5em;
+}
+.bottom-box {
+  margin-bottom:3em;
+  margin-top:2em;
 }
 .privacy-checkboxes {
   padding-top:1em;
@@ -118,7 +121,6 @@ tbody {
 .thumbs-down {
   margin-left:13px;
 }
-
 .dropdown-menu li:hover {
     cursor: pointer;
 }

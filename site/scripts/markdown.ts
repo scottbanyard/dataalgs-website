@@ -47,7 +47,6 @@ export function returnHTML(text:string, withScope : boolean) :[string,string[]]
          text = text.replace(pattern,'[$1]\('+ref+'\)');
     });
 
-    // console.log(2, text)
     // Basic tokens such as headers and emphasis are then replaced
     text = tokens.reduce((acc,tok)=> acc.replace(tok[0],tok[1]), text).trim();
     return [text,ids];

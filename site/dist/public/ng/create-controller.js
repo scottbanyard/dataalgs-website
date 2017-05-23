@@ -90,8 +90,8 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
           swal.close();
       });
     } else {
-      // If undefined then it's a new page, otherwise it is a loaded page that you are updating
       if ($scope.pageInfo != undefined) {
+        // Loaded page, so save page with its state.params.id (update the page)
         contentService.savePage({ token: localStorage.getItem('token'),
                                   Title: $scope.page.Title,
                                   Content: $("#myEditor").val(),
@@ -113,6 +113,7 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
         });
 
       } else {
+        // New page, so save with null pageID
         contentService.savePage({ token: localStorage.getItem('token'),
                                   Title: $scope.page.Title,
                                   Content: $("#myEditor").val(),
@@ -121,15 +122,21 @@ angular.module('myApp').controller('createController', ($rootScope, $scope, cont
                                   LastEdit: new Date().getTime(),
                                   pageID: null
                                   }).then((res) => {
-                                    swal({
-                                      html: true,
-                                      title: "<b>Success!</b>",
-                                      text: "You have successfully created a new page.",
-                                      type: "success"
-                                      },
-                                      function(){
-                                        swal.close();
-                                    });
+                                    var response = angular.fromJson(res).data;
+                                    if (response.success) {
+                                      swal({
+                                        html: true,
+                                        title: "<b>Success!</b>",
+                                        text: "You have successfully created a new page.",
+                                        type: "success"
+                                        },
+                                        function(){
+                                          swal.close();
+                                          $state.go('createPage', {id: response.id});
+                                      });
+                                    }
+
+
         });
       }
     }

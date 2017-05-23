@@ -1,6 +1,8 @@
 angular.module('myApp')
 .controller('contentController',
     ($scope, $compile, contentService, $state, $stateParams, jwtHelper) => {
+
+    // Uses the CanvasState object to create a URI for an embedded image
     function createImageURL(imageRow)
     {
         var {width,height,shapes,_} = JSON.parse(imageRow.Shapes);
@@ -8,7 +10,11 @@ angular.module('myApp')
             new CanvasState(width,height,shapes).imageURL();
     }
 
-    $scope.rateComment = function(comment, rating) {
+    /*
+        Updates a comment with a rating, as well as sending that rating to be
+        stored in the server
+    */
+    $scope.rateComment = (comment, rating) => {
 
         contentService.rateComment({token: localStorage.getItem('token'), commentID: comment.CommentID, rating: rating + comment.Rating}).then((res) => {
           var response = angular.fromJson(res).data;
@@ -17,47 +23,41 @@ angular.module('myApp')
           }
         });
     }
-
+    // Gets all the comments for the page
     function getComments(){
-        contentService.getComments({ pageID: $state.params.id })
-                      .then((res) => {
-                          var response = angular.fromJson(res).data;
-                          if (response.success){
-                              $scope.comments = response.rows;
-                          }
-                          else
-                              $scope.comments = [];
-                          }
-                      );
+        contentService.getComments({ pageID: $state.params.id }).then((res) => {
+             var response = angular.fromJson(res).data;
+             if (response.success)
+             {
+                 $scope.comments = response.rows;
+             }
+             else
+                 $scope.comments = [];
+         });
     }
 
     $scope.makeComment = function() {
         if( "undefined" !== typeof $scope.newComment ){
-            contentService.addComment({ token:localStorage.getItem('token'),
-                                        comment: $scope.newComment,
-                                        time: new Date().getTime(),
-                                        pageID: $state.params.id}).then((res) => {
-                                          if (response.success) {
-                                            swal({
-                                              html: true,
-                                              title: "<b>Success!</b>",
-                                              text: "You have successfully made a comment.",
-                                              type: "success"
-                                              },
-                                              function(){
-                                                swal.close();
-                                            });
-                                          }
-                                        }, (err) => {
-                                              swal({
-                                                title: "Error!",
-                                                text: "Please make sure you login to make a comment.",
-                                                type: "error"
-                                                },
-                                                function(){
-                                                  swal.close();
-                                              });
-                                        });
+            var commentRequest = { token:localStorage.getItem('token')
+                                 , comment: $scope.newComment
+                                 , time: new Date().getTime()
+                                 , pageID: $state.params.id };
+            contentService.addComment( commentRequest ).then((res) => {
+                if (response.success) {
+                    swal({
+                      html: true,
+                      title: "<b>Success!</b>",
+                      text: "You have successfully made a comment.",
+                      type: "success"
+                  }, () => swal.close());
+                  }
+                }, (err) => {
+                      swal({
+                        title: "Error!",
+                        text: "Please make sure you login to make a comment.",
+                        type: "error"
+                        }, () => swal.close());
+                });
               // Reset the form object
               $scope.newComment = {};
               // Set back to pristine.
@@ -68,6 +68,11 @@ angular.module('myApp')
           }
       }
 
+    /*
+        Gets all the data for the page, including the rendered markup. If there
+        are any images, causes each to be rendered using the createImageURL
+        helper.
+    */
     contentService.getPage({token:localStorage.getItem('token'),
                             pageID: $state.params.id}
           ).then((res) => {

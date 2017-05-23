@@ -1,6 +1,10 @@
-angular.module('myApp').factory('contentService', function ($http, $q) {
+angular.module('myApp').factory('contentService', ($http, $q) => {
 
   var apiURL = 'api/';
+  /*
+    A standard POST request, deferring a promise, making appropriate request
+    and handling errors generically
+  */
   function standardPost(verb, request)
   {
       var deferred = $q.defer();
@@ -13,9 +17,9 @@ angular.module('myApp').factory('contentService', function ($http, $q) {
       })
       return deferred.promise;
   }
+  /* The various APIs for content */
   return {
-
-        getComments: standardPost.bind(null, "allComments")
+          getComments: standardPost.bind(null, "allComments")
         , getPage: standardPost.bind(null, "loadPage")
         , savePage: standardPost.bind(null, "savePage")
         , addComment: standardPost.bind(null,"makeComment")
@@ -30,25 +34,27 @@ angular.module('myApp').factory('contentService', function ($http, $q) {
         , getAllMyCanvases: standardPost.bind(null,"getallimages")
         , rateComment: standardPost.bind(null,"ratecomment")
         , deleteCanvasImage: standardPost.bind(null, "deleteimage")
+        /*
+            Used to both save and overwrite, so can't use standardPost
+        */
         , saveCanvasImage: (overwrite, request) => {
               var verb = overwrite ? "update" : "save";
               return standardPost(verb + "image", request);
           }
-        , getAllPublicPages:
-        (request) => {
-          var deferred = $q.defer();
-          $http.get(apiURL + "getAllPublicPages")
-            .then(function (result) {
-                console.log(result)
-                deferred.resolve(result.data);
-          }, function (error) {
-              pages = error;
-              deferred.reject(error);
-              console.log(error)
-          });
-
-          pages = deferred.promise;
-          return deferred.promise;
+        /*
+            Since getting public pages doesn't require being logged in, it uses
+            a GET request
+        */
+        , getAllPublicPages: (request) => {
+            var deferred = $q.defer();
+            $http.get(apiURL + "getAllPublicPages")
+                .then((result) => {
+                    deferred.resolve(result.data);
+                }, (error) => {
+                    deferred.reject(error);
+                    console.log(error)
+            });
+            return deferred.promise;
         }
     }
 });

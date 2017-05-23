@@ -395,7 +395,6 @@
         },
         setContent: function(str) {
           var editor = this.data('md-editor');
-          console.log(str);
           editor.setValue(str, 1);
         },
         editor: function () {

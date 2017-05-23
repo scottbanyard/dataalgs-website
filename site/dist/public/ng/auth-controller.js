@@ -1,4 +1,8 @@
 angular.module('myApp').controller('authController', ($rootScope, $scope, authService, $state) => {
+    /*
+        Attempts to register a new user, before redirecting them to the login
+        page if their registration was successful
+    */
   $scope.registerPerson = function() {
     authService.tryRegister(JSON.stringify($scope.user)).then(function (res) {
       var response = angular.fromJson(res).data;
@@ -25,12 +29,9 @@ angular.module('myApp').controller('authController', ($rootScope, $scope, authSe
         });
         console.log(response.error);
       }
-    },
-    function(err) {
-      console.log("Register Error :" + err);
-    });
+  }, (err) => console.log("Registration Error :" + err));
   }
-
+  // Attempt to log in a user
   $scope.loginPerson = function() {
     authService.tryLogin(JSON.stringify($scope.user)).then(function (res) {
       var response = angular.fromJson(res).data;
@@ -51,9 +52,6 @@ angular.module('myApp').controller('authController', ($rootScope, $scope, authSe
         });
         console.log(response.error);
       }
-    },
-    function(err) {
-      console.log("Login Error :" + err);
-    });
+  }, (err) => console.log("Login Error :" + err));
   }
 });

@@ -6,12 +6,12 @@
     <!-- HTML Section (not editing) -->
     <div class="contentBox" id="rounded"  data-compile="pageInfo.htmlContent"></div>
     <div class="form-group">
-      <button data-ng-if="showEditButton" data-ng-click="editPage()" class="btn btn-primary"><span class="glyphicon glyphicon-edit"></span>Edit Page</button>
+      <button data-ng-if="showEditButton" data-ng-click="editPage()" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-edit"></span>Edit Page</button>
     </div>
-
+    <br /><hr />
     <!-- Comment Section -->
     <div class="commentBox" >
-        <h1>Comments</h1>
+        <h1 class="lead title-big">Comments</h1>
         <ul class="media-list list-group">
             <li class="media list-group-item" ng-repeat="x in comments">
             <div class="media-left media-middle">
@@ -24,7 +24,9 @@
             </div>
             </li>
         </ul>
-        <form name="commentForm" data-ng-submit="makeComment(commentForm)">
+        <br /><hr /><br />
+        <form name="commentForm" class="margin-forum" data-ng-submit="makeComment(commentForm)">
+             <h3 class="lead title-big">Your Comment</h3>
              <div class="form-group">
                  <input name="title" required="required" type="text" class="form-control" placeholder="Title" data-ng-model="newComment.title"/>
              </div>

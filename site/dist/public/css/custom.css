@@ -117,6 +117,14 @@ tbody {
 .thumbs-down {
   margin-left:13px;
 }
+
 .dropdown-menu li:hover {
     cursor: pointer;
+}
+.margin-forum {
+  margin-bottom:4em;
+}
+
+.title-big {
+  font-size: 30px;
 }

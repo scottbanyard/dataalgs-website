@@ -1,4 +1,4 @@
-<div class="container center">
+<div class="center">
     <h1 class="content-title">{{ name || "New Image" }}</h1>
     <p class="lead"> Welcome to the Image Editor! </p>
     <div class="btn-group margin-button-grp">
@@ -26,12 +26,12 @@
             </canvas>
         </div>
     </div>
-        <div class="row" >
+        <div class="container center" >
             <canvas id="canvas" width="1000"
             height="500" class="canvas fillspace"> Your browser doesn't support canvas! </canvas>
         </div>
     <form>
-      <div class="form-group">
+      <div class="container form-group">
           <input name="name" required="required" type="text" class="form-control" placeholder="Image Name" data-ng-model="name" id="name_form"/>
       </div>
       <div class="form-group">

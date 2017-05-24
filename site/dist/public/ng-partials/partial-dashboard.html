@@ -107,7 +107,7 @@
 
             <!-- Change Profile Icon -->
             <div class="col-md-10 col-md-offset-1" data-ng-show="showChangeIcon">
-              <h2 class="black text-center">Change Profile Icon</h2>
+              <h2 class="black text-center lead title-big">Change Profile Icon</h2>
               <div class="row">
                  <div class="col-md-4 col-sm-4 col-xs-4">
                    <div class="thumbnail thumbnail-border" data-ng-class="{'selected-icon' : selectedIcons[0]}">
@@ -161,7 +161,7 @@
 
             <!-- Change Password Form -->
             <div class="col-md-10 col-md-offset-1" data-ng-show="showChangePWForm">
-              <h2 class="black">Change Password</h2>
+              <h2 class="black lead title-big">Change Password</h2>
               <form name="form" data-ng-submit="attemptChangePassword()">
                 <div class="form-group" data-ng-class="{ 'has-error': form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required }">
                   <label class="black" for="currentpassword">Current Password</label>
@@ -186,7 +186,7 @@
 
             <!-- Delete Account Form -->
             <div class="col-md-10 col-md-offset-1" data-ng-show="showDeleteAccForm">
-              <h2 class="black">Delete Account</h2>
+              <h2 class="black lead title-big">Delete Account</h2>
               <form name="form" data-ng-submit="attemptDeleteAccount()">
                 <div class="form-group" data-ng-class="{ 'has-error': form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required }">
                   <label class="black" for="newpassword">Password</label>
@@ -206,7 +206,7 @@
 
             <!-- My Comments -->
             <div class="col-md-12" data-ng-show="showMyComments" data-ng-cloak="">
-              <h2 class="center black">My Comments</h2>
+              <h2 class="center black lead title-big">My Comments</h2>
               <h3 data-ng-show="noComments" class="center black">{{ noCommentsError }}</h3>
               <table data-ng-show="!noComments" class="table table-hover table-bordered">
                 <thead>
@@ -238,7 +238,7 @@
 
             <!-- My Images -->
             <div class="col-md-12" data-ng-show="showMyImages" data-ng-cloak="">
-              <h2 class="center black">My Images</h2>
+              <h2 class="center black lead title-big">My Images</h2>
               <h3 data-ng-show="noImages" class="center black">{{ noImagesError }}</h3>
               <table data-ng-show="!noImages" class="table table-hover table-bordered">
                 <thead>
@@ -270,7 +270,7 @@
 
             <!-- My Pages -->
             <div class="col-md-12" data-ng-show="showMyPages" data-ng-cloak="">
-              <h2 class="center black">My Pages</h2>
+              <h2 class="center black lead title-big">My Pages</h2>
               <h3 data-ng-show="noPages" class="center black">{{ noPagesError }}</h3>
               <table data-ng-show="!noPages" class="table table-hover table-bordered">
                 <thead>

@@ -193,6 +193,8 @@ class CanvasState {
     }
     addShape(shape) {
         this.shapes.push(shape);
+        this.shapeSelected = true;
+        this.selected = [this.shapes.length - 1, shape];
     }
     replaceShape(index, shape) {
         if (index >= 0 && index < this.shapes.length) {
@@ -253,8 +255,6 @@ class CanvasState {
         line.hasArrow = isArrow;
         this.creatingLine = true;
         this.addShape(line);
-        this.selected = [this.shapes.length - 1, line];
-        this.shapeSelected = true;
     }
     imageURL(can) {
         if (can === undefined) {

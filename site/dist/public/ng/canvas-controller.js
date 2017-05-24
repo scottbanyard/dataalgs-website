@@ -265,7 +265,7 @@ angular.module('myApp')
         return {
             token: localStorage.getItem('token'),
             name: $scope.name,
-            shapes: JSON.stringify(canvasState),
+            shapes: canvasState.toJSON(),
             dimensions: JSON.stringify(dimensions)};
     }
     // Queries user as to whether they wish to overwrite a previous image

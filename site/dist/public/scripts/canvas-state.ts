@@ -346,7 +346,7 @@ function addBreshenham(shape : Shape) : Shape
         if(shape.hasArrow){
             var [topPoints,botPoints] =  getArrowPoints(shape).map((p) =>
                 breshenham(shape.other,p));
-            shape.points = shape.points.concat(topPoints,botPoints);
+            shape.points =shape.points.concat(topPoints,botPoints);
         }
     }
     return shape;
@@ -386,6 +386,8 @@ class CanvasState{
     addShape(shape:Shape) : void
     {
         this.shapes.push(shape);
+        this.shapeSelected = true;
+        this.selected = [this.shapes.length-1, shape];
     }
     /*
        Replaces a particular shape in a point in the list. Checks that bounds
@@ -493,11 +495,11 @@ class CanvasState{
         var line = <Line> shape;
         line.kind = 'Line';
         line.other = shape.centre;
+        
         line.hasArrow = isArrow;
         this.creatingLine = true;
+
         this.addShape(line)
-        this.selected = [this.shapes.length-1, line];
-        this.shapeSelected = true;
     }
     /*
         Returns the URL of the image corresponding to the shapes saved. Optional

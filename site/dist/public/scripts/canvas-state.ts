@@ -103,9 +103,9 @@ function octant(p0 : Point,p1 : Point) : number
     var dx = p1.x - p0.x;
     // Angle of slope in radians, in range [-Pi,Pi)
     var theta = Math.atan2(dy, dx);
-    // Move this range to [0,2pi)
+    // Move this range to [0,2*Pi)
     theta = theta < 0 ? 2 * Math.PI + theta : theta;
-    return Math.round(theta/ (Math.PI/4));
+    return Math.floor(theta/ (Math.PI/4));
 }
 /*
     Shifts a pair of points to octant zero. Uses operations as described

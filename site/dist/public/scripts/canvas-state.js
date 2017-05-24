@@ -47,7 +47,7 @@ function octant(p0, p1) {
     var dx = p1.x - p0.x;
     var theta = Math.atan2(dy, dx);
     theta = theta < 0 ? 2 * Math.PI + theta : theta;
-    return Math.round(theta / (Math.PI / 4));
+    return Math.floor(theta / (Math.PI / 4));
 }
 function pointsToOctZero(oct, p0, p1) {
     switch (oct) {

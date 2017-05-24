@@ -1,6 +1,4 @@
-<div align="center">
-  <h2 class="content-title">{{ pageTitle }}</h2>
-</div>
+<h2 class="content-title text-center">{{ pageTitle }}</h2>
 <div class="container">
 
     <!-- HTML Section (not editing) -->
@@ -13,9 +11,9 @@
     <div class="commentBox" >
         <h1 class="lead title-big">Comments</h1>
         <ul class="media-list list-group">
-            <li class="media list-group-item" ng-repeat="x in comments">
+            <li class="media list-group-item" data-ng-repeat="x in comments">
             <div class="media-left media-middle">
-              <img class="media-object comment-image" data-ng-src="/imgs/{{x.Icon}}" alt="Profile Icon" />
+              <img class="media-object comment-image" src="about:blank" data-ng-src="/imgs/{{x.Icon}}" alt="Profile Icon" />
             </div>
             <div class="media-body">
               <p class="media-heading">{{ x.Name + " - " +  x.Date + " - "}}<span data-ng-click="rateComment(x, 1)" class="glyphicon glyphicon-thumbs-up pointer"></span>{{ x.Rating }}<span data-ng-click="rateComment(x, -1)" class="glyphicon glyphicon-thumbs-down pointer thumbs-down"></span></p>
@@ -24,7 +22,7 @@
             </div>
             </li>
         </ul>
-        <p class="lead" ng-if="comments.length == 0">
+        <p class="lead" data-ng-if="comments.length == 0">
           Currently there are no comments. Start today!
         </p>
         <br /><hr /><br />
@@ -34,7 +32,7 @@
                  <input name="title" required="required" type="text" class="form-control" placeholder="Title" data-ng-model="newComment.title"/>
              </div>
              <div class="form-group">
-                <textarea name="body" type="text" required="required" class="form-control" rows="3" placeholder="Comment" data-ng-model="newComment.body"/>
+                <textarea name="body" required="required" class="form-control" rows="3" placeholder="Comment" data-ng-model="newComment.body"></textarea>
              </div>
              <button type="submit" class="btn btn-primary">Submit</button>
         </form>

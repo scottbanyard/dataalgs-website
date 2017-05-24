@@ -1,24 +1,21 @@
-<!-- <div class="col-md-10 col-md-offset-1 col-sm-12 col-xs-12"> -->
+<img src="../imgs/header.png" class="img-responsive header-offset" alt="Header"/>
 
-    <img src="../imgs/header.png" class="img-responsive header-offset" alt="Header"/>
+<div class="pages-box">
+  <h2 class="lead text-center title-big white">Most Popular</h2>
+  <ul class="list-group">
+    <li class="list-group-item justify-content-between pointer pages-list" data-ng-repeat="page in pages | orderBy: 'Views' : true" data-ng-click="selectedPublicPage(page.Id)">
+      {{ page.Title }}
+      <span class="badge badge-default badge-pill">Views: {{ page.Views }}</span>
+    </li>
+  </ul>
+</div>
 
-    <div class="pages-box">
-      <h2 class="lead text-center title-big white">Most Popular</h2>
-      <ul class="list-group">
-        <li class="list-group-item justify-content-between pointer pages-list" data-ng-repeat="page in pages | orderBy: 'Views' : true" data-ng-click="selectedPublicPage(page.Id)">
-          {{ page.Title }}
-          <span class="badge badge-default badge-pill">Views: {{ page.Views }}</span>
-        </li>
-      </ul>
-    </div>
-
-    <div class="pages-box bottom-box">
-      <h2 class="lead text-center title-big white">Recently Edited</h2>
-      <ul class="list-group">
-        <li class="list-group-item justify-content-between pointer pages-list" data-ng-repeat="page in pages | orderBy: 'LastEdit' : true" data-ng-click="selectedPublicPage(page.Id)">
-          {{ page.Title }}
-          <span class="badge badge-default badge-pill">{{ page.LastEdit }}</span>
-        </li>
-      </ul>
-    </div>
-<!-- </div> -->
+<div class="pages-box bottom-box">
+  <h2 class="lead text-center title-big white">Recently Edited</h2>
+  <ul class="list-group">
+    <li class="list-group-item justify-content-between pointer pages-list" data-ng-repeat="page in pages | orderBy: 'LastEdit' : true" data-ng-click="selectedPublicPage(page.Id)">
+      {{ page.Title }}
+      <span class="badge badge-default badge-pill">{{ page.LastEdit }}</span>
+    </li>
+  </ul>
+</div>

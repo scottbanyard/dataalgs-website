@@ -1,14 +1,12 @@
-<div align="center">
-  <h2 class="content-title">{{ page.Title || "New Page"}}</h2>
-  <p class="lead">
-      Welcome to the Markdown Editor! This is the page where you create new pages. You can enter markdown freeform, or insert markdown commands using the buttons above the editor. Images can be inserted using their id, which you can find over on the dashboard. Please use this <a class="pointer" data-ng-click="goToMarkdownExample()">example page</a> to find guidance on Markdown syntax. Have fun! 
-  </p>
-</div>
+<h2 class="content-title text-center">{{ page.Title || "New Page"}}</h2>
+<p class="lead text-center">
+    Welcome to the Markdown Editor! This is the page where you create new pages. You can enter markdown freeform, or insert markdown commands using the buttons above the editor. Images can be inserted using their id, which you can find over on the dashboard. Please use this <a class="pointer" data-ng-click="goToMarkdownExample()">example page</a> to find guidance on Markdown syntax. Have fun!
+</p>
 
 <!-- Title -->
 <div class="form-group">
-  <label class="black" for="title">Title:</label>
-  <input type="text" class="form-control" id="usr" data-ng-model="page.Title"></input>
+  <label class="black">Title:</label>
+  <input type="text" class="form-control" id="usr" data-ng-model="page.Title" />
 </div>
 
 <!-- Markdown Editor -->
@@ -18,14 +16,14 @@
 <div class="privacy-checkboxes row">
   <div class="form-group col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2">
     <h3 class="black">Viewable Page:</h3>
-    <label class="radio-inline black"><input type="radio" id="privateview" name="privateview" data-ng-value="1" data-ng-model="page.PrivateView"></input>Private</label>
-    <label class="radio-inline black"><input type="radio" id="publicview" name="publicview" data-ng-value="0" data-ng-model="page.PrivateView"></input>Public</label>
+    <label class="radio-inline black"><input type="radio" id="privateview" name="privateview" data-ng-value="1" data-ng-model="page.PrivateView" />Private</label>
+    <label class="radio-inline black"><input type="radio" id="publicview" name="publicview" data-ng-value="0" data-ng-model="page.PrivateView" />Public</label>
   </div>
 
   <div class="form-group col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2">
     <h3 class="black">Editable Page:</h3>
-    <label class="radio-inline black"><input type="radio" id="privateedit" name="privateedit" data-ng-value="1" data-ng-model="page.PrivateEdit"></input>Private</label>
-    <label class="radio-inline black"><input type="radio" id="publicedit" name="publicedit" data-ng-value="0" data-ng-model="page.PrivateEdit"></input>Public</label>
+    <label class="radio-inline black"><input type="radio" id="privateedit" name="privateedit" data-ng-value="1" data-ng-model="page.PrivateEdit" />Private</label>
+    <label class="radio-inline black"><input type="radio" id="publicedit" name="publicedit" data-ng-value="0" data-ng-model="page.PrivateEdit" />Public</label>
   </div>
 </div>
 

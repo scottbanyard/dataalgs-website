@@ -133,3 +133,9 @@ tbody {
 .margin-button-grp {
   margin-bottom:1.5em;
 }
+.width-date {
+  width: 12%;
+}
+.width-others {
+  width: 10%;
+}

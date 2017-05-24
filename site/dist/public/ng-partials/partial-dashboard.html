@@ -1,328 +1,326 @@
-<!-- <div class="container"> -->
-    <div class="row">
-        <div class="col-sm-3 col-md-3">
-            <div class="panel-group" id="accordion">
-                <div class="panel panel-primary">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne"><span class="glyphicon glyphicon-folder-close">
-                            </span>Content</a>
-                        </h4>
-                    </div>
-                    <div id="collapseOne" class="panel-collapse collapse in">
-                        <div class="panel-body">
-                            <table class="table">
-                                <tr class="border_bottom padding">
-                                    <td>
-                                        <span class="glyphicon glyphicon-file text-primary"></span><a data-ng-click="showOrHideMyPages()" href="">My Pages</a>
-                                    </td>
-                                </tr>
-                                <tr class="border_bottom padding">
-                                    <td>
-                                        <span class="glyphicon glyphicon-picture text-primary"></span><a data-ng-click="showOrHideMyImages()" href="">My Images</a>
-                                    </td>
-                                </tr>
-                                <tr class="padding">
-                                    <td>
-                                        <span class="glyphicon glyphicon-comment text-info"></span><a data-ng-click="showOrHideMyComments()" href="">My Comments</a>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="panel panel-primary">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo"><span class="glyphicon glyphicon-th">
-                            </span>Create</a>
-                        </h4>
-                    </div>
-                    <div id="collapseTwo" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <table class="table">
-                                <tr class="border_bottom padding">
-                                    <td>
-                                        <span class="glyphicon glyphicon-file text-primary"></span><a data-ng-click="createNewPage()" href="">Page</a>
-                                    </td>
-                                </tr>
-                                <tr class="padding">
-                                    <td>
-                                      <span class="glyphicon glyphicon-picture text-primary"></span><a data-ng-click="createNewImage()" href="">Image</a>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="panel panel-primary">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree"><span class="glyphicon glyphicon-user">
-                            </span>Account</a>
-                        </h4>
-                    </div>
-                    <div id="collapseThree" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <table class="table">
-                                <tr class="border_bottom padding">
-                                    <td>
-                                      <span class="glyphicon glyphicon-wrench text-primary"></span><a href="" data-ng-click="showOrHidePWForm()">Change Password</a>
-                                    </td>
-                                </tr>
-                                <tr class="border_bottom padding">
-                                    <td>
-                                      <span class="glyphicon glyphicon-picture text-primary"></span><a href="" data-ng-click="showOrHideChangeIcon()">Change Profile Icon</a>
-                                    </td>
-                                </tr>
-                                <tr class="padding">
-                                    <td>
-                                        <span class="glyphicon glyphicon-trash text-danger"></span><a href="" data-ng-click="showOrHideDeleteForm()" class="text-danger">Delete Account</a>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-9 col-md-9">
+<div class="row">
+    <div class="col-sm-3 col-md-3">
+        <div class="panel-group" id="accordion">
             <div class="panel panel-primary">
-              <div class="panel-heading center">
-                  <h4 class="panel-title">
-                  <span>Dashboard</span>
-                  </h4>
-              </div>
-            </div>
-
-            <!-- Profile icon -->
-
-            <div class="row">
-              <div class="col-sm-6 col-md-6 col-xs-6 col-sm-offset-3 col-md-offset-3 col-xs-offset-3 center">
-                  <img class="img-circle profile-icon" data-ng-src="/imgs/{{ myIcon }}"/>
-                  <h3 class="lead title-big">Hello {{ name }}</h3>
-                  <hr />
-              </div>
-            </div>
-
-            <!-- Change Profile Icon -->
-            <div class="col-md-10 col-md-offset-1" data-ng-show="showChangeIcon">
-              <h2 class="black text-center lead title-big">Change Profile Icon</h2>
-              <div class="row">
-                 <div class="col-md-4 col-sm-4 col-xs-4">
-                   <div class="thumbnail thumbnail-border" data-ng-class="{'selected-icon' : selectedIcons[0]}">
-                     <a href="" data-ng-click="changeIcon(0)">
-                       <img data-ng-src="/imgs/{{ iconFilenames[0] }}" alt="Cat" class="profile-icon-choice"/>
-                     </a>
-                   </div>
-                 </div>
-                 <div class="col-md-4 col-sm-4 col-xs-4">
-                   <div class="thumbnail thumbnail-border" data-ng-class="{'selected-icon' : selectedIcons[1]}">
-                     <a href="" data-ng-click="changeIcon(1)">
-                       <img data-ng-src="/imgs/{{ iconFilenames[1] }}" alt="Bear" class="profile-icon-choice"/>
-                     </a>
-                   </div>
-                 </div>
-                 <div class="col-md-4 col-sm-4 col-xs-4">
-                   <div class="thumbnail thumbnail-border" data-ng-class="{'selected-icon' : selectedIcons[2]}">
-                     <a href="" data-ng-click="changeIcon(2)">
-                       <img data-ng-src="/imgs/{{ iconFilenames[2] }}" alt="Dog" class="profile-icon-choice"/>
-                     </a>
-                   </div>
-                 </div>
-                 <div class="row">
-                 </div>
-                 <div class="col-md-4 col-sm-4 col-xs-4">
-                   <div class="thumbnail thumbnail-border" data-ng-class="{'selected-icon' : selectedIcons[3]}">
-                     <a href="" data-ng-click="changeIcon(3)">
-                       <img data-ng-src="/imgs/{{ iconFilenames[3] }}" alt="Pattern" class="profile-icon-choice"/>
-                     </a>
-                   </div>
-                 </div>
-                 <div class="col-md-4 col-sm-4 col-xs-4">
-                   <div class="thumbnail thumbnail-border" data-ng-class="{'selected-icon' : selectedIcons[4]}">
-                     <a href="" data-ng-click="changeIcon(4)">
-                       <img data-ng-src="/imgs/{{ iconFilenames[4] }}" alt="Brush" class="profile-icon-choice"/>
-                     </a>
-                   </div>
-                 </div>
-                 <div class="col-md-4 col-sm-4 col-xs-4">
-                   <div class="thumbnail thumbnail-border" data-ng-class="{'selected-icon' : selectedIcons[5]}">
-                     <a href="" data-ng-click="changeIcon(5)">
-                       <img data-ng-src="/imgs/{{ iconFilenames[5] }}" alt="Algorithms" class="profile-icon-choice"/>
-                     </a>
-                   </div>
-                 </div>
-              </div>
-              <div class="text-center save-button-div">
-                <button class="btn btn-primary save-button-icon" data-ng-click="saveChangeIcon()">Save</button>
-              </div>
-            </div>
-
-            <!-- Change Password Form -->
-            <div class="col-md-10 col-md-offset-1" data-ng-show="showChangePWForm">
-              <h2 class="black lead title-big">Change Password</h2>
-              <form name="form" data-ng-submit="attemptChangePassword()">
-                <div class="form-group" data-ng-class="{ 'has-error': form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required }">
-                  <label class="black" for="currentpassword">Current Password</label>
-                  <input required="required" type="password" name="currentpassword" id="currentpassword" class="form-control" data-ng-model="user.currentPassword" />
-                  <span data-ng-show="form.currentpassword.$dirty &amp;&amp; form.currentpassword.$error.required" class="help-block">Current Password is required</span>
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne"><span class="glyphicon glyphicon-folder-close">
+                        </span>Content</a>
+                    </h4>
                 </div>
-                <div class="form-group" data-ng-class="{ 'has-error': form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required }">
-                  <label class="black" for="newpassword">New Password</label>
-                  <input required="required" type="password" name="newpassword" id="newpassword" class="form-control" data-ng-model="user.newPassword"/>
-                  <span data-ng-show="form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required" class="help-block">New Password is required</span>
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <table class="table">
+                            <tr class="border_bottom padding">
+                                <td>
+                                    <span class="glyphicon glyphicon-file text-primary"></span><a data-ng-click="showOrHideMyPages()" href="">My Pages</a>
+                                </td>
+                            </tr>
+                            <tr class="border_bottom padding">
+                                <td>
+                                    <span class="glyphicon glyphicon-picture text-primary"></span><a data-ng-click="showOrHideMyImages()" href="">My Images</a>
+                                </td>
+                            </tr>
+                            <tr class="padding">
+                                <td>
+                                    <span class="glyphicon glyphicon-comment text-info"></span><a data-ng-click="showOrHideMyComments()" href="">My Comments</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
-                <div class="form-group" data-ng-class="{ 'has-error': form.confirmpassword.$dirty &amp;&amp; form.confirmpassword.$error.required }">
-                  <label class="black" for="confirmpassword">Confirm Password</label>
-                  <input required="required" type="password" name="confirmpassword" id="confirmpassword" class="form-control" data-ng-model="user.confirmPassword"/>
-                  <span data-ng-show="form.confirmpassword.$dirty &amp;&amp; form.confirmpassword.$error.required" class="help-block">Confirm Password is required</span>
-                </div>
-                <div class="form-actions">
-                  <button type="submit" class="btn btn-primary">Change Password</button>
-                </div>
-              </form>
             </div>
-
-            <!-- Delete Account Form -->
-            <div class="col-md-10 col-md-offset-1" data-ng-show="showDeleteAccForm">
-              <h2 class="black lead title-big">Delete Account</h2>
-              <form name="form" data-ng-submit="attemptDeleteAccount()">
-                <div class="form-group" data-ng-class="{ 'has-error': form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required }">
-                  <label class="black" for="newpassword">Password</label>
-                  <input required="required" type="password" name="newpassword" id="newpassword" class="form-control" data-ng-model="user.currentPassword"/>
-                  <span data-ng-show="form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required" class="help-block">Password is required</span>
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo"><span class="glyphicon glyphicon-th">
+                        </span>Create</a>
+                    </h4>
                 </div>
-                <div class="form-group" data-ng-class="{ 'has-error': form.confirmpassword.$dirty &amp;&amp; form.confirmpassword.$error.required }">
-                  <label class="black" for="confirmpassword">Confirm Password</label>
-                  <input required="required" type="password" name="confirmpassword" id="confirmpassword" class="form-control" data-ng-model="user.confirmPassword"/>
-                  <span data-ng-show="form.confirmpassword.$dirty &amp;&amp; form.confirmpassword.$error.required" class="help-block">Confirm Password is required</span>
+                <div id="collapseTwo" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <table class="table">
+                            <tr class="border_bottom padding">
+                                <td>
+                                    <span class="glyphicon glyphicon-file text-primary"></span><a data-ng-click="createNewPage()" href="">Page</a>
+                                </td>
+                            </tr>
+                            <tr class="padding">
+                                <td>
+                                  <span class="glyphicon glyphicon-picture text-primary"></span><a data-ng-click="createNewImage()" href="">Image</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
-                <div class="form-actions">
-                  <button type="submit" class="btn btn-primary">Delete Account</button>
+            </div>
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree"><span class="glyphicon glyphicon-user">
+                        </span>Account</a>
+                    </h4>
                 </div>
-              </form>
-            </div>
-
-            <!-- My Comments -->
-            <div class="col-md-12" data-ng-show="showMyComments" data-ng-cloak="">
-              <h2 class="center black lead title-big">My Comments</h2>
-              <h3 data-ng-show="noComments" class="center black">{{ noCommentsError }}</h3>
-              <table data-ng-show="!noComments" class="table table-hover table-bordered">
-                <thead>
-                  <tr>
-                    <th width="12%" class="comment-header">Date</th>
-                    <th class="comment-header">Title</th>
-                    <th class="comment-header">Content</th>
-                    <th width="10%" class="comment-header">Rating</th>
-                    <th width="10%" class="comment-header">Page</th>
-                    <th width="10%" class="comment-header">Delete?</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr data-ng-repeat="comment in myComments">
-                    <td class="">{{ comment.Date }}</td>
-                    <td class="">{{ comment.Title }}</td>
-                    <td class="">{{ comment.Content }}</td>
-                    <td class="">{{ comment.Rating }}</td>
-                    <td class="center pointer">
-                      <i data-ng-click="takeToPage(comment.PageID)" class="glyphicon glyphicon-file text-primary"></i>
-                    </td>
-                    <td class="center pointer">
-                      <i data-ng-click="confirmDeleteComment(comment.CommentID)" class="glyphicon glyphicon-trash text-danger"></i>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <!-- My Images -->
-            <div class="col-md-12" data-ng-show="showMyImages" data-ng-cloak="">
-              <h2 class="center black lead title-big">My Images</h2>
-              <h3 data-ng-show="noImages" class="center black">{{ noImagesError }}</h3>
-              <table data-ng-show="!noImages" class="table table-hover table-bordered">
-                <thead>
-                  <tr>
-                    <th width="10%" class="comment-header">Image ID</th>
-                    <th class="comment-header">Name</th>
-                    <th width="10%" class="comment-header">View</th>
-                    <th width="10%" class="comment-header">Edit</th>
-                    <th width="10%" class="comment-header">Delete?</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr data-ng-repeat="image in myImages">
-                    <td class="text-center">{{ image.Id }}</td>
-                    <td class="">{{ image.Name }}</td>
-                    <td class="center pointer">
-                      <i data-ng-click="viewImage($index)" class="glyphicon glyphicon-picture text-primary" data-toggle="modal" data-target="#imgModal"></i>
-                    </td>
-                    <td class="center pointer">
-                      <i data-ng-click="editImage(image.Id)" class="glyphicon glyphicon-edit text-primary"></i>
-                    </td>
-                    <td class="center pointer">
-                      <i data-ng-click="confirmDeleteImage(image.Id)" class="glyphicon glyphicon-trash text-danger"></i>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <!-- My Pages -->
-            <div class="col-md-12" data-ng-show="showMyPages" data-ng-cloak="">
-              <h2 class="center black lead title-big">My Pages</h2>
-              <h3 data-ng-show="noPages" class="center black">{{ noPagesError }}</h3>
-              <table data-ng-show="!noPages" class="table table-hover table-bordered">
-                <thead>
-                  <tr>
-                    <th class="comment-header">Title</th>
-                    <th class="comment-header">View Page</th>
-                    <th class="comment-header">Edit Page</th>
-                    <th class="comment-header">Private View?</th>
-                    <th class="comment-header">Private Edit?</th>
-                    <th class="comment-header">Last Edit</th>
-                    <th class="comment-header">Views</th>
-                    <th class="comment-header">Delete?</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr data-ng-repeat="page in myPages">
-                    <td class="">{{ page.Title }}</td>
-                    <td class="center pointer">
-                      <i data-ng-click="takeToPage(page.Id)" class="glyphicon glyphicon-file text-primary"></i>
-                    </td>
-                    <td class="center pointer">
-                      <i data-ng-click="editPage(page.Id)" class="glyphicon glyphicon-edit text-primary"></i>
-                    </td>
-                    <td class="">{{ page.PrivateView == 0 ? "No" : "Yes" }}</td>
-                    <td class="">{{ page.PrivateEdit == 0 ? "No" : "Yes" }}</td>
-                    <td class="">{{ page.LastEdit }}</td>
-                    <td class="center">{{ page.Views }}</td>
-                    <td class="center pointer">
-                      <i data-ng-click="confirmDeletePage(page.Id, page.Title)" class="glyphicon glyphicon-trash text-danger"></i>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                <div id="collapseThree" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <table class="table">
+                            <tr class="border_bottom padding">
+                                <td>
+                                  <span class="glyphicon glyphicon-wrench text-primary"></span><a href="" data-ng-click="showOrHidePWForm()">Change Password</a>
+                                </td>
+                            </tr>
+                            <tr class="border_bottom padding">
+                                <td>
+                                  <span class="glyphicon glyphicon-picture text-primary"></span><a href="" data-ng-click="showOrHideChangeIcon()">Change Profile Icon</a>
+                                </td>
+                            </tr>
+                            <tr class="padding">
+                                <td>
+                                    <span class="glyphicon glyphicon-trash text-danger"></span><a href="" data-ng-click="showOrHideDeleteForm()" class="text-danger">Delete Account</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="imgModal" tabindex="-1" role="dialog" aria-labelledby="imageModal">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"></span></button>
-            <h4 class="modal-title" id="imageModal">{{ currentImage }}</h4>
-          </div>
-          <div class="modal-body">
-              <img class="modal-image" data-ng-src="{{ modalImg }}"></img>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    <div class="col-sm-9 col-md-9">
+        <div class="panel panel-primary">
+          <div class="panel-heading center">
+              <h4 class="panel-title">
+              <span>Dashboard</span>
+              </h4>
           </div>
         </div>
+
+        <!-- Profile icon -->
+
+        <div class="row">
+          <div class="col-sm-6 col-md-6 col-xs-6 col-sm-offset-3 col-md-offset-3 col-xs-offset-3 center">
+              <img class="img-circle profile-icon" src="about:blank" alt="Profile Icon" data-ng-src="/imgs/{{ myIcon }}"/>
+              <h3 class="lead title-big">Hello {{ name }}</h3>
+              <hr />
+          </div>
+        </div>
+
+        <!-- Change Profile Icon -->
+        <div class="col-md-10 col-md-offset-1" data-ng-show="showChangeIcon">
+          <h2 class="black text-center lead title-big">Change Profile Icon</h2>
+          <div class="row">
+             <div class="col-md-4 col-sm-4 col-xs-4">
+               <div class="thumbnail thumbnail-border" data-ng-class="{'selected-icon' : selectedIcons[0]}">
+                 <a href="" data-ng-click="changeIcon(0)">
+                   <img data-ng-src="/imgs/{{ iconFilenames[0] }}" src="about:blank" alt="Cat" class="profile-icon-choice"/>
+                 </a>
+               </div>
+             </div>
+             <div class="col-md-4 col-sm-4 col-xs-4">
+               <div class="thumbnail thumbnail-border" data-ng-class="{'selected-icon' : selectedIcons[1]}">
+                 <a href="" data-ng-click="changeIcon(1)">
+                   <img data-ng-src="/imgs/{{ iconFilenames[1] }}" src="about:blank" alt="Bear" class="profile-icon-choice"/>
+                 </a>
+               </div>
+             </div>
+             <div class="col-md-4 col-sm-4 col-xs-4">
+               <div class="thumbnail thumbnail-border" data-ng-class="{'selected-icon' : selectedIcons[2]}">
+                 <a href="" data-ng-click="changeIcon(2)">
+                   <img data-ng-src="/imgs/{{ iconFilenames[2] }}" src="about:blank" alt="Dog" class="profile-icon-choice"/>
+                 </a>
+               </div>
+             </div>
+             <div class="row">
+             </div>
+             <div class="col-md-4 col-sm-4 col-xs-4">
+               <div class="thumbnail thumbnail-border" data-ng-class="{'selected-icon' : selectedIcons[3]}">
+                 <a href="" data-ng-click="changeIcon(3)">
+                   <img data-ng-src="/imgs/{{ iconFilenames[3] }}" src="about:blank" alt="Pattern" class="profile-icon-choice"/>
+                 </a>
+               </div>
+             </div>
+             <div class="col-md-4 col-sm-4 col-xs-4">
+               <div class="thumbnail thumbnail-border" data-ng-class="{'selected-icon' : selectedIcons[4]}">
+                 <a href="" data-ng-click="changeIcon(4)">
+                   <img data-ng-src="/imgs/{{ iconFilenames[4] }}" src="about:blank" alt="Brush" class="profile-icon-choice"/>
+                 </a>
+               </div>
+             </div>
+             <div class="col-md-4 col-sm-4 col-xs-4">
+               <div class="thumbnail thumbnail-border" data-ng-class="{'selected-icon' : selectedIcons[5]}">
+                 <a href="" data-ng-click="changeIcon(5)">
+                   <img data-ng-src="/imgs/{{ iconFilenames[5] }}" src="about:blank" alt="Algorithms" class="profile-icon-choice"/>
+                 </a>
+               </div>
+             </div>
+          </div>
+          <div class="text-center save-button-div">
+            <button class="btn btn-primary save-button-icon" data-ng-click="saveChangeIcon()">Save</button>
+          </div>
+        </div>
+
+        <!-- Change Password Form -->
+        <div class="col-md-10 col-md-offset-1" data-ng-show="showChangePWForm">
+          <h2 class="black lead title-big">Change Password</h2>
+          <form name="form" data-ng-submit="attemptChangePassword()">
+            <div class="form-group" data-ng-class="{ 'has-error': form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required }">
+              <label class="black" for="currentpassword">Current Password</label>
+              <input required="required" type="password" name="currentpassword" id="currentpassword" class="form-control" data-ng-model="user.currentPassword" />
+              <span data-ng-show="form.currentpassword.$dirty &amp;&amp; form.currentpassword.$error.required" class="help-block">Current Password is required</span>
+            </div>
+            <div class="form-group" data-ng-class="{ 'has-error': form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required }">
+              <label class="black" for="newpassword">New Password</label>
+              <input required="required" type="password" name="newpassword" id="newpassword" class="form-control" data-ng-model="user.newPassword"/>
+              <span data-ng-show="form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required" class="help-block">New Password is required</span>
+            </div>
+            <div class="form-group" data-ng-class="{ 'has-error': form.confirmpassword.$dirty &amp;&amp; form.confirmpassword.$error.required }">
+              <label class="black" for="confirmpassword">Confirm Password</label>
+              <input required="required" type="password" name="confirmpassword" id="confirmpassword" class="form-control" data-ng-model="user.confirmPassword"/>
+              <span data-ng-show="form.confirmpassword.$dirty &amp;&amp; form.confirmpassword.$error.required" class="help-block">Confirm Password is required</span>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Change Password</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Delete Account Form -->
+        <div class="col-md-10 col-md-offset-1" data-ng-show="showDeleteAccForm">
+          <h2 class="black lead title-big">Delete Account</h2>
+          <form name="form" data-ng-submit="attemptDeleteAccount()">
+            <div class="form-group" data-ng-class="{ 'has-error': form.newpassword.$dirty &amp;&amp; form.newpassword.$error.required }">
+              <label class="black" for="newpassword">Password</label>
+              <input required="required" type="password" name="password" id="password" class="form-control" data-ng-model="user.currentPassword"/>
+              <span data-ng-show="form.password.$dirty &amp;&amp; form.password.$error.required" class="help-block">Password is required</span>
+            </div>
+            <div class="form-group" data-ng-class="{ 'has-error': form.confirmpassword.$dirty &amp;&amp; form.confirmpassword.$error.required }">
+              <label class="black" for="confirmpassword">Confirm Password</label>
+              <input required="required" type="password" name="confirmpassworddel" id="confirmpassworddel" class="form-control" data-ng-model="user.confirmPassword"/>
+              <span data-ng-show="form.confirmpassworddel.$dirty &amp;&amp; form.confirmpassworddel.$error.required" class="help-block">Confirm Password is required</span>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Delete Account</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- My Comments -->
+        <div class="col-md-12" data-ng-show="showMyComments" data-ng-cloak="">
+          <h2 class="center black lead title-big">My Comments</h2>
+          <h3 data-ng-show="noComments" class="center black">{{ noCommentsError }}</h3>
+          <table data-ng-show="!noComments" class="table table-hover table-bordered">
+            <thead>
+              <tr>
+                <th class="comment-header width-date">Date</th>
+                <th class="comment-header">Title</th>
+                <th class="comment-header">Content</th>
+                <th class="comment-header width-others">Rating</th>
+                <th class="comment-header width-others">Page</th>
+                <th class="comment-header width-others">Delete?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-ng-repeat="comment in myComments">
+                <td class="">{{ comment.Date }}</td>
+                <td class="">{{ comment.Title }}</td>
+                <td class="">{{ comment.Content }}</td>
+                <td class="">{{ comment.Rating }}</td>
+                <td class="center pointer">
+                  <i data-ng-click="takeToPage(comment.PageID)" class="glyphicon glyphicon-file text-primary"></i>
+                </td>
+                <td class="center pointer">
+                  <i data-ng-click="confirmDeleteComment(comment.CommentID)" class="glyphicon glyphicon-trash text-danger"></i>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- My Images -->
+        <div class="col-md-12" data-ng-show="showMyImages" data-ng-cloak="">
+          <h2 class="center black lead title-big">My Images</h2>
+          <h3 data-ng-show="noImages" class="center black">{{ noImagesError }}</h3>
+          <table data-ng-show="!noImages" class="table table-hover table-bordered">
+            <thead>
+              <tr>
+                <th class="comment-header width-others">Image ID</th>
+                <th class="comment-header">Name</th>
+                <th class="comment-header width-others">View</th>
+                <th class="comment-header width-others">Edit</th>
+                <th class="comment-header width-others">Delete?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-ng-repeat="image in myImages">
+                <td class="text-center">{{ image.Id }}</td>
+                <td class="">{{ image.Name }}</td>
+                <td class="center pointer">
+                  <i data-ng-click="viewImage($index)" class="glyphicon glyphicon-picture text-primary" data-toggle="modal" data-target="#imgModal"></i>
+                </td>
+                <td class="center pointer">
+                  <i data-ng-click="editImage(image.Id)" class="glyphicon glyphicon-edit text-primary"></i>
+                </td>
+                <td class="center pointer">
+                  <i data-ng-click="confirmDeleteImage(image.Id)" class="glyphicon glyphicon-trash text-danger"></i>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- My Pages -->
+        <div class="col-md-12" data-ng-show="showMyPages" data-ng-cloak="">
+          <h2 class="center black lead title-big">My Pages</h2>
+          <h3 data-ng-show="noPages" class="center black">{{ noPagesError }}</h3>
+          <table data-ng-show="!noPages" class="table table-hover table-bordered">
+            <thead>
+              <tr>
+                <th class="comment-header">Title</th>
+                <th class="comment-header">View Page</th>
+                <th class="comment-header">Edit Page</th>
+                <th class="comment-header">Private View?</th>
+                <th class="comment-header">Private Edit?</th>
+                <th class="comment-header">Last Edit</th>
+                <th class="comment-header">Views</th>
+                <th class="comment-header">Delete?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-ng-repeat="page in myPages">
+                <td class="">{{ page.Title }}</td>
+                <td class="center pointer">
+                  <i data-ng-click="takeToPage(page.Id)" class="glyphicon glyphicon-file text-primary"></i>
+                </td>
+                <td class="center pointer">
+                  <i data-ng-click="editPage(page.Id)" class="glyphicon glyphicon-edit text-primary"></i>
+                </td>
+                <td class="">{{ page.PrivateView == 0 ? "No" : "Yes" }}</td>
+                <td class="">{{ page.PrivateEdit == 0 ? "No" : "Yes" }}</td>
+                <td class="">{{ page.LastEdit }}</td>
+                <td class="center">{{ page.Views }}</td>
+                <td class="center pointer">
+                  <i data-ng-click="confirmDeletePage(page.Id, page.Title)" class="glyphicon glyphicon-trash text-danger"></i>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="imgModal" tabindex="-1" role="dialog" aria-labelledby="imageModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"></span></button>
+        <h4 class="modal-title" id="imageModal">{{ currentImage }}</h4>
+      </div>
+      <div class="modal-body">
+          <img class="modal-image" src="about:blank" alt="Your Image" data-ng-src="{{ modalImg }}" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>
-<!-- </div> -->
+  </div>
+</div>

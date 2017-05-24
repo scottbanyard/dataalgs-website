@@ -15,7 +15,7 @@
     <div class="pages-box bottom-box">
       <h2 class="lead text-center title-big white">Recently Edited</h2>
       <ul class="list-group">
-        <li class="list-group-item justify-content-between pointer pages-list" data-ng-repeat="page in pages | orderBy: 'LastEdit'" data-ng-click="selectedPublicPage(page.Id)">
+        <li class="list-group-item justify-content-between pointer pages-list" data-ng-repeat="page in pages | orderBy: 'LastEdit' : true" data-ng-click="selectedPublicPage(page.Id)">
           {{ page.Title }}
           <span class="badge badge-default badge-pill">{{ page.LastEdit }}</span>
         </li>

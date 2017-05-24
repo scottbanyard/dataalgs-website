@@ -114,15 +114,23 @@ function intersects(point, shape) {
             return inBounds(point, shape.centre, other);
         case 'Line':
             return inBounds(point, shape.centre, shape.other)
-                && undefined !== shape.points.find((p) => {
-                    if (!p)
-                        return false;
-                    return p.y <= point.y + 5 && p.y >= point.y - 5 &&
-                        p.x <= point.x + 5 && p.x >= point.x - 5;
-                });
+                && undefined !== shape.points.find((p) => p && p.y <= point.y + 5 && p.y >= point.y - 5 &&
+                    p.x <= point.x + 5 && p.x >= point.x - 5);
         default:
             return false;
     }
+}
+function getArrowPoints(line) {
+    var dy = line.other.y - line.centre.y;
+    var dx = line.other.x - line.centre.x;
+    var lineAngle = Math.atan2(dy, dx);
+    var theta = Math.PI / 8;
+    var h = Math.abs(10 / Math.cos(theta));
+    var topAngle = Math.PI + lineAngle + theta, botAngle = Math.PI + lineAngle - theta;
+    var topLine = { x: line.other.x + Math.cos(topAngle) * h,
+        y: line.other.y + Math.sin(topAngle) * h }, botLine = { x: line.other.x + Math.cos(botAngle) * h,
+        y: line.other.y + Math.sin(botAngle) * h };
+    return [topLine, botLine];
 }
 function drawShape(context, shape, i) {
     if (this.shapeSelected && i == this.selected[0])
@@ -147,15 +155,7 @@ function drawShape(context, shape, i) {
             context.moveTo(coords.x, coords.y);
             context.lineTo(shape.other.x, shape.other.y);
             if (shape.hasArrow) {
-                var dy = shape.other.y - coords.y;
-                var dx = shape.other.x - coords.x;
-                var lineAngle = Math.atan2(dy, dx);
-                var theta = Math.PI / 8;
-                var h = Math.abs(10 / Math.cos(theta));
-                var topAngle = Math.PI + lineAngle + theta, botAngle = Math.PI + lineAngle - theta;
-                var topLine = { x: shape.other.x + Math.cos(topAngle) * h,
-                    y: shape.other.y + Math.sin(topAngle) * h }, botLine = { x: shape.other.x + Math.cos(botAngle) * h,
-                    y: shape.other.y + Math.sin(botAngle) * h };
+                var [topLine, botLine] = getArrowPoints(shape);
                 context.lineTo(topLine.x, topLine.y);
                 context.moveTo(shape.other.x, shape.other.y);
                 context.lineTo(botLine.x, botLine.y);
@@ -165,11 +165,29 @@ function drawShape(context, shape, i) {
     context.stroke();
     context.closePath();
 }
+function addBreshenham(shape) {
+    if (shape.kind == "Line" && shape.points != []) {
+        shape.points = breshenham(shape.centre, shape.other);
+        if (shape.hasArrow) {
+            var [topPoints, botPoints] = getArrowPoints(shape).map((p) => breshenham(shape.other, p));
+            shape.points = shape.points.concat(topPoints, botPoints);
+        }
+    }
+    return shape;
+}
+function removeBreshenham(shape) {
+    if (shape.kind == 'Line')
+        shape.points = [];
+    return shape;
+}
 class CanvasState {
     constructor(width, height, shapes) {
         this.width = width;
         this.height = height;
-        this.shapes = shapes || [];
+        if (shapes)
+            this.shapes = shapes.map(addBreshenham);
+        else
+            this.shapes = [];
         this.shapeSelected = false;
         this.creatingLine = false;
     }
@@ -223,10 +241,8 @@ class CanvasState {
         this.shapes.map(drawShape.bind(this, ctx));
     }
     endDrag() {
-        if (this.selected && this.selected[1].kind == 'Line') {
-            var line = this.selected[1];
-            line.points = breshenham(line.centre, line.other);
-            this.replaceShape(this.selected[0], line);
+        if (this.selected) {
+            this.replaceShape(this.selected[0], addBreshenham(this.selected[1]));
         }
         this.creatingLine = false;
     }
@@ -248,5 +264,11 @@ class CanvasState {
         }
         this.redrawAll(can.getContext('2d'));
         return can.toDataURL();
+    }
+    toJSON() {
+        var data = { width: this.width,
+            height: this.height,
+            shapes: this.shapes.map(removeBreshenham) };
+        return JSON.stringify(data);
     }
 }

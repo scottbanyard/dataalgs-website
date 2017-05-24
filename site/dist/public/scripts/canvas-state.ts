@@ -250,15 +250,40 @@ function intersects( point : Point, shape : Shape ) : boolean
             return inBounds(point,shape.centre,other);
         case 'Line':
             return inBounds(point,shape.centre,shape.other)
-                        && undefined !== shape.points.find((p : Point) => {
-                            if(!p)
-                                return false;
-                            return p.y <= point.y+5 && p.y >= point.y -5 &&
-                                   p.x <= point.x+5 && p.x >= point.x -5;
-                        });
+                        && undefined !== shape.points.find((p : Point) =>
+                            p && p.y <= point.y+5 && p.y >= point.y -5 &&
+                            p.x <= point.x+5 && p.x >= point.x -5);
         default:
             return false;
     }
+}
+
+/*
+    Paints an arrowhead on appropriate lines. Finds the angle of
+    the line using atan2, with the atan2(0,0) = undefined being
+    ignored since this is an impossible with how lines are created
+    initially.
+*/
+function getArrowPoints( line : Line ) : [Point,Point]
+{
+    // Arrowhead
+    var dy = line.other.y - line.centre.y;
+    var dx = line.other.x - line.centre.x;
+    var lineAngle = Math.atan2(dy,dx);
+    // Angle of each side of the arrowhead
+    var theta = Math.PI/8;
+    // Length of the head
+    var h = Math.abs(10/Math.cos(theta));
+    // Relative angles of the two head lines
+    var topAngle = Math.PI + lineAngle + theta,
+        botAngle = Math.PI + lineAngle - theta;
+
+    // The points that define the other end of the head line
+    var topLine = { x : line.other.x + Math.cos(topAngle) * h
+                  , y : line.other.y + Math.sin(topAngle) * h},
+        botLine = { x : line.other.x + Math.cos(botAngle) * h
+                  , y : line.other.y + Math.sin(botAngle) * h};
+    return [topLine,botLine]
 }
 /*
     Draws a particular shape on the given context. Index is used to paint a
@@ -294,31 +319,9 @@ function drawShape( context : CanvasRenderingContext2D,
             context.moveTo(coords.x,coords.y);
             context.lineTo(shape.other.x, shape.other.y);
 
-            /*
-                Paints an arrowhead on appropriate lines. Finds the angle of
-                the line using atan2, with the atan2(0,0) = undefined being
-                ignored since this is an impossible with how lines are created
-                initially.
 
-            */
             if( shape.hasArrow ){
-                // Arrowhead
-                var dy = shape.other.y - coords.y;
-                var dx = shape.other.x - coords.x;
-                var lineAngle = Math.atan2(dy,dx);
-                // Angle of each side of the arrowhead
-                var theta = Math.PI/8;
-                // Length of the head
-                var h = Math.abs(10/Math.cos(theta));
-                // Relative angles of the two head lines
-                var topAngle = Math.PI + lineAngle + theta,
-                    botAngle = Math.PI + lineAngle - theta;
-
-                // The points that define the other end of the head line
-                var topLine = { x : shape.other.x + Math.cos(topAngle) * h
-                              , y : shape.other.y + Math.sin(topAngle) * h},
-                    botLine = { x : shape.other.x + Math.cos(botAngle) * h
-                              , y : shape.other.y + Math.sin(botAngle) * h};
+                var [topLine,botLine] = getArrowPoints(shape);
                 /*
                    Draw top line,
                    Move back to end of main line
@@ -333,6 +336,29 @@ function drawShape( context : CanvasRenderingContext2D,
 
     context.stroke();
     context.closePath();
+}
+
+/* Adds breshenham points to a shape, if it is a line */
+function addBreshenham(shape : Shape) : Shape
+{
+    if(shape.kind == "Line" && shape.points != []){
+        shape.points = breshenham(shape.centre, shape.other);
+        if(shape.hasArrow){
+            var [topPoints,botPoints] =  getArrowPoints(shape).map((p) =>
+                breshenham(shape.other,p));
+            shape.points = shape.points.concat(topPoints,botPoints);
+        }
+    }
+    return shape;
+}
+/*
+    Removes the breshenham points from a line. Useful when serializing the canvas state
+*/
+function removeBreshenham(shape : Shape) : Shape
+{
+    if( shape.kind == 'Line' )
+         shape.points = [];
+    return shape;
 }
 /*
     Stores a set of shapes, as well as incorporating functions to move, select
@@ -349,7 +375,10 @@ class CanvasState{
     constructor( public width : number,
                  public height : number,
                  shapes ?: Shape[]){
-        this.shapes = shapes || [];
+        if( shapes )
+            this.shapes = shapes.map(addBreshenham);
+        else
+            this.shapes = [];
         this.shapeSelected = false;
         this.creatingLine = false;
     }
@@ -447,10 +476,9 @@ class CanvasState{
     */
     endDrag() : void
     {
-        if(this.selected && this.selected[1].kind== 'Line'){
-            var line : Line = <Line> this.selected[1];
-            line.points = breshenham(line.centre, line.other);
-            this.replaceShape(this.selected[0],line);
+        if(this.selected){
+            this.replaceShape( this.selected[0],
+                               addBreshenham(this.selected[1]) );
         }
         this.creatingLine = false;
     }
@@ -490,4 +518,15 @@ class CanvasState{
         return can.toDataURL();
     }
 
+/*
+    Breshenham lines means that a naive JSON.stringify is too big for a POST,
+    so a custom toJSON is required.
+*/
+    toJSON() : string
+    {
+        var data = { width:  this.width
+                   , height: this.height
+                   , shapes: this.shapes.map(removeBreshenham)};
+        return JSON.stringify(data);
+    }
 }

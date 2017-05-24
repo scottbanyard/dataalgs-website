@@ -1,3 +1,2 @@
-
-site/node_modules/*
+node_modules/*
 prelim-submission.zip
